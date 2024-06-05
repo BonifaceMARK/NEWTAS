@@ -1408,11 +1408,12 @@ public function generateAdditionalMessages()
 
     $additionalMessages[] = $predictionMessage;
 
-    // Analyze peak violation times or locations
-    $violationTimes = $recentViolations->pluck('created_at');
-    $peakTime = $violationTimes->countBy(function ($violationTime) {
-        return Carbon::parse($violationTime)->format('H:i');
-    })->sortDesc()->keys()->first();
+  // Analyze peak violation times or locations
+$violationTimes = $recentViolations->pluck('created_at');
+$peakTime = $violationTimes->countBy(function ($violationTime) {
+    return Carbon::parse($violationTime)->format('h:i A'); // Add 'A' for AM/PM
+})->sortDesc()->keys()->first();
+
 
     $violationLocations = $recentViolations->pluck('location')->filter()->countBy()->sortDesc()->keys()->first();
 
