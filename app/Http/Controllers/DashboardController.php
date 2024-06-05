@@ -1566,6 +1566,48 @@ $peakTime = $violationTimes->countBy(function ($violationTime) {
     return $additionalMessages;
 }
 
+public function getViolationRankings()
+{
+    // Query the database to get the count of each violation from TasFile model
+    $rankings = TasFile::all();
+
+    // Extract only the elements inside the array, including "AND"
+    $violations = [];
+    foreach ($rankings as $ranking) {
+        // Match patterns like "1.j.39" or "4.5" or combinations like "1.j.39","4.5" or "1J.41 AND 4-9"
+        preg_match_all('/\"(.*?)\"|([A-Za-z0-9\s]+(?:\s+AND\s+[A-Za-z0-9\s]+)*)/', $ranking->violation, $matches);
+        $elements = array_merge($matches[1], $matches[2]); // Combine both matched groups
+        foreach ($elements as $element) {
+            $subElements = explode(',', $element);
+            foreach ($subElements as $subElement) {
+                $subElement = trim($subElement); // Trim any leading or trailing whitespace
+                if (!empty($subElement)) { // Ignore empty elements
+                    if (!isset($violations[$subElement])) {
+                        $violations[$subElement] = 0;
+                    }
+                    $violations[$subElement]++;
+                }
+            }
+        }
+    }
+
+    // Sort violations by count in descending order
+    arsort($violations);
+
+    // Prepare the response
+    $response = [];
+    foreach ($violations as $violation => $count) {
+        $response[] = [
+            'violation' => $violation,
+            'count' => $count
+        ];
+    }
+
+    return response()->json($response);
+}
+
+
+
 public function getPieChartData()
 {
     try {

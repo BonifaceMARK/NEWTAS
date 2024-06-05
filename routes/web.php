@@ -127,6 +127,8 @@ Route::delete('/tasfile/{id}/remove-attachment', [DashboardController::class, 'r
 
 Route::get('/monthly-type-of-vehicle', [DashboardController::class, 'fetchMonthlyTypeOfVehicle']);
 Route::get('/api/pie-chart-data', [DashboardController::class, 'getPieChartData']);
+
+Route::get('/api/violation-rankings', [DashboardController::class, 'getViolationRankings']);
 });
 
 Route::get('/fetch-remarks/?id={id}', [DashboardController::class, 'fetchRemarks'])->name('fetch.remarks'); 
