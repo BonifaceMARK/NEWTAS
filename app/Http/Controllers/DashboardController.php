@@ -1310,11 +1310,117 @@ public function analyticsDash()
     // Generate additional messages
     $additionalMessages = $this->generateAdditionalMessages();
 
- 
+    $yearsWithData = TasFile::distinct()
+    ->selectRaw('YEAR(date_received) as year')
+    ->pluck('year');
+
 
     // Pass data to the view
-    return view('analytics', compact('chartData', 'labels', 'data', 'forecastData', 'additionalMessages' ));
+    return view('analytics', compact('chartData','yearsWithData', 'labels', 'data', 'forecastData', 'additionalMessages' ));
 }
+
+public function show($year, $month)
+{
+    $forecastData = Forecast::where('year', $year)
+        ->where('month', $month)
+        ->first();
+
+    return response()->json($forecastData);
+}
+
+public function fetchMonthlyTypeOfVehicle(Request $request)
+{
+    $selectedMonth = $request->input('month');
+    $comparisonMonth = $request->input('comparison_month');
+
+    // Query to get the count of each type of vehicle for the selected month
+    $selectedMonthData = TasFile::select(DB::raw("DATE_FORMAT(date_received, '%Y-%m') as month"), 'typeofvehicle', DB::raw('COUNT(*) as total'))
+        ->whereRaw("DATE_FORMAT(date_received, '%Y-%m') = ?", [$selectedMonth])
+        ->groupBy('month', 'typeofvehicle')
+        ->get();
+
+    // Query to get the count of each type of vehicle for the comparison month
+    $comparisonMonthData = TasFile::select(DB::raw("DATE_FORMAT(date_received, '%Y-%m') as month"), 'typeofvehicle', DB::raw('COUNT(*) as total'))
+        ->whereRaw("DATE_FORMAT(date_received, '%Y-%m') = ?", [$comparisonMonth])
+        ->groupBy('month', 'typeofvehicle')
+        ->get();
+
+    // Prepare data for charting
+    $chartData = [];
+    foreach ($selectedMonthData as $row) {
+        $chartData[$row->typeofvehicle]['selected_month'] = $row->total;
+    }
+
+    foreach ($comparisonMonthData as $row) {
+        $chartData[$row->typeofvehicle]['comparison_month'] = $row->total;
+    }
+
+    // Prepare labels and datasets for chart
+    $labels = [];
+    $selectedMonthValues = [];
+    $comparisonMonthValues = [];
+    foreach ($chartData as $vehicle => $counts) {
+        $labels[] = $vehicle;
+
+        $selectedMonthValues[] = $counts['selected_month'] ?? 0;
+        $comparisonMonthValues[] = $counts['comparison_month'] ?? 0;
+    }
+
+    // Prepare data to be returned as JSON
+    $jsonData = [
+        'labels' => $labels,
+        'datasets' => [
+            [
+                'label' => 'Selected Month',
+                'data' => $selectedMonthValues,
+                'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
+                'borderColor' => 'rgba(255, 99, 132, 1)',
+                'borderWidth' => 1
+            ],
+            [
+                'label' => 'Comparison Month',
+                'data' => $comparisonMonthValues,
+                'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
+                'borderColor' => 'rgba(54, 162, 235, 1)',
+                'borderWidth' => 1
+            ]
+        ]
+    ];
+
+    return response()->json($jsonData);
+}
+
+
+
+public function getDateReceivedData(Request $request)
+{
+    // Validate request data
+    $request->validate([
+        'month' => 'required|integer|min:1|max:12',
+        'year' => 'required|integer|min:1900|max:9999',
+    ]);
+
+    $month = $request->input('month');
+    $year = $request->input('year');
+
+    // Fetch and count occurrences by date_received for the specified month and year
+    $data = TasFile::selectRaw('date_received, COUNT(*) as count')
+                    ->whereMonth('date_received', $month)
+                    ->whereYear('date_received', $year)
+                    ->groupBy('date_received')
+                    ->orderBy('date_received')
+                    ->get();
+
+    $formattedData = $data->map(function ($item) {
+        return [
+            'date' => date('Y-m-d', strtotime($item->date_received)), // Format date as YYYY-MM-DD
+            'count' => $item->count,
+        ];
+    });
+
+    return response()->json($formattedData);
+}
+
 public function fetchViolations(Request $request)
 {
     $month1 = $request->query('month_1');
@@ -1460,4 +1566,61 @@ $peakTime = $violationTimes->countBy(function ($violationTime) {
     return $additionalMessages;
 }
 
+public function getPieChartData()
+{
+    try {
+        // Retrieve all records from the TasFile model
+        $tasFiles = TasFile::all();
+        Log::info('TasFile Records Retrieved: ', $tasFiles->toArray());
+
+        // Prepare a count array for violations
+        $violationCounts = [];
+
+        // Iterate through each record and count violations
+        foreach ($tasFiles as $file) {
+            $violations = explode(',', $file->violation);
+            Log::info('Violations for TasFile: ', $violations);
+
+            foreach ($violations as $violationCode) {
+                $violationCode = trim($violationCode, '[]" '); // Trim any whitespace and unwanted characters
+                if (!empty($violationCode)) {
+                    if (isset($violationCounts[$violationCode])) {
+                        $violationCounts[$violationCode]++;
+                    } else {
+                        $violationCounts[$violationCode] = 1;
+                    }
+                }
+            }
+        }
+
+        Log::info('Violation Counts: ', $violationCounts);
+
+        // Fetch the violation details from TrafficViolation model
+        $violationDetails = TrafficViolation::whereIn('code', array_keys($violationCounts))->get();
+        Log::info('Violation Details: ', $violationDetails->toArray());
+
+        // Prepare final data structure
+        $pieChartData = [];
+        foreach ($violationDetails as $violationDetail) {
+            $code = $violationDetail->code;
+            if (isset($violationCounts[$code])) {
+                $pieChartData[] = [
+                    'code' => $code,
+                    'violation' => $violationDetail->violation,
+                    'count' => $violationCounts[$code],
+                ];
+            } else {
+                Log::warning('Violation code not found in counts: ' . $code);
+            }
+        }
+
+        // Return the data as JSON response
+        return response()->json($pieChartData);
+
+    } catch (\Exception $e) {
+        // Log the error
+        Log::error('Error generating pie chart data: ' . $e->getMessage());
+        return response()->json(['error' => 'Failed to generate pie chart data'], 500);
+    }
+}
 }

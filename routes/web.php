@@ -112,8 +112,21 @@ Route::middleware(['auth'])->group(function () {
 Route::post('/tasfile/{id}/deleteViolation', [DashboardController::class, 'DELETEVIO'])->name('edit.viodelete');
 Route::post('/delete-remark/',  [DashboardController::class, 'deleteRemark'])->name('edit.deleteremarks');
 Route::post('/tas-files/{id}/add-attachment', [DashboardController::class, 'addAttachment'])->name('add.attachment');
- 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////ANALYTICS
+/////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+//////////////////////////////////////
+
+
+Route::get('/date-received-data', [DashboardController::class, 'getDateReceivedData']);
 Route::delete('/tasfile/{id}/remove-attachment', [DashboardController::class, 'removeAttachment'])->name('tasfile.removeAttachment');
+
+Route::get('/monthly-type-of-vehicle', [DashboardController::class, 'fetchMonthlyTypeOfVehicle']);
+Route::get('/api/pie-chart-data', [DashboardController::class, 'getPieChartData']);
 });
 
 Route::get('/fetch-remarks/?id={id}', [DashboardController::class, 'fetchRemarks'])->name('fetch.remarks'); 

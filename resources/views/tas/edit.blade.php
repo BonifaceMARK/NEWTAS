@@ -118,7 +118,7 @@
 
 @foreach($recentViolationsToday as $violation)
 <div class="modal fade" id="editViolationModal{{ $violation->id }}" tabindex="-1" aria-labelledby="editViolationModalLabel{{ $violation->id }}" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 75%;">
+    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 70%;">
         <div class="modal-content">
             
                 <div class="modal-header">
