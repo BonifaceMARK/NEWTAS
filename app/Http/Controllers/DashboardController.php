@@ -1467,9 +1467,9 @@ private function calculateForecast($data)
 public function generateAdditionalMessages()
 {
     // Fetch recent violations
-    $recentViolations = TasFile::orderBy('created_at', 'desc')
+    $recentViolations = TasFile::orderBy('date_received', 'desc')
         ->take(10) // Increase the number of recent violations to analyze
-        ->get(['violation', 'created_at', 'plate_no' ]);
+        ->get(['violation', 'date_received', 'plate_no' ]);
 
     // Prepare additional messages
     $additionalMessages = [];
@@ -1544,7 +1544,7 @@ $peakTime = $violationTimes->countBy(function ($violationTime) {
     // Fetch historical data for comparison (e.g., from the last month)
     $historicalStartDate = Carbon::now()->subMonth();
     $historicalEndDate = Carbon::now();
-    $historicalViolations = TasFile::whereBetween('created_at', [$historicalStartDate, $historicalEndDate])->get();
+    $historicalViolations = TasFile::whereBetween('date_received', [$historicalStartDate, $historicalEndDate])->get();
 
     // Calculate the average number of violations per day for historical data
     $totalHistoricalViolations = $historicalViolations->count();
@@ -1607,12 +1607,19 @@ public function getViolationRankings()
 }
 
 
-
-public function getPieChartData()
+public function getPieChartData(Request $request)
 {
     try {
+        $month = $request->query('month');
+        $query = TasFile::query();
+
+        if ($month) {
+            $query->whereMonth('date_received', '=', Carbon::parse($month)->month)
+                  ->whereYear('date_received', '=', Carbon::parse($month)->year);
+        }
+
         // Retrieve all records from the TasFile model
-        $tasFiles = TasFile::all();
+        $tasFiles = $query->get();
         Log::info('TasFile Records Retrieved: ', $tasFiles->toArray());
 
         // Prepare a count array for violations
@@ -1665,4 +1672,6 @@ public function getPieChartData()
         return response()->json(['error' => 'Failed to generate pie chart data'], 500);
     }
 }
+
+
 }

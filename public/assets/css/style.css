@@ -1779,3 +1779,7 @@ ul.list-unstyled li {
 #violationCountChart {
   height: 400px; /* Ensure the chart container has a defined height */
 }
+.btn-hover:hover {
+  transform: scale(1.05);
+  transition: transform 0.3s;
+}

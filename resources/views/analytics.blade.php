@@ -41,61 +41,67 @@
     </div>
     @endif
 
-    <div class="row">
-    <div class="col-md-6">
-        <!-- Trigger Button -->
-        <button type="button" class="btn btn-primary btn-lg d-grid gap-2" data-bs-toggle="modal" data-bs-target="#comparisonModal">
-            <i class="bi bi-pie-chart-fill fs-4 me-2"></i> <!-- Adjust icon size -->
-            Case Contested Chart
-        </button>
-    </div>
-    <div class="col-md-6">
-        <!-- Button to Open Modal -->
-        <button type="button" class="btn btn-primary btn-lg d-grid gap-2" data-bs-toggle="modal" data-bs-target="#chartModal">
-            <i class="bi bi-car-front-fill fs-4 me-2"></i> <!-- Adjust icon size -->
-            Vehicle Chart
-        </button>
-    </div>
-</div> 
-<button type="button" class="btn btn-primary bi bi-cone-striped" data-bs-toggle="modal" data-bs-target="#pieChartModal">
-        Open Traffic Violations Distribution
-    </button>
-
-           <!-- Button to open the ranking modal -->
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#rankingModal">
-    View Violation Rankings
-</button>
-
-    <!--  -->
-    
-                                <div class="modal fade" id="pieChartModal" tabindex="-1" aria-labelledby="pieChartModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 90%;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="pieChartModalLabel">Traffic Violations Distribution</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+    <div class="container mt-5">
+        <div class="row mb-3">
+            <div class="col-md-6 mb-3">
+                <button type="button" class="btn btn-primary btn-lg d-grid gap-2 btn-hover" data-bs-toggle="modal" data-bs-target="#comparisonModal">
+                    <i class="bi bi-pie-chart-fill fs-4 me-2"></i> Case Contested Chart
                 </button>
             </div>
-            <div class="modal-body">
-         
-
-                <canvas id="codeCount"></canvas>
+            <div class="col-md-6 mb-3">
+                <button type="button" class="btn btn-primary btn-lg d-grid gap-2 btn-hover" data-bs-toggle="modal" data-bs-target="#chartModal">
+                    <i class="bi bi-car-front-fill fs-4 me-2"></i> Vehicle Chart
+                </button>
             </div>
-            <div class="modal-footer">
-                <button id="toggleLegendBtn" type="button" class="btn btn-secondary">Toggle Legend</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6 mb-3">
+                <button type="button" class="btn btn-primary btn-lg d-grid gap-2 btn-hover" data-bs-toggle="modal" data-bs-target="#pieChartModal">
+                    <i class="bi bi-cone-striped fs-4 me-2"></i> Open Traffic Violations Distribution
+                </button>
+            </div>
+            <div class="col-md-6 mb-3">
+                <button type="button" class="btn btn-primary btn-lg d-grid gap-2 btn-hover" data-bs-toggle="modal" data-bs-target="#rankingModal">
+                    <i class="bi bi-list-ul fs-4 me-2"></i> View Violation Rankings
+                </button>
             </div>
         </div>
     </div>
-</div>
+<div class="modal fade" id="pieChartModal" tabindex="-1" aria-labelledby="pieChartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 80%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pieChartModalLabel">Traffic Violations Chart</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3 row">
+                    <label for="monthPicker" class="form-label">Select a month to generate the traffic violations chart:</label>
+                    <div class="col">
+                            <input type="month" id="monthPicker" class="form-control">
+                        </div>
+                        <div class="col-auto">
+                            <button id="fetchDataBtn" class="btn btn-primary">Generate Chart</button>
+                        </div>
+                    </div>
+                    <canvas id="codeCount"></canvas>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 <!-- Modal -->
 <div class="modal fade" id="rankingModal" tabindex="-1" aria-labelledby="rankingModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 90%;">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="rankingModalLabel">Traffic Violation Rankings</h5>
+                <h5 class="modal-title" id="rankingModalLabel">Contested Cases Rankings</h5>
                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -163,97 +169,128 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        let pieChart;
-        fetch('/api/pie-chart-data')
+document.addEventListener('DOMContentLoaded', function () {
+    let pieChart;
+
+    function fetchPieChartData(month) {
+        let url = '/api/pie-chart-data';
+        if (month) {
+            url += `?month=${month}`;
+        }
+
+        return fetch(url)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok ' + response.statusText);
                 }
                 return response.json();
-            })
-            .then(data => {
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                const labels = data.map(item => item.violation);
-                const counts = data.map(item => item.count);
+            });
+    }
 
-                var ctx = document.getElementById('codeCount').getContext('2d');
-                pieChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: counts,
-                            backgroundColor: [
-                                'red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'cyan',
-                                'teal', 'maroon', 'navy', 'olive', 'indigo', 'salmon', 'darkorange', 'darkslategray',
-                                'darkorchid', 'gold', 'mediumspringgreen', 'steelblue', 'darkred', 'darkkhaki', 'mediumpurple', 'saddlebrown',
-                                'darkcyan', 'darkmagenta', 'lightcoral', 'mediumaquamarine', 'mediumvioletred', 'midnightblue', 'darkgoldenrod',
-                                'mediumseagreen', 'lightsalmon', 'darkslateblue', 'cadetblue', 'firebrick', 'darkseagreen', 'mediumorchid',
-                                'cornflowerblue', 'orangered', 'slateblue', 'mediumblue', 'royalblue', 'forestgreen', 'crimson', 'peru',
-                                'darkolivegreen', 'darkturquoise', 'chocolate', 'darkviolet', 'dodgerblue', 'greenyellow', 'lightseagreen',
-                                'limegreen', 'rosybrown', 'sienna', 'tomato', 'mediumturquoise', 'orangered', 'cornsilk', 'darkslategrey',
-                                'hotpink', 'lightcoral', 'palevioletred', 'powderblue', 'seagreen', 'springgreen', 'darkred', 'darkseagreen',
-                                'darkslateblue', 'darkslategrey', 'darkviolet', 'deepskyblue', 'dimgray', 'dimgrey', 'dodgerblue', 'firebrick',
-                                'forestgreen', 'fuchsia', 'goldenrod', 'greenyellow', 'indianred', 'limegreen', 'mediumaquamarine', 'mediumblue',
-                                'mediumorchid', 'mediumturquoise', 'mediumvioletred', 'midnightblue', 'navajowhite', 'olivedrab', 'orangered',
-                                'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'plum', 'powderblue', 'rosybrown',
-                                'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen', 'sienna', 'skyblue', 'slateblue', 'slategray',
-                                'slategrey', 'springgreen', 'steelblue', 'tan', 'thistle', 'tomato', 'turquoise', 'violet', 'wheat', 'yellowgreen',
-                                'aliceblue', 'antiquewhite', 'aquamarine', 'azure', 'beige', 'bisque', 'blanchedalmond', 'burlywood', 'cadetblue',
-                                'chartreuse', 'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray',
-                                'darkgreen', 'darkgrey', 'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred',
-                                'darksalmon', 'darkseagreen', 'darkslateblue', 'darkslategray', 'darkslategrey', 'darkturquoise', 'darkviolet',
-                                'deeppink', 'deepskyblue', 'dimgray', 'dodgerblue', 'firebrick', 'floralwhite', 'forestgreen', 'gainsboro', 'ghostwhite',
-                                'gold', 'goldenrod', 'gray', 'greenyellow', 'grey', 'honeydew', 'hotpink', 'indianred', 'ivory', 'khaki', 'lavender',
-                                'lavenderblush', 'lawngreen', 'lemonchiffon', 'lightblue', 'lightcoral', 'lightcyan', 'lightgoldenrodyellow', 'lightgray',
-                                'lightgreen', 'lightgrey', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey',
-                                'lightsteelblue', 'lightyellow', 'lime', 'linen', 'magenta', 'mediumaquamarine', 'mediumblue', 'mediumorchid', 'mediumpurple',
-                                'mediumseagreen', 'mediumslateblue', 'mediumspringgreen', 'mediumturquoise', 'mediumvioletred', 'midnightblue', 'mintcream',
-                                'mistyrose', 'moccasin', 'navajowhite', 'oldlace', 'olive', 'olivedrab', 'orangered', 'orchid', 'palegoldenrod',
-                                'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'pink', 'plum', 'powderblue',
-                                'rosybrown', 'royalblue', 'rebeccapurple', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen', 'seashell', 'sienna',
-                                'skyblue', 'slateblue', 'slategray', 'slategrey', 'snow', 'springgreen', 'steelblue', 'tan', 'teal', 'thistle',
-                                'tomato', 'turquoise', 'violet', 'wheat', 'whitesmoke', 'yellow', 'yellowgreen'
-                            ]
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        tooltips: {
-                            callbacks: {
-                                label: function(tooltipItem, data) {
-                                    const label = data.labels[tooltipItem.index];
-                                    const value = data.datasets[0].data[tooltipItem.index];
-                                    return `${label}: ${value}`;
-                                }
-                            }
+    function updateChart(data) {
+        const labels = data.map(item => item.violation);
+        const counts = data.map(item => item.count);
+        const totalCount = counts.reduce((acc, count) => acc + count, 0); // Total count of violations
+
+        if (pieChart) {
+            pieChart.destroy();
+        }
+
+        const ctx = document.getElementById('codeCount').getContext('2d');
+        pieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: [
+                        'red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'cyan',
+                        'teal', 'maroon', 'navy', 'olive', 'indigo', 'salmon', 'darkorange', 'darkslategray',
+                        'darkorchid', 'gold', 'mediumspringgreen', 'steelblue', 'darkred', 'darkkhaki', 'mediumpurple', 'saddlebrown',
+                        'darkcyan', 'darkmagenta', 'lightcoral', 'mediumaquamarine', 'mediumvioletred', 'midnightblue', 'darkgoldenrod',
+                        'mediumseagreen', 'lightsalmon', 'darkslateblue', 'cadetblue', 'firebrick', 'darkseagreen', 'mediumorchid',
+                        'cornflowerblue', 'orangered', 'slateblue', 'mediumblue', 'royalblue', 'forestgreen', 'crimson', 'peru',
+                        'darkolivegreen', 'darkturquoise', 'chocolate', 'darkviolet', 'dodgerblue', 'greenyellow', 'lightseagreen',
+                        'limegreen', 'rosybrown', 'sienna', 'tomato', 'mediumturquoise', 'orangered', 'cornsilk', 'darkslategrey',
+                        'hotpink', 'lightcoral', 'palevioletred', 'powderblue', 'seagreen', 'springgreen', 'darkred', 'darkseagreen',
+                        'darkslateblue', 'darkslategrey', 'darkviolet', 'deepskyblue', 'dimgray', 'dimgrey', 'dodgerblue', 'firebrick',
+                        'forestgreen', 'fuchsia', 'goldenrod', 'greenyellow', 'indianred', 'limegreen', 'mediumaquamarine', 'mediumblue',
+                        'mediumorchid', 'mediumturquoise', 'mediumvioletred', 'midnightblue', 'navajowhite', 'olivedrab', 'orangered',
+                        'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'plum', 'powderblue',
+                        'rosybrown', 'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen', 'sienna', 'skyblue', 'slateblue',
+                        'slategray', 'slategrey', 'snow', 'springgreen', 'steelblue', 'tan', 'teal', 'thistle', 'tomato', 'turquoise',
+                        'violet', 'wheat', 'whitesmoke', 'yellow', 'yellowgreen'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                tooltips: {
+                    callbacks: {
+                        label: function(tooltipItem, data) {
+                            const label = data.labels[tooltipItem.index];
+                            const value = data.datasets[0].data[tooltipItem.index];
+                            const percentage = ((value / totalCount) * 100).toFixed(2);
+                            return `${label}: ${value} (${percentage}%)`;
                         }
                     }
-                });
+                }
+            }
+        });
+    }
 
-                // Toggle legend button
-                const toggleLegendBtn = document.getElementById('toggleLegendBtn');
-                toggleLegendBtn.addEventListener('click', function() {
-                    if (pieChart.options.legend) {
-                        pieChart.options.legend.display = !pieChart.options.legend.display;
-                    } else {
-                        pieChart.options.legend = {
-                            display: true,
-                            position: 'right'
-                        };
-                    }
-                    pieChart.update();
-                });
-            })
+    // Initial fetch for the current month's data
+    fetchPieChartData()
+        .then(data => updateChart(data))
+        .catch(error => {
+            console.error('Error fetching pie chart data:', error);
+            alert('Failed to load pie chart data: ' + error.message);
+        });
+
+    // Event listener for the "Generate Chart" button
+    const fetchDataBtn = document.getElementById('fetchDataBtn');
+    fetchDataBtn.addEventListener('click', function () {
+        const monthPicker = document.getElementById('monthPicker');
+        const selectedMonth = monthPicker.value;
+        fetchPieChartData(selectedMonth)
+            .then(data => updateChart(data))
             .catch(error => {
                 console.error('Error fetching pie chart data:', error);
                 alert('Failed to load pie chart data: ' + error.message);
             });
     });
+});
 </script>
+
+<!-- Modal -->
+<div class="modal fade" id="pieChartModal" tabindex="-1" aria-labelledby="pieChartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 70%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pieChartModalLabel">Traffic Violations Chart</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3 row">
+                    <label for="monthPicker" class="form-label col-sm-2">Select a month:</label>
+                    <div class="col-sm-4">
+                        <input type="month" id="monthPicker" class="form-control">
+                    </div>
+                    <div class="col-auto">
+                        <button id="fetchDataBtn" class="btn btn-primary">Generate Chart</button>
+                    </div>
+                </div>
+                <canvas id="codeCount"></canvas>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 <!-- Modal -->
@@ -474,11 +511,10 @@
     });
 </script>
 
-
 <script>
 // Function to fetch data for the selected month and generate the chart
 function fetchDataAndGenerateChart() {
-    // Get the selected month from the input
+    // Get the selected month and comparison month from the input
     var selectedMonth = $('#selected_month').val();
     var comparisonMonth = $('#comparison_month').val();
 
@@ -491,15 +527,16 @@ function fetchDataAndGenerateChart() {
             comparison_month: comparisonMonth
         },
         success: function(response) {
-            // Generate the chart using the fetched data
-            generateChart(response.labels, response.datasets);
+            // Generate the chart using the fetched data and the selected dates
+            generateChart(response.labels, response.datasets, selectedMonth, comparisonMonth);
         },
         error: function(xhr, status, error) {
             console.error('Error fetching data:', error);
         }
     });
 }
-function generateChart(labels, datasets) {
+
+function generateChart(labels, datasets, selectedMonth, comparisonMonth) {
     // Get the canvas element
     var ctx = document.getElementById('myChart').getContext('2d');
 
@@ -515,6 +552,15 @@ function generateChart(labels, datasets) {
         window.myChart.destroy();
     }
 
+    // Format the date strings
+    var selectedDate = new Date(selectedMonth);
+    var selectedDateStr = selectedDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+    var comparisonDate = new Date(comparisonMonth);
+    var comparisonDateStr = comparisonDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+    // Update the labels with date information
+    labels = labels.map(label => `${label} (${selectedDateStr} vs ${comparisonDateStr})`);
+
     // Create a new chart
     window.myChart = new Chart(ctx, {
         type: 'bar',
@@ -523,6 +569,29 @@ function generateChart(labels, datasets) {
             datasets: datasets
         },
         options: {
+            animation: {
+                duration: 1000,
+                easing: 'easeInOutQuad'
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            var label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += context.parsed.y;
+                            return label;
+                        },
+                        footer: function(context) {
+                            var selectedDateStr = new Date(selectedMonth).toLocaleDateString('default', { month: 'long', year: 'numeric' });
+                            var comparisonDateStr = new Date(comparisonMonth).toLocaleDateString('default', { month: 'long', year: 'numeric' });
+                            return `Selected Month: ${selectedDateStr} | Comparison Month: ${comparisonDateStr}`;
+                        }
+                    }
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true
@@ -532,13 +601,12 @@ function generateChart(labels, datasets) {
     });
 }
 
-
-
 // Event listener for the "Generate Chart" button
 $('#fetch-vehicle').click(function() {
     fetchDataAndGenerateChart();
 });
 </script>
+
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
