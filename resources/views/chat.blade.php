@@ -45,7 +45,14 @@
                                             <div class="message-details{{ $message->user->id == Auth::user()->id ? ' text-end' : '' }}">
                                                 <span class="message-sender"><strong>{{ $message->user->fullname }}</strong></span>
                                                 <span class="message-time">{{ $message->created_at_formatted }} <i class="bi bi-clock"></i> </span>
-                                                <span class="message-icon">{!! $message->is_read ? '<i class="bi bi-book-fill"></i>' : '<i class="bi bi-book"></i>' !!}</span>
+                                                <span class="message-icon">
+    @if($message->is_read)
+        <i class="bi bi-book-fill"></i>
+    @else
+        <i class="bi bi-book"></i>
+    @endif
+</span>
+
                                             </div>
                                             <div class="message-content{{ $message->user->id == Auth::user()->id ? ' outgoing' : ' incoming' }}" onclick="displayMessage('{{ $message->message }}')">{{ $message->message }}</div>
                                         </div>
@@ -76,45 +83,45 @@
         $('.user').click(function() {
             var userId = $(this).data('user-id');
             startChat(userId); // Call function to start chatting with the clicked user
+            $('#chatBox').show(); // Show the chatbox when starting a chat
         });
 
         $('#chatForm').submit(function(e) {
-    e.preventDefault();
-    $.ajax({
-        type: "POST", // Specify the method as POST
-        url: $(this).attr('action'), // Use the action attribute of the form
-        data: $(this).serialize(),
-        success: function(response) {
-            if (response.message && response.newMessage) {
-                toastr.success(response.message); // Show success message using toastr
+            e.preventDefault();
+            $.ajax({
+                type: "POST", // Specify the method as POST
+                url: $(this).attr('action'), // Use the action attribute of the form
+                data: $(this).serialize(),
+                success: function(response) {
+                    if (response.message && response.newMessage) {
+                        toastr.success(response.message); // Show success message using toastr
 
-                var messageHtml = '<div class="message' + (response.newMessage.user_id == response.user.id ? ' outgoing' : ' incoming') + '">' +
-                    '<div class="message-details' + (response.newMessage.user_id == response.user.id ? ' text-end' : '') + '">' +
-                    '<span class="message-sender"><strong>' + response.user.name + '</strong></span>' +
-                    '<span class="message-time">' + moment(response.newMessage.created_at).format('M D, Y H:i A') + ' <i class="bi bi-clock"></i> </span>' +
-                    '<span class="message-icon"></span>' + // Container for the message icon
-                    '</div>' +
-                    '<div class="message-content' + (response.newMessage.user_id == response.user.id ? ' outgoing' : ' incoming') + '">' + response.newMessage.message + '</div>' +
-                    '</div>';
-                $('#chatBox').append(messageHtml); // Append the new message instead of prepending
+                        var messageHtml = '<div class="message' + (response.newMessage.user_id == response.user.id ? ' outgoing' : ' incoming') + '">' +
+                            '<div class="message-details' + (response.newMessage.user_id == response.user.id ? ' text-end' : '') + '">' +
+                            '<span class="message-sender"><strong>' + response.user.fullname + '</strong></span>' +
+                            '<span class="message-time">' + moment(response.newMessage.created_at).format('M D, Y H:i A') + ' <i class="bi bi-clock"></i> </span>' +
+                            '<span class="message-icon"></span>' + // Container for the message icon
+                            '</div>' +
+                            '<div class="message-content' + (response.newMessage.user_id == response.user.id ? ' outgoing' : ' incoming') + '">' + response.newMessage.message + '</div>' +
+                            '</div>';
+                        $('#chatBox').prepend(messageHtml); // Prepend the new message instead of appending
 
-                // Clear the message input field
-                $('#messageInput').val('');
+                        // Clear the message input field
+                        $('#messageInput').val('');
 
-                // Scroll to the bottom of the chat
-                scrollToBottom();
+                        // Scroll to the bottom of the chat
+                        scrollToBottom();
 
-                // Get the newly appended message and update the message icon
-                var newMessage = $('#chatBox').find('.message').last();
-                handleMessageStatus(newMessage);
-            }
-        },
-        error: function(xhr, status, error) {
-            toastr.error(xhr.responseJSON.error || 'Failed to send message.'); // Show error message using toastr
-        }
-    });
-});
-
+                        // Get the newly prepended message and update the message icon
+                        var newMessage = $('#chatBox').find('.message').first();
+                        handleMessageStatus(newMessage);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    toastr.error(xhr.responseJSON.error || 'Failed to send message.'); // Show error message using toastr
+                }
+            });
+        });
     });
 
     // Function to update the message icon based on its read status
@@ -140,20 +147,26 @@
             url: '/get-chat-data/' + userId,
             type: 'GET',
             success: function(response) {
-                $('#chatBox').empty(); // Clear existing messages
+    if (response.message && response.newMessage) {
+        toastr.success(response.message); // Show success message using toastr
 
-                response.messages.forEach(function(message) {
-                    var messageHtml = '<div class="message' + (message.user.id == response.user.id ? ' outgoing' : ' incoming') + '">' +
-                        '<div class="message-details' + (message.user.id == response.user.id ? ' text-end' : '') + '">' +
-                        '<span class="message-sender"><strong>' + message.user.fullname + '</strong></span>' +
-                        '<span class="message-time">' + message.created_at_formatted + ' <i class="bi bi-clock"></i> </span>' +
-                        '<span class="message-icon"></span>' + // Container for the message icon
-                        '</div>' +
-                        '<div class="message-content' + (message.user.id == response.user.id ? ' outgoing' : ' incoming') + '" onclick="displayMessage(\'' + message.message + '\')">' + message.message + '</div>' +
-                        '</div>';
-                    $('#chatBox').append(messageHtml);
-                });
-            },
+        response.messages.forEach(function(message) {
+            var messageHtml = '<div class="message' + (message.user.id == response.user.id ? ' outgoing' : ' incoming') + '">' +
+                '<div class="message-details' + (message.user.id == response.user.id ? ' text-end' : '') + '">' +
+                '<span class="message-sender"><strong>' + message.user.fullname + '</strong></span>' +
+                '<span class="message-time">' + message.created_at_formatted + ' <i class="bi bi-clock"></i> </span>' +
+                '<span class="message-icon"></span>' + // Container for the message icon
+                '</div>' +
+                '<div class="message-content' + (message.user.id == response.user.id ? ' outgoing' : ' incoming') + '" onclick="displayMessage(\'' + message.message + '\')">' + message.message + '</div>' +
+                '</div>';
+            $('#chatBox').append(messageHtml);
+        });
+
+        $('#chatBox').show(); // Show the chat box
+        scrollToBottom(); // Scroll to the bottom of the chat
+    }
+},
+
             error: function(xhr, status, error) {
                 toastr.error('Failed to fetch chat data.'); // Show error message using toastr
             }
@@ -165,35 +178,15 @@
         fetchChatData(userId); // Fetch chat data for the selected user
     }
 </script>
-<script>
-    function startChat(userId) {
-        $.ajax({
-            url: '/start-chat/' + userId, // Replace with the actual route to fetch chat messages
-            type: 'GET',
-            success: function(response) {
-                // Clear existing messages
-                $('#chatBox').empty();
 
-                // Append new messages
-                response.messages.forEach(function(message) {
-                    var messageHtml = '<div class="message' + (message.user.id == response.user.id ? ' outgoing' : ' incoming') + '">' +
-                        '<div class="message-details' + (message.user.id == response.user.id ? ' text-end' : '') + '">' +
-                        '<span class="message-sender"><strong>' + message.user.fullname + '</strong></span>' +
-                        '<span class="message-time">' + message.created_at_formatted + ' <i class="bi bi-clock"></i> </span>' +
-                        '</div>' +
-                        '<div class="message-content' + (message.user.id == response.user.id ? ' outgoing' : ' incoming') + '" onclick="displayMessage(\'' + message.message + '\')">' + message.message + '</div>' +
-                        '</div>';
-                    $('#chatBox').append(messageHtml);
-                });
+ 
 
-                scrollToBottom(); // Scroll to bottom after updating messages
-            },
-            error: function(xhr, status, error) {
-                toastr.error('Failed to start chat.'); // Show error message using toastr
-            }
-        });
-    }
-</script>
+  </main><!-- End #main -->
+
+ @include('layouts.footer')
+</body>
+
+</html>
 
  
 

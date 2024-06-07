@@ -1838,3 +1838,6 @@ ul.list-unstyled li {
 .hidden {
   display: none;
 }
+.chat-box {
+  display: none;
+}
