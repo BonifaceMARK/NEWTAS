@@ -55,11 +55,8 @@ class DashboardController extends Controller
             ];
         });
         $departmentsData = ApprehendingOfficer::all();
-        $unreadMessageCount = G5ChatMessage::where('is_read', false)->count();
-        $messages = G5ChatMessage::latest()->with('user')->limit(10)->get();
-        $user = Auth::user();
-        $name = $user->name;
-        $department = $user->department;
+      
+ 
         $allMonths = collect(range(1, 12))->map(function ($month) {
             return ['month' => $month, 'record_count' => 0];
         });
@@ -97,7 +94,7 @@ class DashboardController extends Controller
         ->get();
 
 
-        return view('index', compact('officers','yearlyData','countByMonth','unreadMessageCount','messages', 'name', 'department','departmentsData','tasFileData','admittedData','chartData','recentActivity', 'recentSalesToday', 'salesToday', 'revenueThisMonth', 'customersThisYear', 'averageSalesLastWeek'));
+        return view('index', compact('officers','yearlyData','countByMonth' , 'departmentsData','tasFileData','admittedData','chartData','recentActivity', 'recentSalesToday', 'salesToday', 'revenueThisMonth', 'customersThisYear', 'averageSalesLastWeek'));
        // return view('index', compact('recentActivity', 'recentSalesToday', 'salesToday', 'revenueThisMonth', 'customersThisYear', 'averageSalesLastWeek','previousYearCustomers', 'previousMonthRevenue', 'percentageChange'));
     }
     public function editViolation(Request $request, $id){
@@ -112,24 +109,8 @@ class DashboardController extends Controller
         $violation->update($validatedData);
         return redirect()->back()->with('success', 'Violation updated successfully.');
     }
-    public function chatIndex(){
-        $messages = G5ChatMessage::latest()->with('user')->limit(10)->get();
-        $user = Auth::user();
-        $name = $user->name;
-        $department = $user->department;
-        $unreadMessageCount = G5ChatMessage::where('is_read', false)->count();
-        return view('chat',compact('unreadMessageCount','messages', 'name', 'department'));
-    }
-    public function storeMessage(Request $request){
-        $request->validate([
-            'message' => 'required|string',
-        ]);
-        $message = new G5ChatMessage();
-        $message->message = $request->input('message');
-        $message->user_id = Auth::id();
-        $message->save();
-        return redirect()->back()->with('success', 'Message sent successfully.');
-    }
+ 
+   
     public function getByDepartmentName($departmentName){
         $officers = ApprehendingOfficer::where('department', $departmentName)->get();
         return response()->json($officers);
@@ -1565,42 +1546,46 @@ $peakTime = $violationTimes->countBy(function ($violationTime) {
 
     return $additionalMessages;
 }
-
 public function getViolationRankings()
 {
-    // Query the database to get the count of each violation from TasFile model
-    $rankings = TasFile::all();
+    // Get all the violations from TasFile model
+    $tasFiles = TasFile::all();
 
-    // Extract only the elements inside the array, including "AND"
-    $violations = [];
-    foreach ($rankings as $ranking) {
-        // Match patterns like "1.j.39" or "4.5" or combinations like "1.j.39","4.5" or "1J.41 AND 4-9"
-        preg_match_all('/\"(.*?)\"|([A-Za-z0-9\s]+(?:\s+AND\s+[A-Za-z0-9\s]+)*)/', $ranking->violation, $matches);
-        $elements = array_merge($matches[1], $matches[2]); // Combine both matched groups
+    // Array to hold the count of each violation
+    $violationsCount = [];
+
+    foreach ($tasFiles as $tasFile) {
+        // Extract violation codes
+        preg_match_all('/\"(.*?)\"|([A-Za-z0-9\s]+(?:\s+AND\s+[A-Za-z0-9\s]+)*)/', $tasFile->violation, $matches);
+        $elements = array_merge($matches[1], $matches[2]);
+
         foreach ($elements as $element) {
             $subElements = explode(',', $element);
             foreach ($subElements as $subElement) {
-                $subElement = trim($subElement); // Trim any leading or trailing whitespace
-                if (!empty($subElement)) { // Ignore empty elements
-                    if (!isset($violations[$subElement])) {
-                        $violations[$subElement] = 0;
+                $subElement = trim($subElement);
+                if (!empty($subElement)) {
+                    if (!isset($violationsCount[$subElement])) {
+                        $violationsCount[$subElement] = 0;
                     }
-                    $violations[$subElement]++;
+                    $violationsCount[$subElement]++;
                 }
             }
         }
     }
 
     // Sort violations by count in descending order
-    arsort($violations);
+    arsort($violationsCount);
 
-    // Prepare the response
+    // Fetch violation names from TrafficViolation model
     $response = [];
-    foreach ($violations as $violation => $count) {
-        $response[] = [
-            'violation' => $violation,
-            'count' => $count
-        ];
+    foreach ($violationsCount as $violationCode => $count) {
+        $violation = TrafficViolation::where('code', $violationCode)->first();
+        if ($violation) {
+            $response[] = [
+                'violation' => $violation->violation,
+                'count' => $count
+            ];
+        }
     }
 
     return response()->json($response);
@@ -1670,6 +1655,94 @@ public function getPieChartData(Request $request)
         // Log the error
         Log::error('Error generating pie chart data: ' . $e->getMessage());
         return response()->json(['error' => 'Failed to generate pie chart data'], 500);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////COMMUNICATION//////////////////////////////////////////////////////////////////////
+//                                                                                                                                                       // 
+  //                                                                                                                                                   //  
+//                                                                                                                                                       //
+////////////////////////////////////////////////////////////////////////COMMUNICATION//////////////////////////////////////////////////////////////////////
+
+public function chatIndex($userId = null)
+{
+    $messages = G5ChatMessage::latest()->with('user')->limit(10)->get();
+    $user = Auth::user();
+    $name = $user->name;
+    $department = $user->department;
+    $unreadMessageCount = G5ChatMessage::where('is_read', false)->count();
+    $userId = $userId ?? Auth::id(); // Get the current user's ID if $userId is not provided
+
+
+    
+    // Fetch the list of users for the sidebar
+    $users = User::where('id', '!=', $userId)->get();
+
+    return view('chat', compact('unreadMessageCount', 'messages', 'name', 'department', 'userId', 'users'));
+}
+public function storeMessage(Request $request)
+{
+    $request->validate([
+        'message' => 'required|string',
+        'receiver_id' => 'required|integer|exists:users,id',
+    ]);
+
+    try {
+        $message = new G5ChatMessage();
+        $message->message = $request->input('message');
+        $message->user_id = Auth::id();
+        $message->receiver_id = $request->input('receiver_id');
+        $message->save();
+
+        // Return the newly created message along with success message and user details
+        return response()->json([
+            'message' => 'Message sent successfully.',
+            'newMessage' => $message,
+            'user' => Auth::user(),
+        ], 200);
+    } catch (\Exception $e) {
+        // Log the error
+        Log::error('Error storing chat message: ' . $e->getMessage());
+
+        // Return an error response
+        return response()->json(['error' => 'Failed to send message.'], 500);
+    }
+}
+
+
+public function getChatData($userId)
+{
+    try {
+        // Fetch the messages between the current user and the selected user
+        $messages = G5ChatMessage::where(function($query) use ($userId) {
+            $query->where('user_id', Auth::id())->where('receiver_id', $userId);
+        })->orWhere(function($query) use ($userId) {
+            $query->where('user_id', $userId)->where('receiver_id', Auth::id());
+        })->latest()->with('user', 'receiver')->limit(10)->get();
+
+        // Transform messages and format date
+        $messages->transform(function ($message) {
+            $message->created_at_formatted = Carbon::parse($message->created_at)->format('M d, Y H:i A');
+            return $message;
+        });
+
+        // Get current user details
+        $user = Auth::user();
+
+        // Prepare the response data
+        $data = [
+            'messages' => $messages,
+            'user' => $user,
+        ];
+
+        // Return the data as JSON
+        return response()->json($data);
+    } catch (\Exception $e) {
+        // Log the error
+        Log::error('Error fetching chat messages: ' . $e->getMessage());
+        
+        // Return an error response
+        return response()->json(['error' => 'Failed to fetch chat messages.'], 500);
     }
 }
 

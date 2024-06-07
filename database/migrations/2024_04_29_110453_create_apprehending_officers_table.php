@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('officer')->nullable();
             $table->string('department')->nullable();
+            $table->boolean('isactive')->default(false);
             $table->timestamps();
         });
     }

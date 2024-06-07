@@ -13,7 +13,7 @@
     </li>
     <li class="nav-item">
       <a class="nav-link chat collapsed" data-bs-target="#tables-nav" href="{{ route('chat.index') }}">
-        <i class="bi bi-chat-left-text"></i><span>Chat</span>
+        <i class="bi bi-chat-left-text"></i><span>Communication & Collaborations</span>
       </a>
     </li>
 

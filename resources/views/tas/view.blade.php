@@ -170,7 +170,7 @@
                     saveRemarksBtn.prop('disabled', false);
 
                     // Show success message
-                    showAlert(response.message);
+                    toastr.success(response.message);
 
                     // Reload the modal body content
                     var fetchUrl = fetchViolationUrl.replace('ID_PLACEHOLDER', modalId);

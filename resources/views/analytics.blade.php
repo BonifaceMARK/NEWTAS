@@ -126,45 +126,46 @@
 
 {{-- JavaScript to fetch data and populate the table --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const rankingTableBody = document.getElementById('rankingTableBody');
+        document.addEventListener('DOMContentLoaded', function () {
+            const rankingTableBody = document.getElementById('rankingTableBody');
 
-        // Function to fetch data and populate the table
-        function populateRankingTable() {
-            fetch('/api/violation-rankings')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Clear existing table rows
-                    rankingTableBody.innerHTML = '';
+            // Function to fetch data and populate the table
+            function populateRankingTable() {
+                fetch('/api/violation-rankings')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Clear existing table rows
+                        rankingTableBody.innerHTML = '';
 
-                    // Populate table rows with received data
-                    data.forEach(violation => {
-                        const row = `
-                            <tr>
-                                <td>${violation.violation}</td>
-                                <td>${violation.count}</td>
-                            </tr>
-                        `;
-                        rankingTableBody.innerHTML += row;
+                        // Populate table rows with received data
+                        data.forEach(violation => {
+                            const row = `
+                                <tr>
+                                    <td>${violation.violation}</td>
+                                    <td>${violation.count}</td>
+                                </tr>
+                            `;
+                            rankingTableBody.innerHTML += row;
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching violation rankings:', error);
+                        alert('Failed to load violation rankings: ' + error.message);
                     });
-                })
-                .catch(error => {
-                    console.error('Error fetching violation rankings:', error);
-                    alert('Failed to load violation rankings: ' + error.message);
-                });
-        }
+            }
 
-        // Populate the table when the modal is shown
-        $('#rankingModal').on('shown.bs.modal', function () {
-            populateRankingTable();
+            // Populate the table when the modal is shown
+            $('#rankingModal').on('shown.bs.modal', function () {
+                populateRankingTable();
+            });
         });
-    });
-</script>
+    </script>
+
 
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

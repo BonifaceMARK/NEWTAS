@@ -11,7 +11,7 @@ class admitted extends Model
     protected $table = 'admitteds';
 
     protected $fillable = [
-        'resolution_no',
+        'admittedno',
         'top',
         'driver',
         'apprehending_officer',

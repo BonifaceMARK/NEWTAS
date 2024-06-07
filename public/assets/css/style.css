@@ -1783,3 +1783,58 @@ ul.list-unstyled li {
   transform: scale(1.05);
   transition: transform 0.3s;
 }
+
+/* public/css/styles.css */
+
+.sidebarUsers {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.sidebarUsers h2 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #333;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.sidebarUsers .user {
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.sidebarUsers .user.hover {
+  background-color: #f0f0f0;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.username {
+  font-weight: bold;
+}
+
+.status {
+  font-size: 12px;
+  color: #888;
+}
+
+.status.online {
+  color: #4caf50; /* green */
+}
+
+.status.offline {
+  color: #f44336; /* red */
+}
+.hidden {
+  display: none;
+}

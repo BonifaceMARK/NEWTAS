@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Models\TrafficViolation;
 use App\Models\ApprehendingOfficer;
@@ -74,8 +75,8 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/manage-user/users/{user}', [DashboardController::class, 'userdestroy'])->name('users.destroy');
     Route::get('/manage-user/add-user', [DashboardController::class, 'add_user'])->name('add.user');
     Route::post('/manage-user/store-user', [DashboardController::class, 'store_user'])->name('store.user');
-    Route::get('/chat', [DashboardController::class, 'chatIndex'])->name('chat.index');
-    Route::post('/chat/storeChat', [DashboardController::class, 'storeMessage'])->name('chat.store');
+   
+
     Route::put('/admitted-cases/{id}', [DashboardController::class, 'updateAdmittedCase'])->name('admitted-cases.update');
     Route::get('/edit/contested', [DashboardController::class, 'updateContest'])->name('update.contest.index');
     Route::get('/edit/admitted', [DashboardController::class, 'updateAdmitted'])->name('update.admit.index');
@@ -129,6 +130,22 @@ Route::get('/monthly-type-of-vehicle', [DashboardController::class, 'fetchMonthl
 Route::get('/api/pie-chart-data', [DashboardController::class, 'getPieChartData']);
 
 Route::get('/api/violation-rankings', [DashboardController::class, 'getViolationRankings']);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////// COMMUNICATION  /////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Route::post('/chatstore/storeChat', [DashboardController::class, 'storeMessage'])->name('chat.store');
+Route::get('/get-chat-data/{userId}', [DashboardController::class, 'getChatData'])->name('chat.messages');
+Route::get('/chat/{userId?}', [DashboardController::class, 'chatIndex'])->name('chat.index');
+
+
+Route::get('/user/{user}/messages', [UserController::class, 'getUserMessages']);
+ 
+Route::get('/start-chat/{userId}', [UserController::class, 'startChat'])->name('chat.start');
+
+
+
 });
 
 Route::get('/fetch-remarks/?id={id}', [DashboardController::class, 'fetchRemarks'])->name('fetch.remarks'); 
