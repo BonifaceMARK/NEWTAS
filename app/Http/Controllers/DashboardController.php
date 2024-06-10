@@ -1709,42 +1709,93 @@ public function storeMessage(Request $request)
     }
 }
 
-
 public function getChatData($userId)
 {
-    try {
-        // Fetch the messages between the current user and the selected user
-        $messages = G5ChatMessage::where(function($query) use ($userId) {
-            $query->where('user_id', Auth::id())->where('receiver_id', $userId);
-        })->orWhere(function($query) use ($userId) {
-            $query->where('user_id', $userId)->where('receiver_id', Auth::id());
-        })->latest()->with('user', 'receiver')->limit(10)->get();
+    // Set a timeout for long polling (adjust as needed)
+    $timeout = 30; // Timeout in seconds
 
-        // Transform messages and format date
-        $messages->transform(function ($message) {
-            $message->created_at_formatted = Carbon::parse($message->created_at)->format('M d, Y H:i A');
-            return $message;
-        });
+    $startTime = time();
+    while (true) {
+        // Check if the time limit for long polling has been reached
+        if (time() - $startTime >= $timeout) {
+            // If the timeout is reached, return an empty response to indicate no new messages
+            return response()->json(['messages' => []]);
+        }
 
-        // Get current user details
-        $user = Auth::user();
+        try {
+            // Fetch messages between the current user and the selected user, ordered by created_at in descending order
+            $messages = G5ChatMessage::where(function($query) use ($userId) {
+                $query->where('user_id', Auth::id())->where('receiver_id', $userId);
+            })->orWhere(function($query) use ($userId) {
+                $query->where('user_id', $userId)->where('receiver_id', Auth::id());
+            })->orderBy('created_at', 'desc')->with('user', 'receiver')->limit(10)->get();
+            
+            // Transform messages and format date
+            $messages->transform(function ($message) {
+                $message->created_at_formatted = Carbon::parse($message->created_at)->format('M d, Y H:i A');
+                return $message;
+            });
 
-        // Prepare the response data
-        $data = [
-            'messages' => $messages,
-            'user' => $user,
-        ];
+            // Get current user details
+            $user = Auth::user();
 
-        // Return the data as JSON
-        return response()->json($data);
-    } catch (\Exception $e) {
-        // Log the error
-        Log::error('Error fetching chat messages: ' . $e->getMessage());
-        
-        // Return an error response
-        return response()->json(['error' => 'Failed to fetch chat messages.'], 500);
+            if ($messages->isNotEmpty()) {
+                // If messages are available, return them along with the current user details
+                return response()->json(['messages' => $messages, 'user' => $user]);
+            }
+        } catch (\Exception $e) {
+            // Log the error
+            Log::error('Error fetching chat messages: ' . $e->getMessage());
+            
+            // Return an error response
+            return response()->json(['error' => 'Failed to fetch chat messages.'], 500);
+        }
+
+        // Sleep for a short interval before checking again
+        usleep(500000); // Sleep for 0.5 seconds (adjust as needed)
     }
 }
 
+
+// public function checkNewMessages($userId)
+// {
+//     // Set a timeout for long polling (adjust as needed)
+//     $timeout = 30; // Timeout in seconds
+
+//     $startTime = time();
+//     while (true) {
+//         // Check if the time limit for long polling has been reached
+//         if (time() - $startTime >= $timeout) {
+//             // If the timeout is reached, return an empty response to indicate no new messages
+//             return response()->json(['messages' => []]);
+//         }
+
+//         try {
+//             // Fetch both existing and new messages for the specified user
+//             $messages = G5ChatMessage::where(function($query) use ($userId) {
+//                 $query->where('user_id', Auth::id())->where('receiver_id', $userId);
+//             })->orWhere(function($query) use ($userId) {
+//                 $query->where('user_id', $userId)->where('receiver_id', Auth::id());
+//             })->orderBy('created_at', 'desc')->with('user', 'receiver')->limit(10)->get();
+            
+//             // Get current user details
+//             $user = Auth::user();
+
+//             if ($messages->isNotEmpty()) {
+//                 // If new messages are available, return them
+//                 return response()->json(['messages' => $messages, 'user' => $user]);
+//             }
+//         } catch (\Exception $e) {
+//             // Log the error
+//             Log::error('Error fetching new chat messages: ' . $e->getMessage());
+            
+//             // Return an error response
+//             return response()->json(['error' => 'Failed to fetch new chat messages.'], 500);
+//         }
+
+//         // Sleep for a short interval before checking again
+//         usleep(500000); // Sleep for 0.5 seconds (adjust as needed)
+//     }
+// }
 
 }

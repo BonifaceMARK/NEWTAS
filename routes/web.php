@@ -143,8 +143,7 @@ Route::get('/chat/{userId?}', [DashboardController::class, 'chatIndex'])->name('
 Route::get('/user/{user}/messages', [UserController::class, 'getUserMessages']);
  
 Route::get('/start-chat/{userId}', [UserController::class, 'startChat'])->name('chat.start');
-
-
+Route::get('/check-new-messages/{userId}',  [DashboardController::class, 'checkNewMessages'])->name('check.chat');
 
 });
 
