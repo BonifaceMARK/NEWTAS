@@ -13,48 +13,58 @@
  @include('layouts.sidebar')
 
   <main id="main" class="main">
-<section class="section dashboard">
+  <section class="section dashboard">
     <div class="row">
         <div class="container-fluid">
             <div class="row mb-4">
                 <div class="col-md-3">
-                    <div class="sidebarUsers">
-                        <h2>Online Users</h2>
-                        <ul>
-                        @foreach($users as $user)
-    <li class="user" data-user-id="{{ $user->id }}" data-last-active="{{ $user->isactive ? $user->updated_at->diffForHumans() : '' }}">
-        <img src="{{ $user->profile_pic }}" alt="{{ $user->fullname }}" class="avatar">
-        <span class="username">{{ $user->fullname }}</span>
-        <span class="status {{ $user->isactive ? 'online' : 'offline' }}">{{ $user->isactive ? 'Online' : 'Offline' }}</span>
-        <div class="last-active-bubble">{{ $user->isactive ? $user->updated_at->diffForHumans() : '' }}</div>
-    </li>
-@endforeach
-
-                        </ul>
+                    <div class="sidebarUsers card h-100">
+                        <div class="card-header bg-primary text-white">
+                            Online Users
+                        </div>
+                        <div class="card-body p-0">
+                            <ul class="list-group list-group-flush">
+                                @foreach($users as $user)
+                                    <li class="user list-group-item d-flex align-items-center" data-user-id="{{ $user->id }}" data-last-active="{{ $user->isactive ? $user->updated_at->diffForHumans() : '' }}">
+                                        @if($user->profile_pic)
+                                            <img src="{{ $user->profile_pic }}" alt="{{ $user->fullname }}" class="avatar me-2 rounded-circle">
+                                        @else
+                                            <i class="bi bi-person-workspace avatar-icon me-2"></i>
+                                        @endif
+                                        <div class="flex-grow-1">
+                                            <span class="username">{{ $user->fullname }}</span>
+                                            <br>
+                                            <small class="status {{ $user->isactive ? 'text-success' : 'text-muted' }}">{{ $user->isactive ? 'Online' : 'Offline' }}</small>
+                                        </div>
+                                        <div class="last-active-bubble ms-auto small text-muted">{{ $user->isactive ? $user->updated_at->diffForHumans() : '' }}</div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-9">
                     <div class="card h-100">
-                        <div class="card-header bg-primary text-white">
-                            Chat
+                        <div class="card-header bg-primary text-white d-flex align-items-center">
+                            <span class="flex-grow-1" id="chatHeader">Chat</span>
+                            <button class="btn btn-outline-light btn-sm" id="closeChat">&times;</button>
                         </div>
-                        <div class="card-body">
-                            <div class="chat-container overflow-auto" id="chatContainer">
+                        <div class="card-body p-0">
+                            <div class="chat-container overflow-auto p-3" id="chatContainer">
                                 <div class="chat-box" id="chatBox">
                                     <!-- Messages will appear here -->
                                     @foreach($messages as $message)
-                                        <div class="message{{ $message->user->id == Auth::user()->id ? ' outgoing' : ' incoming' }}">
+                                        <div class="message{{ $message->user->id == Auth::user()->id ? ' outgoing' : ' incoming' }} mb-2">
                                             <div class="message-details{{ $message->user->id == Auth::user()->id ? ' text-end' : '' }}">
                                                 <span class="message-sender"><strong>{{ $message->user->fullname }}</strong></span>
                                                 <span class="message-time">{{ $message->created_at_formatted }} <i class="bi bi-clock"></i> </span>
                                                 <span class="message-icon">
-    @if($message->is_read)
-        <i class="bi bi-book-fill"></i>
-    @else
-        <i class="bi bi-book"></i>
-    @endif
-</span>
-
+                                                    @if($message->is_read)
+                                                        <i class="bi bi-book-fill"></i>
+                                                    @else
+                                                        <i class="bi bi-book"></i>
+                                                    @endif
+                                                </span>
                                             </div>
                                             <div class="message-content{{ $message->user->id == Auth::user()->id ? ' outgoing' : ' incoming' }}" onclick="displayMessage('{{ $message->message }}')">{{ $message->message }}</div>
                                         </div>
@@ -81,6 +91,9 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
+        var currentUserId = null; // Track the current active user
+        var pollInterval = null; // Track the polling interval
+
         // Function to update the message icon based on its read status
         function updateMessageIcon(message) {
             var isRead = message.find('.message-icon').data('is-read');
@@ -88,14 +101,19 @@
             message.find('.message-icon').html(icon);
         }
 
-        $('.user').hover(function() {
-        var lastActive = $(this).data('last-active');
-        if (lastActive) {
-            $(this).append('<span class="last-active">' + lastActive + '</span>');
+        // Function to display the last active time on hover
+        function displayLastActive() {
+            $('.user').hover(function() {
+                var lastActive = $(this).data('last-active');
+                if (lastActive) {
+                    $(this).append('<span class="last-active">' + lastActive + '</span>');
+                }
+            }, function() {
+                $(this).find('.last-active').remove();
+            });
         }
-    }, function() {
-        $(this).find('.last-active').remove();
-    });
+
+        displayLastActive();
 
         // Function to handle click events on user elements
         $('.user').click(function() {
@@ -140,52 +158,51 @@
 
         // Function to start a chat with a user
         function startChat(userId) {
-            $('#receiverId').val(userId);
-            fetchChatData(userId);
+            // If a different user is selected, clear the existing polling
+            if (currentUserId !== userId) {
+                currentUserId = userId;
+                clearInterval(pollInterval);
+                fetchChatData(userId);
+            }
         }
 
-// Function to fetch chat data for a user using long polling
-function fetchChatData(userId) {
-    // Use a function to continuously fetch new messages
-    (function poll() {
-        // Send a request to the server to check for new messages
-        $.ajax({
-            url: '/get-chat-data/' + userId,
-            type: 'GET',
-            success: function(response) {
-                console.log("Fetched chat data for user ID: " + userId, response);
-                if (response.messages) {
-                    $('#chatBox').empty();
-                    // Loop through messages in reverse order
-                    for (var i = response.messages.length - 1; i >= 0; i--) {
-                        var message = response.messages[i];
-                        var messageHtml = '<div class="message' + (message.user.id == response.user.id ? ' outgoing' : ' incoming') + '">' +
-                            '<div class="message-details' + (message.user.id == response.user.id ? ' text-end' : '') + '">' +
-                            '<span class="message-sender"><strong>' + message.user.fullname + '</strong></span>' +
-                            '<span class="message-time">' + ' <i class="bi bi-clock"></i> </span>' + moment(message.created_at).format('MMM D, YYYY h:mm:ss A') +
-                            '<span class="message-icon" data-is-read="' + (message.is_read ? 'true' : 'false') + '"></span>' +
-                            '</div>' +
-                            '<div class="message-content' + (message.user.id == response.user.id ? ' outgoing' : ' incoming') + '">' + message.message + '</div>' +
-                            '</div>';
-                        $('#chatBox').append(messageHtml);
-                        updateMessageIcon($('#chatBox').find('.message').last());
+        // Function to fetch chat data for a user using long polling
+        function fetchChatData(userId) {
+            function poll() {
+                $.ajax({
+                    url: '/get-chat-data/' + userId,
+                    type: 'GET',
+                    success: function(response) {
+                        console.log("Fetched chat data for user ID: " + userId, response);
+                        if (response.messages) {
+                            $('#chatBox').empty();
+                            for (var i = response.messages.length - 1; i >= 0; i--) {
+                                var message = response.messages[i];
+                                var messageHtml = '<div class="message' + (message.user.id == response.user.id ? ' outgoing' : ' incoming') + '">' +
+                                    '<div class="message-details' + (message.user.id == response.user.id ? ' text-end' : '') + '">' +
+                                    '<span class="message-sender"><strong>' + message.user.fullname + '</strong></span>' +
+                                    '<span class="message-time">' + ' <i class="bi bi-clock"></i> </span>' + moment(message.created_at).format('MMM D, YYYY h:mm:ss A') +
+                                    '<span class="message-icon" data-is-read="' + (message.is_read ? 'true' : 'false') + '"></span>' +
+                                    '</div>' +
+                                    '<div class="message-content' + (message.user.id == response.user.id ? ' outgoing' : ' incoming') + '">' + message.message + '</div>' +
+                                    '</div>';
+                                $('#chatBox').append(messageHtml);
+                                updateMessageIcon($('#chatBox').find('.message').last());
+                            }
+                            $('#chatBox').show();
+                            scrollToBottom();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        toastr.error('Failed to fetch chat data.');
                     }
-                    $('#chatBox').show();
-                    scrollToBottom();
-                }
-                // Continue polling for new messages
-                poll();
-            },
-            error: function(xhr, status, error) {
-                toastr.error('Failed to fetch chat data.');
-                // Retry polling after a short delay in case of errors
-                setTimeout(poll, 5000); // Retry after 5 seconds
+                });
             }
-        });
-    })();
-}
 
-
+            // Start polling every 5 seconds
+            poll(); // Initial call
+            pollInterval = setInterval(poll, 5000);
+        }
 
         // Function to scroll to the bottom of the chat container
         function scrollToBottom() {

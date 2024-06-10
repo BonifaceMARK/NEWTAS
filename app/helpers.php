@@ -17,8 +17,6 @@ if (!function_exists('getStatusColor')) {
     }
 }
 
-
-
 if (!function_exists('symbolBgColor')) {
     /**
      * Get the background color CSS class based on symbol status.
@@ -32,7 +30,7 @@ if (!function_exists('symbolBgColor')) {
             case 'complete':
                 return 'bg-success';
             case 'incomplete':
-                return 'bg-danger';
+                return 'bg-secondary';
             case 'deleting':
                 return 'bg-warning';
             default:
@@ -40,5 +38,8 @@ if (!function_exists('symbolBgColor')) {
         }
     }
 }
+
+
+
 
 
