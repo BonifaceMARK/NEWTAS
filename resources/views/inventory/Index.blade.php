@@ -68,7 +68,6 @@
                         @method('DELETE')
 
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                            <input id="select-all-inventory" type="checkbox" class="form-check-input" aria-label="Select all inventory items">
                             <button type="submit" class="btn btn-sm btn-outline-danger" id="bulk-delete-button">
                                 <i class="bi bi-trash3 me-1"></i>Delete selected
                                 <span class="selected-count ms-1">(0)</span>
@@ -78,14 +77,22 @@
                         <div class="table-responsive">
                             <table id="inventory-items-table" class="table align-middle mb-0">
                                 <thead>
-                                    <tr>
-                                        <th class="checkbox-col text-center" style="width: 42px;"></th>
-                                        <th>Asset</th><th>Item</th><th>Assignment</th>
-                                        <th>Department</th>
-                                        <th>Location</th>
-                                        <th>Status</th>
-                                        <th class="text-end">Action</th>
-                                    </tr>
+                                    <tr class="align-middle">
+                                            <th class="text-center" style="width:42px; vertical-align: middle;">
+                                            <input id="select-all-inventory" 
+                                                    type="checkbox" 
+                                                    class="form-check-input align-middle" 
+                                                    aria-label="Select all inventory items">
+                                            </th>   
+                                            <th>Asset</th>
+                                            <th>Item</th>
+                                            <th>Assignment</th>
+                                            <th>Department</th>
+                                            <th>Location</th>
+                                            <th>Status</th>
+                                            <th class="text-end" style="vertical-align: middle;">Action</th>
+                                            </tr>
+
                                 </thead>
                                 <tbody>
                                     @forelse ($inventoryItems as $inventoryItem)

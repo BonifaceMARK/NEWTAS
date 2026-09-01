@@ -22,9 +22,10 @@ class InventoryItem extends Model
         'warranty_expiry',
         'assigned_to',
         'department',
-        'campaign',           
+        'campaign',
         'location',
         'status',
+        'quantity',
         'remarks',
         'history',
         'file_attach',
@@ -57,6 +58,18 @@ class InventoryItem extends Model
         return $value ? json_decode($value, true) : [];
     }
 
+    public function isAlreadyAtLocation(?string $location): bool
+    {
+        $currentLocation = trim((string) ($this->location ?? ''));
+        $targetLocation = trim((string) ($location ?? ''));
+
+        if ($currentLocation === '' || $targetLocation === '') {
+            return false;
+        }
+
+        return strtolower($currentLocation) === strtolower($targetLocation);
+    }
+
     // Method to transfer asset to another campaign
     public function transferToCampaign($newCampaign, $newDepartment = null, $newAssignedTo = null)
     {
@@ -82,8 +95,16 @@ class InventoryItem extends Model
 
         $this->campaignHistory()->create([
             'campaign' => $this->campaign,
+            'from_campaign' => null,
+            'to_campaign' => $this->campaign,
             'department' => $this->department,
+            'from_department' => null,
+            'to_department' => $this->department,
             'assigned_to' => $this->assigned_to,
+            'from_assigned_to' => null,
+            'to_assigned_to' => $this->assigned_to,
+            'moved_at' => now(),
+            'remarks' => 'Initial item registration',
         ]);
     }
 }

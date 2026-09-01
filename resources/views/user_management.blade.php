@@ -23,7 +23,7 @@
 
   <main id="main" class="main">
   
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-md-7">
                 <h1>User Management</h1>

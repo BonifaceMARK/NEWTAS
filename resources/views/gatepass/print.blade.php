@@ -154,31 +154,35 @@
 			width: 100%;
 			border-collapse: collapse;
 			table-layout: fixed;
+			font-size: 10px;
 		}
 
 		.items th,
 		.items td {
 			border: 1px solid var(--soft-line);
+			padding: 4px 6px;
+			vertical-align: top;
 		}
 
 		.items th {
 			height: 8mm;
 			color: #555;
-			font-size: 11px;
-			font-weight: 400;
+			font-size: 10px;
+			font-weight: 700;
 			text-transform: uppercase;
+			letter-spacing: .04em;
 		}
 
 		.items td {
-			height: 46mm;
-			padding: 7px 9px;
-			vertical-align: top;
+			height: 18mm;
+			padding: 5px 6px;
+			line-height: 1.2;
 		}
 
-		.items .quantity { width: 17%; }
-		.items .unit { width: 18%; }
-		.items .description { width: 37%; }
-		.items .remarks { width: 28%; }
+		.items .quantity { width: 12%; }
+		.items .unit { width: 14%; }
+		.items .description { width: 42%; }
+		.items .remarks { width: 32%; }
 
 		.approval-grid {
 			display: grid;
@@ -320,27 +324,31 @@
 		<section class="details" aria-label="Gatepass details">
 			<div class="detail-row">
 				<span class="detail-label">OWNER:</span>
-				<span class="detail-field wide"></span>
+				<span class="detail-field wide">{{ $owner ?? 'N/A' }}</span>
 			</div>
 			<div class="detail-row">
 				<span class="detail-label">CONTACT:</span>
-				<span class="detail-field medium"></span>
+				<span class="detail-field medium">{{ $contact ?? 'N/A' }}</span>
 			</div>
 			<div class="detail-row">
 				<span class="detail-label">DATE:</span>
-				<span class="detail-field medium"></span>
+				<span class="detail-field medium">{{ $date ?? now()->format('M d, Y') }}</span>
 				<span class="detail-label compact">TIME:</span>
-				<span class="detail-field medium"></span>
+				<span class="detail-field medium">{{ $time ?? now()->format('h:i A') }}</span>
 			</div>
 			<div class="detail-row">
-				<span class="detail-label">SITE/FLOOR:</span>
-				<span class="detail-field wide"></span>
+				<span class="detail-label">FROM:</span>
+				<span class="detail-field wide">{{ $fromSiteFloor ?? 'N/A' }}</span>
+			</div>
+			<div class="detail-row">
+				<span class="detail-label">TO:</span>
+				<span class="detail-field wide">{{ $toSiteFloor ?? 'N/A' }}</span>
 			</div>
 		</section>
 
 		<p class="allowance">
-			Please allow the bearer Mr./Ms. <span class="detail-field wide"></span>
-			to bring out/in the following items:
+			Please allow the bearer Mr./Ms. <span class="detail-field wide">{{ $bearer ?? 'N/A' }}</span>
+			to bring out/in the following items from <strong>{{ $fromSiteFloor ?? 'N/A' }}</strong> to <strong>{{ $toSiteFloor ?? 'N/A' }}</strong>:
 		</p>
 
 		<table class="items">
@@ -353,12 +361,21 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
-				</tr>
+				@forelse ($items ?? [] as $item)
+					<tr>
+						<td>{{ $item['quantity'] ?? 1 }}</td>
+						<td>{{ $item['unit'] ?? 'Unit' }}</td>
+						<td>{{ $item['description'] ?? ($item['item_name'] ?? 'Inventory Item') }}</td>
+						<td>{{ $item['remarks'] ?? 'Transferred' }}</td>
+					</tr>
+				@empty
+					<tr>
+						<td>1</td>
+						<td>Unit</td>
+						<td>Inventory Item</td>
+						<td>Transferred</td>
+					</tr>
+				@endforelse
 			</tbody>
 		</table>
 

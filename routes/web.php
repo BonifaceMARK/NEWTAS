@@ -49,6 +49,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/inventory/values/{option}', [InventoryController::class, 'deleteValue'])->name('inventory.values.delete');
     Route::delete('/inventory/bulk-delete', [InventoryController::class, 'bulkDelete'])->name('inventory.bulk-delete');
     Route::get('/inventory/gatepass', [InventoryController::class, 'gatepass'])->name('inventory.gatepass');
+    Route::get('/inventory/gatepass/list', [InventoryController::class, 'gatepassList'])->name('inventory.gatepass.list');
+    Route::get('/inventory/gatepass/create', [InventoryController::class, 'createGatepass'])->name('inventory.gatepass.create');
+    Route::get('/inventory/{inventoryItem}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
+    Route::put('/inventory/{inventoryItem}', [InventoryController::class, 'update'])->name('inventory.update');
+    Route::get('/inventory/{inventoryItem}/gatepass', [InventoryController::class, 'gatepassForItem'])->name('inventory.gatepass.item');
     Route::get('/inventory/{inventoryItem}', [InventoryController::class, 'show'])->name('inventory.show');
 });
 
