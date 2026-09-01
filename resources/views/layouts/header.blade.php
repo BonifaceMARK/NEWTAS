@@ -1,159 +1,194 @@
-<header id="header" class="header fixed-top d-flex align-items-center">
-  <!-- Loading Screen -->
-  <div id="pageLoader" class="page-loader">
-    <img src="{{asset('assets/img/logo.png')}}" alt="">
-    <div class="spinner-border" role="status">
+<style>
+  #header.app-header {
+    height: 68px;
+    padding: 0 28px;
+    background: #ffffff;
+    border-bottom: 1px solid #e9edf2;
+    box-shadow: 0 2px 12px rgba(31, 45, 61, .06);
+  }
+
+  #header.app-header .header-left,
+  #header.app-header .header-actions,
+  #header.app-header .time-display,
+  #header.app-header .profile-trigger {
+    display: flex;
+    align-items: center;
+  }
+
+  #header.app-header .header-left {
+    gap: 20px;
+  }
+
+  #header.app-header .app-logo {
+    gap: 10px;
+    color: #1f2937;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: .1px;
+  }
+
+  #header.app-header .app-logo img {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  #header.app-header .toggle-sidebar-btn {
+    color: #64748b;
+    font-size: 24px;
+    cursor: pointer;
+    transition: color .2s ease;
+  }
+
+  #header.app-header .toggle-sidebar-btn:hover {
+    color: #2563eb;
+  }
+
+  #header.app-header .header-actions {
+    gap: 24px;
+  }
+
+  #header.app-header .time-display {
+    gap: 8px;
+    color: #64748b;
+    font-size: 12px;
+  }
+
+  #header.app-header .time-display i {
+    color: #2563eb;
+    font-size: 15px;
+  }
+
+  #header.app-header .time-display strong {
+    color: #1f2937;
+    font-weight: 600;
+  }
+
+  #header.app-header .profile-trigger {
+    gap: 10px;
+    padding: 4px 0;
+    color: #1f2937;
+  }
+
+  #header.app-header .profile-trigger img {
+    width: 34px;
+    height: 34px;
+    object-fit: cover;
+    border: 2px solid #e2e8f0;
+  }
+
+  #header.app-header .profile-name {
+    max-width: 150px;
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #header.app-header .profile-menu {
+    min-width: 210px;
+    margin-top: 8px;
+    border: 1px solid #e9edf2;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(31, 45, 61, .12);
+  }
+
+  #header.app-header .profile-menu .dropdown-header {
+    padding: 14px 16px 10px;
+  }
+
+  #header.app-header .profile-menu .dropdown-header h6 {
+    margin-bottom: 3px;
+    color: #1f2937;
+  }
+
+  #header.app-header .profile-menu .dropdown-item {
+    padding: 10px 16px;
+  }
+
+  @media (max-width: 575px) {
+    #header.app-header {
+      padding: 0 16px;
+    }
+
+    #header.app-header .header-actions {
+      gap: 12px;
+    }
+
+    #header.app-header .time-display {
+      display: none;
+    }
+  }
+</style>
+
+<header id="header" class="header fixed-top d-flex align-items-center app-header">
+  <div id="pageLoader" class="page-loader" aria-hidden="true">
+    <div class="spinner-border spinner-border-sm" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
-    <strong>Loading...</strong>
-    
-</div>
+  </div>
 
-    <div class="d-flex align-items-center justify-content-between">
-      <a href="{{url('/')}}" class="logo d-flex align-items-center">
-      <img src="{{asset('assets/img/logo.png')}}" alt="">
-                  <span class="d-none d-lg-block">Traffic Adjudication Service </span>
-      </a>
-      <i class="bi bi-list toggle-sidebar-btn"></i>
-    </div><!-- End Logo -->
+  <div class="header-left">
+    <i class="bi bi-list toggle-sidebar-btn" aria-label="Toggle navigation"></i>
+    <a href="{{ url('/') }}" class="app-logo logo d-flex align-items-center">
+      <img src="{{ asset('assets/img/asi_logo.jpg') }}" alt="ASI Inventory logo">
+      <span class="d-none d-sm-block">ASI Inventory</span>
+    </a>
+  </div>
 
-   
-    <nav class="header-nav ms-auto">
-      <ul class="d-flex align-items-center">
+  <nav class="header-nav ms-auto">
+    <div class="header-actions">
+      <div class="time-display" aria-label="Current time">
+        <i class="bi bi-clock"></i>
+        <strong id="horas">--:--:--</strong>
+      </div>
 
-        <div>
-          Time&ensp;: <span class="badge badge-primary"style="background-color: white; color: black;" id="horas">NULL</span>
-          </div>
-
-        <li class="nav-item dropdown">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-        <script>
-          var myVar=setInterval(function(){myTimer()},1000);
-          function myTimer() {
-              var d = new Date();
-              document.getElementById("horas").innerHTML = d.toLocaleTimeString();
-          }
-          </script>
-
-
-
-          <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-            <i class="bi bi-bell"></i>
-            <span class="badge bg-primary badge-number">4</span>
-          </a><!-- End Notification Icon -->
-
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
-            <li class="dropdown-header">
-              You have 4 new notifications
-              <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li class="notification-item">
-              <i class="bi bi-exclamation-circle text-warning"></i>
-              <div>
-                <h4>Lorem Ipsum</h4>
-                <p>Quae dolorem earum veritatis oditseno</p>
-                <p>30 min. ago</p>
-              </div>
-            </li>
-
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li class="notification-item">
-              <i class="bi bi-x-circle text-danger"></i>
-              <div>
-                <h4>Atque rerum nesciunt</h4>
-                <p>Quae dolorem earum veritatis oditseno</p>
-                <p>1 hr. ago</p>
-              </div>
-            </li>
-
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li class="notification-item">
-              <i class="bi bi-check-circle text-success"></i>
-              <div>
-                <h4>Sit rerum fuga</h4>
-                <p>Quae dolorem earum veritatis oditseno</p>
-                <p>2 hrs. ago</p>
-              </div>
-            </li>
-
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li class="notification-item">
-              <i class="bi bi-info-circle text-primary"></i>
-              <div>
-                <h4>Dicta reprehenderit</h4>
-                <p>Quae dolorem earum veritatis oditseno</p>
-                <p>4 hrs. ago</p>
-              </div>
-            </li>
-
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-            <li class="dropdown-footer">
-              <a href="#">Show all notifications</a>
-            </li>
-
-          </ul><!-- End Notification Dropdown Items -->
-
-        </li><!-- End Notification Nav -->
-
-  
-
-        <li class="nav-item dropdown pe-3">
-
-          <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+      @auth
+        <div class="nav-item dropdown">
+          <a class="nav-link profile-trigger" href="#" data-bs-toggle="dropdown" aria-expanded="false">
             <img src="{{ asset('assets/img/pzpx.png') }}" alt="Profile" class="rounded-circle">
-            <span class="d-none d-md-block dropdown-toggle ps-2">{{Auth::user()->fullname}}</span>
-          </a><!-- End Profile Iamge Icon -->
+            <span class="profile-name d-none d-md-block">{{ Auth::user()->fullname }}</span>
+            <i class="bi bi-chevron-down d-none d-md-block"></i>
+          </a>
 
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile-menu">
             <li class="dropdown-header">
-              <h6>{{Auth::user()->fullname}}</h6>
-              @if (Auth::user()->role == 9)
-                  <span>Administrator</span>
-              @else
-                  <span>Employee</span>
-              @endif
+              <h6>{{ Auth::user()->fullname }}</h6>
+              <span>{{ Auth::user()->role == 9 ? 'Administrator' : 'Employee' }}</span>
             </li>
+            <li><hr class="dropdown-divider"></li>
             <li>
-              <hr class="dropdown-divider">
-            </li>
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{{ route('profile', ['id' => Auth::id()]) }}">
-                <i class="bi bi-person"></i>
-                <span>My Profile</span>
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{{route('user_management')}}">
-                <i class="bi bi-person-fill-add"></i>
-                <span>User Management</span>
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{{route('logout')}}">
+              <a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('logout') }}">
                 <i class="bi bi-box-arrow-right"></i>
                 <span>Sign Out</span>
               </a>
             </li>
+          </ul>
+        </div>
+      @else
+        <a class="btn btn-outline-primary btn-sm" href="{{ route('login') }}">
+          <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+        </a>
+      @endauth
+    </div>
+  </nav>
+</header>
 
-          </ul><!-- End Profile Dropdown Items -->
-        </li><!-- End Profile Nav -->
+<script>
+  (() => {
+    const clock = document.getElementById('horas');
 
-      </ul>
-    </nav><!-- End Icons Navigation -->
+    if (!clock) {
+      return;
+    }
 
-  </header><!-- End Header -->
+    const updateClock = () => {
+      clock.textContent = new Date().toLocaleTimeString();
+    };
+
+    updateClock();
+    window.setInterval(updateClock, 1000);
+  })();
+</script>

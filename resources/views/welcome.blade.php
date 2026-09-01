@@ -5,13 +5,13 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>LTO - TAS</title>
+  <title>ASI - INVENTORY</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
 <!-- Favicons -->
-<link href="{{asset('assets/img/logo.png')}}" rel="icon">
-<link href="{{asset('assets/img/logo.png')}}" rel="apple-touch-icon">
+<link href="{{asset('assets/img/asi_logo.jpg')}}" rel="icon">
+<link href="{{asset('assets/img/asi_logo.jpg')}}" rel="apple-touch-icon">
 
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,8 +55,8 @@
 
       <a href="{{route('landpage')}}" class="logo d-flex align-items-center scrollto me-auto me-lg-0">
    
-         <img src="{{asset('assets/img/logo.png')}}" alt=""> 
-        <h1>LAND TRANSPORTATION OFFICE<span></span></h1>
+         <img src="{{asset('assets/img/asi_logo.jpg')}}" alt=""> 
+        <h1>ALLIANZ SYNERGIA, INC.<span></span></h1>
       </a>
 
       
@@ -68,11 +68,11 @@
 
   <section id="hero-fullscreen" class="hero-fullscreen d-flex align-items-center">
     <div class="container d-flex flex-column align-items-center position-relative" data-aos="zoom-out">
-      <h2>TRAFFIC ADJUDICATION SERVICE</h2>
-      <h3>Case Management System</h3>
+      <h2>Inventory Management System</h2>
+      <h3>WORLD - PRIME</h3>
       <div class="d-flex">
         <a href="{{route('login')}}" class="btn-get-started scrollto">Login</a>
-        <a href="https://www.youtube.com/watch?v=8U_a_tTdLDA&pp=ygUOTFRPIENPTU1FUkNJQUw%3D" class="glightbox btn-watch-video d-flex align-items-center"><i class="bi bi-play-circle"></i><span>Watch Video</span></a>
+        <!-- <a href="https://www.youtube.com/watch?v=8U_a_tTdLDA&pp=ygUOTFRPIENPTU1FUkNJQUw%3D" class="glightbox btn-watch-video d-flex align-items-center"><i class="bi bi-play-circle"></i><span>Watch Video</span></a> -->
       </div>
     </div>
   </section>

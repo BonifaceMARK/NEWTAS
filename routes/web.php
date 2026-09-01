@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\DashboardController;
 use App\Models\TrafficViolation;
 use App\Models\ApprehendingOfficer;
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Crypt;
-use App\Models\admitted;
+use App\Models\InventoryItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
@@ -33,6 +34,25 @@ use Illuminate\Support\Facades\Log;
 |
 */
 
+
+Route::get('/loginpage', [AuthController::class, 'loadlogin'])->name('login');
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('/inventory/dashboard', [InventoryController::class, 'inventorydash'])->name('inventory.dashboard');
+    Route::get('/inventory/add', [InventoryController::class, 'inventoryadd'])->name('inventory.create');
+    Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
+    Route::get('/inventory/list', [InventoryController::class, 'inventorylist'])->name('inventory.list');
+    Route::get('/inventory/reports', [InventoryController::class, 'inventoryreports'])->name('inventory.reports');
+    Route::get('/inventory/values', [InventoryController::class, 'values'])->name('inventory.values');
+    Route::post('/inventory/values', [InventoryController::class, 'storeValue'])->name('inventory.values.store');
+    Route::delete('/inventory/values/{option}', [InventoryController::class, 'deleteValue'])->name('inventory.values.delete');
+    Route::delete('/inventory/bulk-delete', [InventoryController::class, 'bulkDelete'])->name('inventory.bulk-delete');
+    Route::get('/inventory/gatepass', [InventoryController::class, 'gatepass'])->name('inventory.gatepass');
+    Route::get('/inventory/{inventoryItem}', [InventoryController::class, 'show'])->name('inventory.show');
+});
+
+
 Route::get('/', function () {
     return view('welcome');
 })->name('landpage');
@@ -47,16 +67,11 @@ Route::get('/logout', [AuthController::class, 'logoutx'])->name('logout');
 // Middleware routes for authenticated users
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'indexa'])->name('dashboard');
-    Route::get('/analytics', [DashboardController::class, 'analyticsDash'])->name('analytics.index');
     Route::get('/tables', [DashboardController::class, 'tables'])->name('tables');
     Route::get('/manageTAS', [DashboardController::class, 'tasManage'])->name('tas.manage');
-    Route::get('/viewTAS', [DashboardController::class, 'tasView'])->name('tas.view');
-    Route::get('/dzxccczxc', [DashboardController::class, 'tasfetch'])->name('tas.fetch');
-    Route::get('/archives', [DashboardController::class, 'caseIndex'])->name('case.view');
-    Route::post('/manageTAS', [DashboardController::class, 'submitForm'])->name('submitForm.tas');
-    Route::get('/admitTAS', [DashboardController::class, 'admitview'])->name('admitted.view');
-    Route::get('/admitTAS/admit.manageform', [DashboardController::class, 'admitmanage'])->name('admitted.manage');
-    Route::post('/admitTAS/admit.manageform', [DashboardController::class, 'admittedsubmit'])->name('admittedsubmit.tas');
+    Route::get('/admitTAS', [DashboardController::class, 'admitview'])->name('InventoryItem.view');
+    Route::get('/admitTAS/admit.manageform', [DashboardController::class, 'admitmanage'])->name('InventoryItem.manage');
+    Route::post('/admitTAS/admit.manageform', [DashboardController::class, 'InventoryItemsubmit'])->name('InventoryItemsubmit.tas');
     Route::get('/apprehendingofficer', [DashboardController::class, 'officergg'])->name('see.offi');
     Route::post('/apprehendingofficer/store.officer', [DashboardController::class, 'save_offi'])->name('save.offi');
     Route::get('/violation', [DashboardController::class, 'violationadd'])->name('see.vio');
@@ -67,24 +82,23 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/getChartData', [DashboardController::class, 'getChartData']);
     Route::get('/{id}/profile', [DashboardController::class, 'profile'])->name('profile');
     Route::get('/{id}/profile/edit', [DashboardController::class, 'edit'])->name('profile.edit');
-    Route::put('/{id}/profile/update', [DashboardController::class, 'update'])->name('profile.update');
-    Route::get('/{id}/profile/change_password', [DashboardController::class, 'change'])->name('profile.change');
-    Route::post('/{id}/profile/update_password', [DashboardController::class, 'updatePassword'])->name('profile.update_password');
     Route::get('/manage-user', [DashboardController::class, 'management'])->name('user_management');
     Route::get('/manage-user/users/{id}/edit', [DashboardController::class, 'edit'])->name('users.edit');
     Route::delete('/manage-user/users/{user}', [DashboardController::class, 'userdestroy'])->name('users.destroy');
     Route::get('/manage-user/add-user', [DashboardController::class, 'add_user'])->name('add.user');
     Route::post('/manage-user/store-user', [DashboardController::class, 'store_user'])->name('store.user');
-   
+   Route::put('/{id}/profile/update', [DashboardController::class, 'update'])->name('profile.update');
+    Route::get('/{id}/profile/change_password', [DashboardController::class, 'change'])->name('profile.change');
+    Route::post('/{id}/profile/update_password', [DashboardController::class, 'updatePassword'])->name('profile.update_password');
 
-    Route::put('/admitted-cases/{id}', [DashboardController::class, 'updateAdmittedCase'])->name('admitted-cases.update');
+    Route::put('/InventoryItem-cases/{id}', [DashboardController::class, 'updateInventoryItemCase'])->name('InventoryItem-cases.update');
     Route::get('/edit/contested', [DashboardController::class, 'updateContest'])->name('update.contest.index');
-    Route::get('/edit/admitted', [DashboardController::class, 'updateAdmitted'])->name('update.admit.index');
+    Route::get('/edit/InventoryItem', [DashboardController::class, 'updateInventoryItem'])->name('update.admit.index');
     Route::get('/officers/{departmentName}', [DashboardController::class, 'getByDepartmentName']);
     Route::put('/edit/contested/violations/{id}', [DashboardController::class, 'updateTas'])->name('violations.updateTas');
     Route::delete('/edit/contested/violations/{id}', [DashboardController::class, 'deleteTas'])->name('violations.delete');
     Route::get('/history', [DashboardController::class, 'historyIndex'])->name('history.index');
-    Route::get('/AdmittedEdit', [DashboardController::class, 'editAdmit'])->name('edit.admit');
+    Route::get('/InventoryItemEdit', [DashboardController::class, 'editAdmit'])->name('edit.admit');
     Route::get('/print/{id}', [DashboardController::class, 'printsub'])->name('print.sub');
     Route::post('/update-status/{id}', [DashboardController::class, 'updateStatus'])->name('update.status');
     Route::post('/finish-case/{id}', [DashboardController::class, 'finishCase'])->name('finish.case');
@@ -104,7 +118,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/viewTAS/tasfile{id}/details/', [DashboardController::class, 'detailstasfile'])->name('fetchingtasfile');
     Route::get('/tasfileedit{id}/details/', [DashboardController::class, 'detailsedit'])->name('fetchingeditfile');
-    Route::get('admitted/details/{id}', [DashboardController::class, 'detailsadmitted'])->name('fetchingadmitted');
+    Route::get('InventoryItem/details/{id}', [DashboardController::class, 'detailsInventoryItem'])->name('fetchingInventoryItem');
     Route::get('/fetchFinishData/{id}', [DashboardController::class, 'fetchFinishData'])->name('fetchFinishData');
     Route::post('/finishCase/{id}', [DashboardController::class, 'finishCase'])->name('finish.case');
 
@@ -121,15 +135,6 @@ Route::post('/tas-files/{id}/add-attachment', [DashboardController::class, 'addA
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 //////////////////////////////////////
-
-
-Route::get('/date-received-data', [DashboardController::class, 'getDateReceivedData']);
-Route::delete('/tasfile/{id}/remove-attachment', [DashboardController::class, 'removeAttachment'])->name('tasfile.removeAttachment');
-
-Route::get('/monthly-type-of-vehicle', [DashboardController::class, 'fetchMonthlyTypeOfVehicle']);
-Route::get('/api/pie-chart-data', [DashboardController::class, 'getPieChartData']);
-
-Route::get('/api/violation-rankings', [DashboardController::class, 'getViolationRankings']);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////// COMMUNICATION  /////////////////////////////////////////////////////////////////////////
@@ -217,13 +222,10 @@ Route::get('/subpoena', function () {
         'hearing' => $endDate,
     ];
 
-    // dd($compactData);
 
     return view('subpoena', compact('tasFile', 'compactData'));
 });
 
-// Staff routes
 Route::group(['prefix' => 'user', 'middleware' => ['web', 'isUser']], function () {
-    // Define user-specific routes here
 });
 ?>

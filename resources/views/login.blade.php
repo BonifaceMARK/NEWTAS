@@ -10,8 +10,8 @@
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="{{ asset('assets/img/logo.png') }}" rel="icon">
-  <link href="{{ asset('assets/img/logo.png') }}" rel="apple-touch-icon">
+  <link href="{{ asset('assets/img/asi_logo.jpg') }}" rel="icon">
+  <link href="{{ asset('assets/img/asi_logo.jpg') }}" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
@@ -41,7 +41,7 @@
 <body>
 
   <main>
-    <div class="container">
+    <div class="container" >
 
       <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
         <div class="container">
@@ -49,9 +49,9 @@
             <div class="col-lg-6 col-md-10 d-flex flex-column align-items-center justify-content-center">
 
               <div class="d-flex justify-content-center py-4">
-                <a href="index.html" class="logo d-flex align-items-center w-auto">
-                  <img src="{{asset('assets/img/logo.png')}}" alt="">
-                  <span class="d-none d-lg-block">LAND TRANSPORTATION OFFICE</span>
+                <a href="{{route('landpage')}}" class="logo d-flex align-items-center w-auto">
+                  <img src="{{asset('assets/img/asi_logo.jpg')}}" alt="">
+                  <span class="d-none d-lg-block" > ALLIANZ SYNERGIA INC. </span>
                 </a>
               </div><!-- End Logo -->
               @if (session('success'))
@@ -71,24 +71,24 @@
                 <div class="card-body">
 
                   <div class="pt-4 pb-2">
-                    <h5 class="card-title text-center pb-0 fs-4">Traffic Adjudication Service </h5>
-                    <p class="text-center small">Case Management System</p>
+                    <h5 class="card-title text-center pb-0 fs-4">INVENTORY MANAGEMENT SYSTEM </h5>
+                    <p class="text-center small">WORLD - PRIME</p>
                   </div>
 
                   <form class="row g-3 needs-validation" novalidate method="post" action="{{ route('login.submit') }}">
                     @csrf
 
                     <div class="col-12">
-                      <label for="yourUsername" class="form-label">Username</label>
+                      <label for="yourUsername" class="form-label" style="font-size:12px;">Username</label>
                       <div class="input-group has-validation">
-                        <span class="input-group-text" id="inputGroupPrepend">@</span>
+                         
                         <input type="text" name="username" class="form-control" id="yourUsername" required>
                         <div class="invalid-feedback">Please enter your username.</div>
                       </div>
                     </div>
 
                     <div class="col-12">
-                      <label for="yourPassword" class="form-label">Password</label>
+                      <label for="yourPassword" class="form-label" style="font-size:12px;">Password</label>
                       <input type="password" name="password" class="form-control" id="yourPassword" required>
                       <div class="invalid-feedback">Please enter your password!</div>
                     </div>

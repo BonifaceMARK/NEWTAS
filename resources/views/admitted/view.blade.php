@@ -57,7 +57,7 @@
                     </thead>
                     <!-- Table body -->
                     <tbody>
-                        @foreach ($admitted as $admit)
+                        @foreach ($InventoryItem as $admit)
                         <tr class="table-row" data-bs-toggle="modal" data-bs-target="#exampleModal{{ $admit->id }}">
                         <td class="symbol-cell {{ symbolBgColor($admit->symbols) }}" onclick="openModal('{{ $admit->symbols }}')">
                             @if($admit->symbols === 'complete')
@@ -121,7 +121,7 @@
     </section>
   
 {{-- @if (Auth::user()->role == 9 || Auth::user()->role == 2) --}}
-@foreach($admitted as $admit)
+@foreach($InventoryItem as $admit)
 <div class="modal fade" id="exampleModal{{ $admit->id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 80%;">
         <div class="modal-content">
@@ -165,7 +165,7 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    const fetchViolationUrl = @json(route('fetchingadmitted', ['id' => 'ID_PLACEHOLDER']));
+    const fetchViolationUrl = @json(route('fetchingInventoryItem', ['id' => 'ID_PLACEHOLDER']));
 
     function initializeModalScripts(modalId) {
         $('#modal-body-' + modalId + ' .remarksForm').on('submit', function (e) {

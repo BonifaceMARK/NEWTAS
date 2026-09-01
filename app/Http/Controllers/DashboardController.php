@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\TasFile;
-use App\Models\admitted;
+use App\Models\InventoryItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
@@ -27,76 +27,16 @@ use Illuminate\Support\Arr;
 
 class DashboardController extends Controller
 {
-    public function indexa(){
-            $revenueThisMonth = TasFile::whereMonth('date_received', date('m'))->count();
-
-            $previousMonthRevenue = TasFile::whereMonth('date_received', Carbon::now()->subMonth())->count();
-
-            // // Calculate the percentage change
-            // $percentageChange = $previousMonthRevenue > 0 ? (($revenueThisMonth - $previousMonthRevenue) / $previousMonthRevenue) * 100 : 0;
-
-            // $percentageChange = $previousYearCustomers > 0 ? (($customersThisYear - $previousYearCustomers) / $previousYearCustomers) * 100 : 0;
-            $recentActivity = TasFile::whereDate('created_at', today())->latest()->take(5)->get();
-            $customersThisYear = TasFile::whereYear('date_received', now())->count();
-            $recentSalesToday = TasFile::whereDate('created_at', today())->latest()->take(5)->get();
-            $averageSalesLastWeek = TasFile::whereBetween('created_at', [Carbon::now()->subDays(7)->startOfDay(), Carbon::now()->subDays(1)->endOfDay()])->count() / 7;
-            $admittedData = Admitted::all();
-            $tasFileData = TasFile::all();
-            $chartData = $admittedData->map(function ($item) {
-            $violationCount = 0;
-            if ($item->violation) {
-                $violations = json_decode($item->violation);
-                $violationCount = is_array($violations) ? count($violations) : 0;
-            }
-            return [
-                'name' => $item->name,
-                'violation_count' => $violationCount,
-                'transaction_date' => $item->transaction_date,
-            ];
-        });
-        $departmentsData = ApprehendingOfficer::all();
-      
- 
-        $allMonths = collect(range(1, 12))->map(function ($month) {
-            return ['month' => $month, 'record_count' => 0];
-        });
-        $countByMonth = TasFile::select(
-                DB::raw('MONTH(date_received) as month'),
-                DB::raw('COUNT(*) as record_count')
-            )
-            ->groupBy(DB::raw('MONTH(date_received)'))
-            ->get()
-            ->keyBy('month');
-
-        $countByMonth = $allMonths->map(function ($month) use ($countByMonth) {
-            return $countByMonth->has($month['month']) ? $countByMonth[$month['month']] : $month;
+   public function indexa (){
+ $users = User::all()->map(function($user) {
+            $user->decrypted_password = Crypt::decryptString($user->password);
+            return $user;
         });
 
-        $countByMonth = $countByMonth->sortBy('month')->values();
-        $yearlyData = TasFile::select(
-        DB::raw('IFNULL(YEAR(date_received), "Unknown") as year'),
-        DB::raw('COUNT(*) as record_count')
-        )
-        ->groupBy(DB::raw('IFNULL(YEAR(date_received), "Unknown")'))
-        ->get()
-        ->keyBy('year');
-        // Get today's date
-        $today = Carbon::now()->format('Y-m-d');
-
-        // Fetch the data created on today's date
-        $salesToday = TasFile::whereDate('created_at', $today)->get();
-        $officers = TasFile::leftJoin('apprehending_officers', 'tas_files.apprehending_officer', '=', 'apprehending_officers.officer')
-        ->select('tas_files.apprehending_officer', 'apprehending_officers.department')
-        ->selectRaw('COUNT(tas_files.apprehending_officer) as total_cases')
-        ->selectRaw('GROUP_CONCAT(tas_files.case_no) as case_numbers')
-        ->groupBy('tas_files.apprehending_officer', 'apprehending_officers.department')
-        ->orderByDesc('total_cases')
-        ->get();
+        return view('dashboard', ['users' => $users]);
+   }
 
 
-        return view('index', compact('officers','yearlyData','countByMonth' , 'departmentsData','tasFileData','admittedData','chartData','recentActivity', 'recentSalesToday', 'salesToday', 'revenueThisMonth', 'customersThisYear', 'averageSalesLastWeek'));
-       // return view('index', compact('recentActivity', 'recentSalesToday', 'salesToday', 'revenueThisMonth', 'customersThisYear', 'averageSalesLastWeek','previousYearCustomers', 'previousMonthRevenue', 'percentageChange'));
-    }
     public function editViolation(Request $request, $id){
         $violation = Violation::find($id);
 
@@ -124,7 +64,7 @@ class DashboardController extends Controller
         $violations = TrafficViolation::orderBy('code', 'asc')->get();
         return view('tas.manage',compact('officers','violations'));
     }
-    public function updateAdmittedCase(Request $request, $id){
+    public function updateInventoryItemCase(Request $request, $id){
         // Validate the request
         $validatedData = $request->validate([
             'editTop' => 'required|string',
@@ -137,11 +77,11 @@ class DashboardController extends Controller
             'editRemarks' => 'nullable|string',
         ]);
 
-        // Find the admitted case by id
-        $admittedCase = AdmittedCase::findOrFail($id);
+        // Find the InventoryItem case by id
+        $InventoryItemCase = InventoryItemCase::findOrFail($id);
 
         // Update attributes
-        $admittedCase->update([
+        $InventoryItemCase->update([
             'top' => $request->input('editTop'),
             'name' => $request->input('editName'),
             'violation' => $request->input('editViolation'),
@@ -154,7 +94,7 @@ class DashboardController extends Controller
         ]);
 
         // Redirect back or to a success page
-        return redirect()->back()->with('success', 'Admitted case updated successfully');
+        return redirect()->back()->with('success', 'InventoryItem case updated successfully');
     }
     public function caseIndex(){
         return view('case_archives');
@@ -212,13 +152,13 @@ class DashboardController extends Controller
         // dd($recentViolationsToday[1]);
         $violations = TrafficViolation::orderBy('code', 'asc')->get();
         // return view('tas.manage',compact('officers','violations'));
-        return view('admitted.manage', compact('officers','violations'));
+        return view('InventoryItem.manage', compact('officers','violations'));
     }
     public function admitview(){
-        // Retrieve admitted data
-        $admitted = Admitted::all()->sortByDesc('resolution_no');
+        // Retrieve InventoryItem data
+        $InventoryItem = InventoryItem::all()->sortByDesc('resolution_no');
 
-        foreach ($admitted as $admit) {
+        foreach ($InventoryItem as $admit) {
             $violations = json_decode($admit->violation);
             $officerName = $admit->apprehending_officer;
                 $officer = ApprehendingOfficer::firstOrCreate(['officer' => $officerName]);
@@ -234,10 +174,10 @@ class DashboardController extends Controller
         }
 
         $pageSize = 15; // Define the default page size
-        $admitted = Admitted::all()->sortByDesc('resolution_no');
+        $InventoryItem = InventoryItem::all()->sortByDesc('resolution_no');
         $officers = collect();
         
-        foreach ($admitted as $admit) {
+        foreach ($InventoryItem as $admit) {
             $officerName = $admit->apprehending_officer;
             $officersForFile = ApprehendingOfficer::where('officer', $officerName)->get();
             $officers = $officers->merge($officersForFile);
@@ -268,7 +208,7 @@ class DashboardController extends Controller
             $admit->relatedViolations = $relatedViolations;
         }
     
-        return view('admitted.view', compact('admitted'));
+        return view('InventoryItem.view', compact('InventoryItem'));
     }
     public function saveRemarks(Request $request) {
         $request->validate([
@@ -299,7 +239,7 @@ class DashboardController extends Controller
             return response()->json(['error' => $th->getMessage()], 500); // You can return a different error status code if needed
         }
     }
-    //admitted remarks
+    //InventoryItem remarks
     public function admitremark(Request $request){
         $request->validate([
             'remarks' => 'required|string',
@@ -309,7 +249,7 @@ class DashboardController extends Controller
         try {
             $id = $request->input('tas_file_id');
             $remarks = $request->input('remarks');
-            $tasFile = admitted::findOrFail($id);
+            $tasFile = InventoryItem::findOrFail($id);
             $existingRemarks = json_decode($tasFile->remarks, true) ?? [];
             $timestamp = Carbon::now('Asia/Manila')->format('g:ia m/d/y');
             $newRemark = $remarks . ' - ' . $timestamp .' - '. Auth::user()->fullname;
@@ -395,7 +335,7 @@ class DashboardController extends Controller
         }
     }
 
-    public function admittedsubmit(Request $request) {
+    public function InventoryItemsubmit(Request $request) {
          // dd($request->all());
          try {
             $validatedData = $request->validate([
@@ -413,9 +353,9 @@ class DashboardController extends Controller
             ]);
             DB::beginTransaction();
             $currentYear = date('Y');
-            $existingadmitted = admitted::where('resolution_no', $validatedData['resolution_no'])->first();
-            if (!$existingadmitted) {
-                $admitted = new admitted([
+            $existingInventoryItem = InventoryItem::where('resolution_no', $validatedData['resolution_no'])->first();
+            if (!$existingInventoryItem) {
+                $InventoryItem = new InventoryItem([
                     'resolution_no' => 'CS-' . $currentYear .'-'. $validatedData['resolution_no'],
                     'top' => $validatedData['top'],
                     'driver' => $validatedData['driver'],
@@ -438,10 +378,10 @@ class DashboardController extends Controller
                         $filePaths[] = 'attachments/' . $fileName;
                         $cx++;
                     }
-                    $admitted->file_attach = json_encode($filePaths);
+                    $InventoryItem->file_attach = json_encode($filePaths);
                 }
 
-                $admitted->save();
+                $InventoryItem->save();
             } else {
                 return redirect()->back()->with('error', 'resolution no. already exists.');
             }
@@ -900,12 +840,12 @@ if ($request->hasFile('file_attach_existing')) {
         }
     }
     
-    public function updateAdmitted(){
+    public function updateInventoryItem(){
         // Fetch all traffic violations
         
         
         // Fetch recent TasFiles ordered by case number descending
-        $recentViolationsToday = Admitted::all()->sortByDesc('resolution_no');
+        $recentViolationsToday = InventoryItem::all()->sortByDesc('resolution_no');
         
         // Fetch all codes (assuming TrafficViolation model provides codes)
         $codes = TrafficViolation::all();
@@ -929,7 +869,7 @@ if ($request->hasFile('file_attach_existing')) {
         }
   
         // Pass data to the view, including the new variable $violationData
-        return view('admitted.edit', compact('recentViolationsToday', 'codes', 'officers' ));
+        return view('InventoryItem.edit', compact('recentViolationsToday', 'codes', 'officers' ));
     }
     public function historyIndex() {
 
@@ -1067,22 +1007,22 @@ if ($request->hasFile('file_attach_existing')) {
         }
     }
     
-    public function detailsadmitted(Request $request, $id){
+    public function detailsInventoryItem(Request $request, $id){
         try {
             // Find the TasFile by its ID or throw a ModelNotFoundException
-            $admitted = admitted::findOrFail($id);
+            $InventoryItem = InventoryItem::findOrFail($id);
 
             // Retrieve related ApprehendingOfficers
-            $relatedOfficers = ApprehendingOfficer::where('officer', $admitted->apprehending_officer)->get();
+            $relatedOfficers = ApprehendingOfficer::where('officer', $InventoryItem->apprehending_officer)->get();
 
             // Retrieve related TrafficViolations
-            $violations = json_decode($admitted->violation, true);
+            $violations = json_decode($InventoryItem->violation, true);
             $relatedViolations = [];
             if ($violations) {
                 $relatedViolations = TrafficViolation::whereIn('code', $violations)->get();
             }
             
-            $remarks = json_decode($admitted->remarks);
+            $remarks = json_decode($InventoryItem->remarks);
             // Check if $remarks is an array
             if (is_array($remarks)) {
                 $remarks = array_reverse($remarks);
@@ -1092,7 +1032,7 @@ if ($request->hasFile('file_attach_existing')) {
             }
             // dd($remarks);
             // Return the view with TasFile and related data
-            return view('admitted.detailsview', compact('admitted', 'relatedOfficers', 'relatedViolations', 'remarks'));
+            return view('InventoryItem.detailsview', compact('InventoryItem', 'relatedOfficers', 'relatedViolations', 'remarks'));
 
         } catch (ModelNotFoundException $e) {
             // Handle case where TasFile with $id is not found

@@ -297,8 +297,7 @@
         },
         {
           select: 4,
-          cellClass: "green", // Apply green color to cells in the fifth column
-          headerClass: "red" // Apply red color to the header of the fifth column
+          cellClass: "green" // Apply green color to cells in the fifth column
         }
       ]
     });

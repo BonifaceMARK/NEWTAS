@@ -45,9 +45,9 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Admitted Case | Input</h5>
+                    <h5 class="card-title">InventoryItem Case | Input</h5>
                     <!-- Form Start -->
-                    <form method="POST" action="{{ route('admittedsubmit.tas') }}" class="row g-3 needs-validation" novalidate enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('InventoryItemsubmit.tas') }}" class="row g-3 needs-validation" novalidate enctype="multipart/form-data">
                         @csrf
                         <div class="col-md-6">
                             <label for="validationTooltipdate" class="form-label">Date Received</label>

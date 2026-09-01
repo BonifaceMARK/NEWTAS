@@ -2,10 +2,10 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Admitted;
+use App\Models\InventoryItem;
 use Faker\Factory as Faker;
 
-class AdmittedSeeder extends Seeder
+class InventoryItemSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -17,7 +17,7 @@ class AdmittedSeeder extends Seeder
         $faker = Faker::create();
 
         foreach (range(1, 1000) as $index) {
-            Admitted::create([
+            InventoryItem::create([
                 'resolution_no' => $faker->randomNumber(5),
                 'top' => $faker->randomElement(['A', 'B', 'C']),
                 'apprehending_officer' => $faker->name,

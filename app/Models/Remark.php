@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\TasFile;
-class admitted extends Model
+class InventoryItem extends Model
 {
 
-    protected $table = 'admitted_files';
+    protected $table = 'InventoryItem_files';
 
     protected $fillable = ['tas_file_id', 'remark'];
 

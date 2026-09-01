@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\TasFile;
-use App\Models\admitted;
+use App\Models\InventoryItem;
 class TrafficViolation extends Model
 {
     use HasFactory;
@@ -17,9 +17,9 @@ class TrafficViolation extends Model
     {
         return $this->belongsToMany(TasFile::class, 'id');
     }
-    public function admittedFiles()
+    public function InventoryItemFiles()
     {
-        return $this->belongsToMany(admitted::class, 'id');
+        return $this->belongsToMany(InventoryItem::class, 'id');
     }
     public function setviolationAttribute($value)
     {
