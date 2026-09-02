@@ -246,13 +246,6 @@ $(document).ready(function() {
     });
 });
 </script>
-
-
-
-
-
-
-
   <!-- Include Footer -->
   @include('layouts.footer')
 </body>

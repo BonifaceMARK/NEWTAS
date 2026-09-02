@@ -27,14 +27,17 @@ use Illuminate\Support\Arr;
 
 class DashboardController extends Controller
 {
-   public function indexa (){
- $users = User::all()->map(function($user) {
-            $user->decrypted_password = Crypt::decryptString($user->password);
-            return $user;
-        });
+public function indexa()
+{
+    $users = User::all()->map(function ($user) {
+        // Do NOT decrypt bcrypt hashes
+        $user->masked_password = '********'; // optional placeholder
+        return $user;
+    });
 
-        return view('dashboard', ['users' => $users]);
-   }
+    return view('dashboard', ['users' => $users]);
+}
+
 
 
     public function editViolation(Request $request, $id){

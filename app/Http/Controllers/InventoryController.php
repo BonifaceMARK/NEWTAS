@@ -331,5 +331,10 @@ class InventoryController extends Controller
       public function inventoryreports(){
         return view('inventory.reports');
         }
+
+
+        public function asset(){
+          return view('inventory.asset');
+        }
         
 }
