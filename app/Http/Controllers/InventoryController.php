@@ -336,5 +336,95 @@ class InventoryController extends Controller
         public function asset(){
           return view('inventory.asset');
         }
+
+    public function createAssetTransfer(){
+    $inventoryItems = InventoryItem::orderBy('item_name')->get();
+    $campaignOptions = InventoryOption::where('option_type', 'campaign')
+        ->orderBy('option_value')
+        ->get();
+    $assetTypes = InventoryOption::where('option_type', 'category')
+        ->orderBy('option_value')
+        ->get();
+
+    // Provide defaults so Blade won’t error
+    $date = now()->format('M d, Y');
+    $reference = 'REF-' . now()->timestamp;
+    $fromCampaign = '';
+    $toCampaign = '';
+    $assetType = '';
+    $remarks = '';
+
+    // Default empty items array
+    $items = [];
+
+    return view('inventory.asset-add', compact(
+        'inventoryItems',
+        'campaignOptions',
+        'assetTypes',
+        'date',
+        'reference',
+        'fromCampaign',
+        'toCampaign',
+        'assetType',
+        'remarks',
+        'items'
+    ));
+}
+
+
+
+public function assetTransfer(Request $request){
+    $this->validateTransferSelection($request);
+    $items = $this->prepareGatepassItems($request);
+
+    return view('asset.transfer', [
+        'items' => $items,
+        'owner' => $request->input('owner') ?: 'N/A',
+        'reference' => $request->input('reference_no') ?: 'N/A',
+        'fromCampaign' => $request->input('from_campaign') ?: 'N/A',
+        'toCampaign' => $request->input('to_campaign') ?: 'N/A',
+        'assetType' => $request->input('asset_type') ?: 'N/A',
+        'date' => $request->input('date') ?: now()->format('M d, Y'),
+    ]);
+}
+
+public function assetTransferList(Request $request){
+    $this->validateTransferSelection($request);
+    $items = $this->prepareGatepassItems($request);
+
+    return view('asset.list', [
+        'items' => $items,
+        'owner' => $request->input('owner') ?: 'N/A',
+        'reference' => $request->input('reference_no') ?: 'N/A',
+        'date' => $request->input('date') ?: now()->format('M d, Y'),
+        'fromCampaign' => $request->input('from_campaign') ?: 'N/A',
+        'toCampaign' => $request->input('to_campaign') ?: 'N/A',
+    ]);
+}
+
+public function assetTransferForItem(InventoryItem $inventoryItem){
+    $inventoryItem->load('campaignHistory');
+
+    return view('asset.transfer', [
+        'items' => [[
+            'item_id' => $inventoryItem->id,
+            'asset_tag' => $inventoryItem->asset_tag,
+            'item_name' => $inventoryItem->item_name,
+            'brand' => $inventoryItem->brand,
+            'model' => $inventoryItem->model,
+            'quantity' => 1,
+            'unit' => $inventoryItem->category ?: 'Unit',
+            'description' => trim(($inventoryItem->item_name ?? 'Inventory Item') . ' - ' . ($inventoryItem->brand ?? '') . ' ' . ($inventoryItem->model ?? '')),
+            'remarks' => 'Transferred from ' . ($inventoryItem->campaign ?? 'current campaign') . ' to new campaign',
+        ]],
+        'owner' => $inventoryItem->assigned_to ?: 'N/A',
+        'reference' => 'REF-' . now()->timestamp,
+        'fromCampaign' => $inventoryItem->campaign ?: 'N/A',
+        'toCampaign' => 'N/A',
+        'assetType' => $inventoryItem->category ?: 'N/A',
+        'date' => now()->format('M d, Y'),
+    ]);
+}
+
         
 }

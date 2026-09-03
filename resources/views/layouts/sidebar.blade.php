@@ -29,7 +29,7 @@
       <a class="nav-link chat collapsed" href="{{ route('inventory.gatepass.create') }}"><i class="bi bi-file-earmark-text-fill"></i> Gatepass</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link chat collapsed" href="{{ route('asset.inventory') }}"><i class="bi bi-file-earmark-arrow-up-fill"></i>Asset Transfer </a>
+      <a class="nav-link chat collapsed" href="{{ route('asset.transfer.create') }}"><i class="bi bi-file-earmark-arrow-up-fill"></i>Asset Transfer </a>
     </li>
 
 

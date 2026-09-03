@@ -56,6 +56,12 @@ Route::middleware('auth')->group(function () {
     Route::put('/inventory/{inventoryItem}', [InventoryController::class, 'update'])->name('inventory.update');
     Route::get('/inventory/{inventoryItem}/gatepass', [InventoryController::class, 'gatepassForItem'])->name('inventory.gatepass.item');
     Route::get('/inventory/{inventoryItem}', [InventoryController::class, 'show'])->name('inventory.show');
+
+   Route::get('/asset/transfer/create', [InventoryController::class, 'createAssetTransfer'])->name('asset.transfer.create');
+Route::post('/asset/transfer', [InventoryController::class, 'assetTransfer'])->name('asset.transfer');
+Route::post('/asset/transfer-list', [InventoryController::class, 'assetTransferList'])->name('asset.transfer.list');
+Route::get('/asset/transfer/{inventoryItem}', [InventoryController::class, 'assetTransferForItem'])->name('asset.transfer.item');
+
 });
 
 
