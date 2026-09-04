@@ -219,6 +219,29 @@ class InventoryController extends Controller
         ]);
       }
 
+public function storeGatepass(Request $request)
+{
+    $validated = $request->validate([
+        'item_id'       => 'required|exists:inventory_items,id',
+        'owner'         => 'nullable|string|max:255',
+        'contact'       => 'nullable|string|max:255',
+        'bearer'        => 'nullable|string|max:255',
+        'date'          => 'required|date',
+        'time'          => 'required',
+        'site_floor'    => 'required|string|max:255',
+        'quantity'      => 'required|integer|min:1',
+        'unit'          => 'nullable|string|max:50',
+        'description'   => 'nullable|string|max:500',
+        'remarks'       => 'nullable|string|max:1000',
+    ]);
+
+    $gatepass = Gatepass::create($validated);
+
+    return redirect()->route('gatepass.show', $gatepass->id)
+                     ->with('success', 'Gatepass saved successfully!');
+}
+
+
       protected function validateTransferSelection(Request $request): void
       {
         $toLocation = trim((string) $request->input('to_site_floor', ''));
@@ -337,7 +360,7 @@ class InventoryController extends Controller
           return view('inventory.asset');
         }
 
-    public function createAssetTransfer(){
+public function createAssetTransfer(){
     $inventoryItems = InventoryItem::orderBy('item_name')->get();
     $campaignOptions = InventoryOption::where('option_type', 'campaign')
         ->orderBy('option_value')
@@ -346,15 +369,13 @@ class InventoryController extends Controller
         ->orderBy('option_value')
         ->get();
 
-    // Provide defaults so Blade won’t error
+    // Default values to prevent undefined variable errors
     $date = now()->format('M d, Y');
     $reference = 'REF-' . now()->timestamp;
     $fromCampaign = '';
     $toCampaign = '';
     $assetType = '';
     $remarks = '';
-
-    // Default empty items array
     $items = [];
 
     return view('inventory.asset-add', compact(
@@ -370,6 +391,7 @@ class InventoryController extends Controller
         'items'
     ));
 }
+
 
 
 

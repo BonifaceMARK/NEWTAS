@@ -1,10 +1,10 @@
+
 @section('title', env('APP_NAME'))
 
 @include('layouts.title')
-
 @include('layouts.header')
+@include('layouts.sidebar')
 
-    @include('layouts.sidebar')
 <div class="page">
 
     <!-- HEADER -->
@@ -25,26 +25,26 @@
         <div class="information-left">
             <div class="information-row">
                 <span class="information-label">Date of transfer:</span>
-                <span class="information-line">{{ $date }}</span>
+                <span class="information-line">{{ $date ?? now()->format('M d, Y') }}</span>
             </div>
             <div class="information-row">
                 <span class="information-label">Original campaign/team:</span>
-                <span class="information-line campaign-line">{{ $fromCampaign }}</span>
+                <span class="information-line campaign-line">{{ $fromCampaign ?? '' }}</span>
             </div>
             <div class="information-row">
                 <span class="information-label">Asset type:</span>
-                <span class="information-line asset-line">{{ $assetType }}</span>
+                <span class="information-line asset-line">{{ $assetType ?? '' }}</span>
             </div>
             <div class="information-row">
                 <span class="information-label">Transferred campaign:</span>
-                <span class="information-line transferred-line">{{ $toCampaign }}</span>
+                <span class="information-line transferred-line">{{ $toCampaign ?? '' }}</span>
             </div>
         </div>
 
         <div class="information-right">
             <div class="information-row">
                 <span class="information-label">Reference no.:</span>
-                <span class="information-line reference-line">{{ $reference }}</span>
+                <span class="information-line reference-line">{{ $reference ?? 'REF-' . now()->timestamp }}</span>
             </div>
         </div>
         <div class="clear"></div>
@@ -62,21 +62,25 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($items as $item)
-            <tr>
-                <td>{{ $item['description'] }}</td>
-                <td>{{ $item['quantity'] }}</td>
-                <td>{{ $item['purchase_date'] ?? '' }}</td>
-                <td>{{ $item['original_value'] ?? '' }}</td>
-                <td>{{ $item['net_book_value'] ?? '' }}</td>
-            </tr>
-            @endforeach
+            @forelse ($items ?? [] as $item)
+                <tr>
+                    <td>{{ $item['description'] ?? '' }}</td>
+                    <td>{{ $item['quantity'] ?? '' }}</td>
+                    <td>{{ $item['purchase_date'] ?? '' }}</td>
+                    <td>{{ $item['original_value'] ?? '' }}</td>
+                    <td>{{ $item['net_book_value'] ?? '' }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="5" class="text-center">No items selected for transfer</td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 
     <!-- TOTAL -->
     <div class="total-row">
-        TOTAL: {{ collect($items)->sum('quantity') }}
+        TOTAL: {{ collect($items ?? [])->sum('quantity') }}
     </div>
 
     <!-- REASON FOR TRANSFER -->
@@ -130,3 +134,5 @@
         </div>
     </div>
 </div>
+
+@include('layouts.footer')

@@ -779,17 +779,54 @@
                             </div>
                         </div>
 
-                  
+                
+
+
 
                         <div class="col-12 d-flex justify-content-end gap-2">
-                            <a href="{{ route('inventory.list') }}" class="btn btn-outline-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary"><i class="bi bi-printer me-1"></i>Generate Gatepass</button>
-                            <button type="submit" formaction="{{ route('inventory.gatepass.list') }}" class="btn btn-outline-dark"><i class="bi bi-list-ul me-1"></i>Print List Only</button>
+                               <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmSaveModal">
+        <i class="bi bi-save me-1"></i>Save Changes
+    </button>
+                           <button type="submit" class="btn btn-primary" formtarget="_blank">
+    <i class="bi bi-printer me-1"></i>Generate Gatepass
+</button>
+
+<button type="submit" formaction="{{ route('inventory.gatepass.list') }}" 
+        class="btn btn-outline-dark" formtarget="_blank">
+    <i class="bi bi-list-ul me-1"></i>Print List Only
+</button>
+
                         </div>
                     </form>
                 </div>
             </div>
         </section>
+            <!-- Save Confirmation Modal -->
+<div class="modal fade" id="confirmSaveModal" tabindex="-1" aria-labelledby="confirmSaveLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmSaveLabel">Confirm Save</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        Are you sure you want to save these changes?
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        
+        <!-- Actual save button submits the form -->
+        <button type="submit" class="btn btn-success" form="gatepassForm">
+          Yes, Save Changes
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
     </main>
 
     @include('layouts.footer')
@@ -1200,51 +1237,145 @@
             }
         }
 
-        function applyFiltersAndSearch() {
-            const searchTerm = document.getElementById('asset-search')?.value.toLowerCase().trim() || '';
-            const activeFilters = Array.from(document.querySelectorAll('.filter-btn.active')).map((btn) => btn.dataset.filter);
-            const assetCards = inventoryPool.querySelectorAll('.asset-drag-card');
-            let visibleCount = 0;
+      function normalizeLocation(value) {
+    return (value || '')
+        .toString()
+        .trim()
+        .replace(/\s+/g, ' ')
+        .toLowerCase();
+}
 
-            assetCards.forEach((card) => {
-                const assetTag = (card.dataset.assetTag || '').toLowerCase();
-                const itemName = (card.dataset.itemName || '').toLowerCase();
-                const description = (card.dataset.description || '').toLowerCase();
-                const category = (card.dataset.category || '').toLowerCase();
+function applyFiltersAndSearch() {
+    const fromSite = document.getElementById('from_site_floor')?.value || '';
+    const normalizedFromSite = normalizeLocation(fromSite);
 
-                // Check if matches search term
-                const matchesSearch = !searchTerm || assetTag.includes(searchTerm) || itemName.includes(searchTerm) || description.includes(searchTerm);
+    const searchTerm =
+        document.getElementById('asset-search')?.value.toLowerCase().trim() || '';
 
-                // Check if matches filter (show if no filters active, or if category matches any active filter)
-                const matchesFilter = activeFilters.length === 0 || activeFilters.some((f) => f.toLowerCase() === category);
+    const activeFilters = Array.from(
+        document.querySelectorAll('.filter-btn.active')
+    ).map((btn) => btn.dataset.filter);
 
-                // Show only if matches both search AND filter
-                const shouldShow = (searchTerm || activeFilters.length > 0) && matchesSearch && matchesFilter;
+    const assetCards = inventoryPool.querySelectorAll('.asset-drag-card');
 
-                if (shouldShow) {
-                    card.classList.remove('hidden-by-default');
-                    card.style.display = '';
-                    visibleCount++;
-                } else {
-                    card.classList.add('hidden-by-default');
-                    card.style.display = 'none';
-                }
-            });
+    let visibleCount = 0;
 
-            let noResultsState = inventoryPool.querySelector('.no-results-state');
-            if (visibleCount === 0 && (searchTerm || activeFilters.length > 0)) {
-                if (!noResultsState) {
-                    noResultsState = document.createElement('div');
-                    noResultsState.className = 'no-results-state';
-                    noResultsState.textContent = 'No assets found matching your search or filters.';
-                    inventoryPool.appendChild(noResultsState);
-                }
-            } else if (noResultsState) {
-                noResultsState.remove();
-            }
+    /*
+     * If no From Site is selected, don't show assets.
+     */
+    if (!normalizedFromSite) {
+        assetCards.forEach((card) => {
+            card.classList.add('hidden-by-default');
+            card.style.display = 'none';
+        });
 
-            updateClearButtonState();
+        let noResultsState = inventoryPool.querySelector('.no-results-state');
+
+        if (!noResultsState) {
+            noResultsState = document.createElement('div');
+            noResultsState.className = 'no-results-state';
+            noResultsState.textContent =
+                'Please select a From Site / Floor to view available assets.';
+            inventoryPool.appendChild(noResultsState);
         }
+
+        updateClearButtonState();
+        return;
+    }
+
+    /*
+     * Remove the "select From Site" message.
+     */
+    const noSiteMessage = inventoryPool.querySelector('.no-results-state');
+
+    if (noSiteMessage) {
+        noSiteMessage.remove();
+    }
+
+    assetCards.forEach((card) => {
+        const currentLocation =
+            normalizeLocation(card.dataset.currentLocation);
+
+        const assetTag =
+            (card.dataset.assetTag || '').toLowerCase();
+
+        const itemName =
+            (card.dataset.itemName || '').toLowerCase();
+
+        const description =
+            (card.dataset.description || '').toLowerCase();
+
+        const category =
+            (card.dataset.category || '').toLowerCase();
+
+        /*
+         * MAIN FILTER:
+         * Only show assets currently located at the selected From Site / Floor.
+         */
+        const matchesFromSite =
+            currentLocation === normalizedFromSite;
+
+        /*
+         * Search filter.
+         */
+        const matchesSearch =
+            !searchTerm ||
+            assetTag.includes(searchTerm) ||
+            itemName.includes(searchTerm) ||
+            description.includes(searchTerm);
+
+        /*
+         * Category filter.
+         */
+        const matchesFilter =
+            activeFilters.length === 0 ||
+            activeFilters.some(
+                (filter) => filter.toLowerCase() === category
+            );
+
+        /*
+         * Asset must match ALL conditions.
+         */
+        const shouldShow =
+            matchesFromSite &&
+            matchesSearch &&
+            matchesFilter;
+
+        if (shouldShow) {
+            card.classList.remove('hidden-by-default');
+            card.style.display = '';
+            visibleCount++;
+        } else {
+            card.classList.add('hidden-by-default');
+            card.style.display = 'none';
+        }
+    });
+
+    /*
+     * Show message when the selected From Site has no assets.
+     */
+    let noResultsState = inventoryPool.querySelector('.no-results-state');
+
+    if (visibleCount === 0) {
+        if (!noResultsState) {
+            noResultsState = document.createElement('div');
+            noResultsState.className = 'no-results-state';
+            inventoryPool.appendChild(noResultsState);
+        }
+
+        if (searchTerm || activeFilters.length > 0) {
+            noResultsState.textContent =
+                'No assets found at the selected From Site matching your search or filters.';
+        } else {
+            noResultsState.textContent =
+                'No assets are currently available at the selected From Site / Floor.';
+        }
+    } else if (noResultsState) {
+        noResultsState.remove();
+    }
+
+    updateClearButtonState();
+}
 
         const assetSearch = document.getElementById('asset-search');
         if (assetSearch) {

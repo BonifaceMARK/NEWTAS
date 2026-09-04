@@ -334,7 +334,10 @@
 				<span class="detail-label">DATE:</span>
 				<span class="detail-field medium">{{ $date ?? now()->format('M d, Y') }}</span>
 				<span class="detail-label compact">TIME:</span>
-				<span class="detail-field medium">{{ $time ?? now()->format('h:i A') }}</span>
+<span class="detail-field medium">
+    {{ $time ? \Carbon\Carbon::parse($time)->format('h:i A') : now()->format('h:i A') }}
+</span>
+
 			</div>
 			<div class="detail-row">
 				<span class="detail-label">FROM:</span>

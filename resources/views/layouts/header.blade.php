@@ -134,7 +134,7 @@
     <i class="bi bi-list toggle-sidebar-btn" aria-label="Toggle navigation"></i>
     <a href="{{ url('/') }}" class="app-logo logo d-flex align-items-center">
       <img src="{{ asset('assets/img/asi_logo.jpg') }}" alt="ASI Inventory logo">
-      <span class="d-none d-sm-block">ASI Inventory</span>
+      <span class="d-none d-sm-block">AD Inventory</span>
     </a>
   </div>
 
