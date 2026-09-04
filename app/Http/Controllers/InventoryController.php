@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\InventoryItem;
+use App\Models\Gatepass;
 use App\Models\InventoryOption;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class InventoryController extends Controller
@@ -218,29 +220,102 @@ class InventoryController extends Controller
           'toSiteFloor' => $request->input('to_site_floor') ?: 'N/A',
         ]);
       }
-
 public function storeGatepass(Request $request)
 {
-    $validated = $request->validate([
-        'item_id'       => 'required|exists:inventory_items,id',
-        'owner'         => 'nullable|string|max:255',
-        'contact'       => 'nullable|string|max:255',
-        'bearer'        => 'nullable|string|max:255',
-        'date'          => 'required|date',
-        'time'          => 'required',
-        'site_floor'    => 'required|string|max:255',
-        'quantity'      => 'required|integer|min:1',
-        'unit'          => 'nullable|string|max:50',
-        'description'   => 'nullable|string|max:500',
-        'remarks'       => 'nullable|string|max:1000',
+    Log::info('=== STORE GATEPASS STARTED ===', [
+        'user_id' => auth()->id(),
+        'ip' => $request->ip(),
+        'method' => $request->method(),
+        'url' => $request->fullUrl(),
+        'request_data' => $request->all(),
     ]);
 
-    $gatepass = Gatepass::create($validated);
+    try {
 
-    return redirect()->route('gatepass.show', $gatepass->id)
-                     ->with('success', 'Gatepass saved successfully!');
+        Log::info('Validating gatepass request...', [
+            'request_data' => $request->all(),
+        ]);
+
+        $validated = $request->validate([
+            'owner'            => 'nullable|string|max:255',
+            'contact'          => 'nullable|string|max:255',
+            'bearer'           => 'nullable|string|max:255',
+            'date'             => 'required|date',
+            'time'             => 'required',
+            'from_site_floor'  => 'required|string|max:255',
+            'to_site_floor'    => 'required|string|max:255',
+
+            'items'            => 'required|array|min:1',
+            'items.*.item_id'  => 'required|exists:tbl_inventory_items,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.unit'     => 'nullable|string|max:50',
+            'items.*.description' => 'nullable|string|max:500',
+            'items.*.remarks'  => 'nullable|string|max:1000',
+        ]);
+
+        Log::info('Gatepass validation successful.', [
+            'validated' => $validated,
+        ]);
+
+        /*
+         * Create one Gatepass record per item.
+         */
+        foreach ($validated['items'] as $item) {
+
+            $gatepassData = [
+                'item_id'         => $item['item_id'],
+                'owner'           => $validated['owner'] ?? null,
+                'contact'         => $validated['contact'] ?? null,
+                'bearer'          => $validated['bearer'] ?? null,
+                'date'            => $validated['date'],
+                'time'            => $validated['time'],
+                'from_site_floor' => $validated['from_site_floor'],
+                'to_site_floor'   => $validated['to_site_floor'],
+                'quantity'        => $item['quantity'],
+                'unit'            => $item['unit'] ?? null,
+                'description'     => $item['description'] ?? null,
+                'remarks'         => $item['remarks'] ?? null,
+            ];
+
+            Log::info('Creating Gatepass record.', [
+                'gatepass_data' => $gatepassData,
+            ]);
+
+            $gatepass = Gatepass::create($gatepassData);
+
+            Log::info('Gatepass created successfully.', [
+                'gatepass_id' => $gatepass->id,
+                'item_id' => $item['item_id'],
+            ]);
+        }
+
+        Log::info('=== STORE GATEPASS COMPLETED ===');
+
+        return redirect()->back()
+            ->with('success', 'Gatepass saved successfully!');
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+
+        Log::warning('Gatepass validation failed.', [
+            'errors' => $e->errors(),
+            'request_data' => $request->all(),
+        ]);
+
+        throw $e;
+
+    } catch (\Throwable $e) {
+
+        Log::error('Gatepass save failed.', [
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString(),
+            'request_data' => $request->all(),
+        ]);
+
+        throw $e;
+    }
 }
-
 
       protected function validateTransferSelection(Request $request): void
       {

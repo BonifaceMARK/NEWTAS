@@ -656,7 +656,12 @@
                         </div>
                     </div>
 
-                    <form method="GET" action="{{ route('inventory.gatepass') }}" class="row g-3">
+                 <form id="gatepassForm"
+      method="GET"
+      action="{{ route('inventory.gatepass') }}"
+      class="row g-3">
+
+    @csrf
                         <div class="col-12 transfer-highlight">
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-6">
@@ -818,10 +823,14 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         
-        <!-- Actual save button submits the form -->
-        <button type="submit" class="btn btn-success" form="gatepassForm">
-          Yes, Save Changes
-        </button>
+     <button
+    type="submit"
+    class="btn btn-success"
+    form="gatepassForm"
+    formaction="{{ route('inventory.gatepass.save') }}"
+    formmethod="POST">
+    Yes, Save Changes
+</button>
       </div>
 
     </div>
