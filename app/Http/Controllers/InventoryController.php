@@ -50,11 +50,27 @@ class InventoryController extends Controller
         return view('inventory.add', compact('options'));
       }
 
-      public function values(){
-        $options = InventoryOption::orderBy('option_type')->orderBy('option_value')->get()->groupBy('option_type');
+public function values(Request $request)
+{
+    // Grab filter from query string (?filter=Location, ?filter=Campaign, etc.)
+    $filter = $request->input('filter');
 
-        return view('inventory.values', compact('options'));
-      }
+    // Base query
+    $query = InventoryOption::orderBy('option_type')
+        ->orderBy('option_value');
+
+    // Apply filter if present
+    if (!empty($filter)) {
+        $query->where('option_type', $filter);
+    }
+
+    // Group results by type (so Blade can loop cleanly)
+    $options = $query->get()->groupBy('option_type');
+
+    return view('inventory.values', compact('options', 'filter'));
+}
+
+
 
       public function storeValue(Request $request){
         $validated = $request->validate([
@@ -453,7 +469,7 @@ public function createAssetTransfer(){
     $remarks = '';
     $items = [];
 
-    return view('inventory.asset-add', compact(
+    return view('transfer.asset-add', compact(
         'inventoryItems',
         'campaignOptions',
         'assetTypes',
@@ -468,23 +484,6 @@ public function createAssetTransfer(){
 }
 
 
-
-
-public function assetTransfer(Request $request){
-    $this->validateTransferSelection($request);
-    $items = $this->prepareGatepassItems($request);
-
-    return view('asset.transfer', [
-        'items' => $items,
-        'owner' => $request->input('owner') ?: 'N/A',
-        'reference' => $request->input('reference_no') ?: 'N/A',
-        'fromCampaign' => $request->input('from_campaign') ?: 'N/A',
-        'toCampaign' => $request->input('to_campaign') ?: 'N/A',
-        'assetType' => $request->input('asset_type') ?: 'N/A',
-        'date' => $request->input('date') ?: now()->format('M d, Y'),
-    ]);
-}
-
 public function assetTransferList(Request $request){
     $this->validateTransferSelection($request);
     $items = $this->prepareGatepassItems($request);
@@ -498,30 +497,41 @@ public function assetTransferList(Request $request){
         'toCampaign' => $request->input('to_campaign') ?: 'N/A',
     ]);
 }
+public function assetTransfer(Request $request)
+{
+    $this->validateTransferSelection($request);
+    $items = $this->prepareGatepassItems($request);
 
-public function assetTransferForItem(InventoryItem $inventoryItem){
-    $inventoryItem->load('campaignHistory');
+    if ($request->input('action') === 'save') {
+        // Save to DB
+        AssetTransfer::create([
+            'reference_no'    => $request->input('reference_no'),
+            'date_of_transfer'=> $request->input('date_of_transfer'),
+            'from_campaign'   => $request->input('from_campaign'),
+            'to_campaign'     => $request->input('to_campaign'),
+            'asset_type'      => $request->input('asset_type'),
+            'remarks'         => $request->input('remarks'),
+        ]);
 
-    return view('asset.transfer', [
-        'items' => [[
-            'item_id' => $inventoryItem->id,
-            'asset_tag' => $inventoryItem->asset_tag,
-            'item_name' => $inventoryItem->item_name,
-            'brand' => $inventoryItem->brand,
-            'model' => $inventoryItem->model,
-            'quantity' => 1,
-            'unit' => $inventoryItem->category ?: 'Unit',
-            'description' => trim(($inventoryItem->item_name ?? 'Inventory Item') . ' - ' . ($inventoryItem->brand ?? '') . ' ' . ($inventoryItem->model ?? '')),
-            'remarks' => 'Transferred from ' . ($inventoryItem->campaign ?? 'current campaign') . ' to new campaign',
-        ]],
-        'owner' => $inventoryItem->assigned_to ?: 'N/A',
-        'reference' => 'REF-' . now()->timestamp,
-        'fromCampaign' => $inventoryItem->campaign ?: 'N/A',
-        'toCampaign' => 'N/A',
-        'assetType' => $inventoryItem->category ?: 'N/A',
-        'date' => now()->format('M d, Y'),
-    ]);
+        return redirect()->route('asset.index')
+            ->with('success', 'Asset transfer saved successfully.');
+    }
+
+    if ($request->input('action') === 'print') {
+        // Show print view in new tab
+        return view('transfer.asset-print', [
+            'items'       => $items,
+            'owner'       => $request->input('owner') ?: 'N/A',
+            'reference'   => $request->input('reference_no') ?: 'N/A',
+            'fromCampaign'=> $request->input('from_campaign') ?: 'N/A',
+            'toCampaign'  => $request->input('to_campaign') ?: 'N/A',
+            'assetType'   => $request->input('asset_type') ?: 'N/A',
+            'remarks'     => $request->input('remarks') ?: 'N/A',
+            'date'        => $request->input('date_of_transfer') ?: now()->format('M d, Y'),
+        ]);
+    }
 }
+
 
         
 }

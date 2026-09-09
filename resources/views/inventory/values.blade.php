@@ -1,3 +1,5 @@
+@extends('layouts.app')
+
 @section('title', env('APP_NAME'))
 
 @include('layouts.title')
@@ -10,61 +12,94 @@
         <section class="section">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Inventory Options</h5>
-                    <p class="text-muted">Save reusable values for inventory item fields.</p>
-
-                    @if (session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
-                    @endif
+                    <h5 class="card-title">Fixed Asset Transfer Form</h5>
 
                     @if ($errors->any())
-                        <div class="alert alert-danger">{{ $errors->first() }}</div>
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
                     @endif
 
-                    <form action="{{ route('inventory.values.store') }}" method="POST" class="row g-3 mb-4">
+                    <form action="{{ route('asset.transfer') }}" method="POST" class="row g-3">
                         @csrf
-                        <div class="col-md-4">
-                            <label for="option_type" class="form-label">Field</label>
-                            <select class="form-select" id="option_type" name="option_type" required>
-                                <option value="">Select field</option>
-                                @foreach (['category' => 'Category', 'brand' => 'Brand', 'department' => 'Department', 'campaign' => 'Campaign', 'location' => 'Location', 'status' => 'Status'] as $value => $label)
-                                    <option value="{{ $value }}" @selected(old('option_type') === $value)>{{ $label }}</option>
+
+                        <div class="col-md-6">
+                            <label for="reference_no" class="form-label">Reference No.</label>
+                            <input type="text" class="form-control" id="reference_no" name="reference_no" 
+                                   value="{{ old('reference_no', $reference ?? '') }}" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="date_of_transfer" class="form-label">Date of Transfer</label>
+                            <input type="date" class="form-control" id="date_of_transfer" name="date_of_transfer" 
+                                   value="{{ old('date_of_transfer', $date ?? '') }}" required>
+                        </div>
+
+                        <!-- Original Campaign/Team -->
+                        <div class="col-md-6">
+                            <label for="from_campaign" class="form-label">Original Campaign/Team</label>
+                            <select class="form-select" id="from_campaign" name="from_campaign" required>
+                                <option value="">Select Campaign/Team</option>
+                                @foreach ($campaignOptions as $option)
+                                    <option value="{{ $option->option_value }}" 
+                                        {{ old('from_campaign', $fromCampaign ?? '') == $option->option_value ? 'selected' : '' }}>
+                                        {{ $option->option_value }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
+
+                        <!-- Transferred Campaign -->
                         <div class="col-md-6">
-                            <label for="option_value" class="form-label">Option</label>
-                            <input type="text" class="form-control" id="option_value" name="option_value" value="{{ old('option_value') }}" maxlength="255" required>
+                            <label for="to_campaign" class="form-label">Transferred Campaign</label>
+                            <select class="form-select" id="to_campaign" name="to_campaign" required>
+                                <option value="">Select Transferred Campaign</option>
+                                @foreach ($campaignOptions as $option)
+                                    <option value="{{ $option->option_value }}" 
+                                        {{ old('to_campaign', $toCampaign ?? '') == $option->option_value ? 'selected' : '' }}>
+                                        {{ $option->option_value }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100">Add Option</button>
+
+                        <!-- Asset Type -->
+                        <div class="col-md-6">
+                            <label for="asset_type" class="form-label">Asset Type</label>
+                            <select class="form-select" id="asset_type" name="asset_type" required>
+                                <option value="">Select Asset Type</option>
+                                @foreach ($assetTypes as $type)
+                                    <option value="{{ $type->option_value }}" 
+                                        {{ old('asset_type', $assetType ?? '') == $type->option_value ? 'selected' : '' }}>
+                                        {{ $type->option_value }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Remarks -->
+                        <div class="col-12">
+                            <label for="remarks" class="form-label">Reason for Transfer</label>
+                            <textarea class="form-control" id="remarks" name="remarks" rows="3">{{ old('remarks', $remarks ?? '') }}</textarea>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="col-12">
+                            <!-- Save button (same tab) -->
+                            <button type="submit" name="action" value="save" class="btn btn-success">
+                                Save Transfer
+                            </button>
+
+                            <!-- Print button (new tab) -->
+                            <button type="submit" name="action" value="print" class="btn btn-primary" formtarget="_blank">
+                                Print Transfer
+                            </button>
                         </div>
                     </form>
-
-                    <div class="table-responsive">
-                        <table class="table table-striped align-middle">
-                            <thead>
-                                <tr><th>Field</th><th>Saved Option</th><th class="text-end">Action</th></tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($options->flatten() as $option)
-                                    <tr>
-                                        <td>{{ ucfirst($option->option_type) }}</td>
-                                        <td>{{ $option->option_value }}</td>
-                                        <td class="text-end">
-                                            <form action="{{ route('inventory.values.delete', $option) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr><td colspan="3" class="text-center text-muted">No saved options yet.</td></tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
         </section>
@@ -72,5 +107,4 @@
 
     @include('layouts.footer')
 </body>
-
 </html>
