@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InventoryItem;
 use App\Models\Gatepass;
+use App\Models\assetTransfer;
 use App\Models\InventoryOption;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -513,7 +514,7 @@ public function assetTransfer(Request $request)
             'remarks'         => $request->input('remarks'),
         ]);
 
-        return redirect()->route('asset.index')
+        return redirect()->route('asset.transfer.create')
             ->with('success', 'Asset transfer saved successfully.');
     }
 

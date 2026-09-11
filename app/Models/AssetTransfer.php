@@ -9,6 +9,8 @@ class AssetTransfer extends Model
 {
     use HasFactory;
 
+    protected $table = 'tbl_asset_transfers';
+
     protected $fillable = [
         'reference_no',
         'date_of_transfer',
