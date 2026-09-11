@@ -716,6 +716,15 @@
                             <input id="quantity_total" type="number" min="1" value="1" class="form-control" readonly>
                         </div>
 
+                        <div class="col-md-4">
+                            <label for="status" class="form-label fw-semibold">Status</label>
+                            <select id="status" name="status" class="form-select" required>
+                                <option value="Ongoing" selected>Ongoing</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+
                         <div class="col-12">
                             <label for="remarks" class="form-label fw-semibold">Gatepass note</label>
                             <textarea id="remarks" name="remarks" rows="4" class="form-control" placeholder="General remarks for the gatepass..."></textarea>

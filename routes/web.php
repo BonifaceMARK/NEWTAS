@@ -52,13 +52,68 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory/gatepass', [InventoryController::class, 'gatepass'])->name('inventory.gatepass');
     Route::get('/inventory/gatepass/list', [InventoryController::class, 'gatepassList'])->name('inventory.gatepass.list');
     Route::get('/inventory/gatepass/create', [InventoryController::class, 'createGatepass'])->name('inventory.gatepass.create');
+    Route::get('/inventory/gatepass/{gatepass}/edit', [InventoryController::class, 'editGatepass'])->name('inventory.gatepass.edit');
+    Route::put('/inventory/gatepass/{gatepass}', [InventoryController::class, 'updateGatepass'])->name('inventory.gatepass.update');
+    Route::get('/inventory/gatepass/{gatepass}', [InventoryController::class, 'showGatepass'])->name('inventory.gatepass.show');
     Route::get('/inventory/{inventoryItem}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
     Route::put('/inventory/{inventoryItem}', [InventoryController::class, 'update'])->name('inventory.update');
     Route::get('/inventory/{inventoryItem}/gatepass', [InventoryController::class, 'gatepassForItem'])->name('inventory.gatepass.item');
     Route::get('/inventory/{inventoryItem}', [InventoryController::class, 'show'])->name('inventory.show');
+    
     Route::post('/inventory/gatepass/save', [InventoryController::class, 'storeGatepass'])
     ->name('inventory.gatepass.save');
 
+
+    Route::get('/inventory/gatepass', [InventoryController::class, 'gatepass'])
+        ->name('inventory.gatepass');
+
+    Route::get('/inventory/gatepass/list', [InventoryController::class, 'gatepassList'])
+        ->name('inventory.gatepass.list');
+
+    Route::get('/inventory/gatepass/{gatepass}/print', [InventoryController::class, 'printSavedGatepass'])
+        ->name('inventory.gatepass.print');
+
+    // Sidebar-compatible Gatepass list route
+    Route::get('/gatepasses', [InventoryController::class, 'gatepassList'])
+        ->name('gatepasses.index');
+
+    Route::get('/inventory/gatepass/create', [InventoryController::class, 'createGatepass'])
+        ->name('inventory.gatepass.create');
+
+    Route::post('/inventory/gatepass/save', [InventoryController::class, 'storeGatepass'])
+        ->name('inventory.gatepass.save');
+
+
+    // Fixed Asset Transfer
+    Route::get('/asset/transfer/create', [InventoryController::class, 'createAssetTransfer'])
+        ->name('asset.transfer.create');
+
+    Route::post('/asset/transfer', [InventoryController::class, 'assetTransfer'])
+        ->name('asset.transfer');
+
+    // Transfer list for sidebar navigation
+    Route::get('/asset/transfers', [InventoryController::class, 'assetTransferIndex'])
+        ->name('asset-transfers.index');
+
+    Route::post('/asset/transfer-list', [InventoryController::class, 'assetTransferList'])
+        ->name('asset.transfer.list');
+
+    Route::get('/asset/transfer/{inventoryItem}', [InventoryController::class, 'assetTransferForItem'])
+        ->name('asset.transfer.item');
+Route::get('/asset/transfers', [InventoryController::class, 'assetTransferList'])
+    ->name('asset.transfer.index');
+
+Route::get('/asset/transfer/{assetTransfer}/edit', [InventoryController::class, 'editAssetTransfer'])
+    ->name('asset.transfer.edit');
+
+Route::put('/asset/transfer/{assetTransfer}', [InventoryController::class, 'updateAssetTransfer'])
+    ->name('asset.transfer.update');
+
+Route::get('/asset/transfer/{assetTransfer}/print', [InventoryController::class, 'printAssetTransfer'])
+    ->name('asset.transfer.print');
+
+Route::delete('/asset/transfer/{assetTransfer}', [InventoryController::class, 'destroyAssetTransfer'])
+    ->name('asset.transfer.destroy');
    Route::get('/asset/transfer/create', [InventoryController::class, 'createAssetTransfer'])->name('asset.transfer.create');
 Route::post('/asset/transfer', [InventoryController::class, 'assetTransfer'])->name('asset.transfer');
 Route::post('/asset/transfer-list', [InventoryController::class, 'assetTransferList'])->name('asset.transfer.list');

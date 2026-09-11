@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InventoryItem;
 use App\Models\Gatepass;
-use App\Models\assetTransfer;
+use App\Models\AssetTransfer;
 use App\Models\InventoryOption;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -51,26 +51,38 @@ class InventoryController extends Controller
         return view('inventory.add', compact('options'));
       }
 
+
 public function values(Request $request)
 {
-    // Grab filter from query string (?filter=Location, ?filter=Campaign, etc.)
-    $filter = $request->input('filter');
+    $request->validate([
+        'field' => 'nullable|string|max:50',
+        'search' => 'nullable|string|max:255',
+    ]);
 
-    // Base query
-    $query = InventoryOption::orderBy('option_type')
-        ->orderBy('option_value');
+    $query = InventoryOption::query();
 
-    // Apply filter if present
-    if (!empty($filter)) {
-        $query->where('option_type', $filter);
+    // Do not load any records initially.
+    if ($request->filled('field')) {
+        $query->where('option_type', $request->field);
+
+        if ($request->filled('search')) {
+            $query->where(
+                'option_value',
+                'like',
+                '%' . $request->search . '%'
+            );
+        }
+
+        $options = $query
+            ->orderBy('option_value')
+            ->paginate(25)
+            ->withQueryString();
+    } else {
+        $options = collect();
     }
 
-    // Group results by type (so Blade can loop cleanly)
-    $options = $query->get()->groupBy('option_type');
-
-    return view('inventory.values', compact('options', 'filter'));
+    return view('inventory.values', compact('options'));
 }
-
 
 
       public function storeValue(Request $request){
@@ -221,20 +233,82 @@ public function values(Request $request)
           'bearer' => $request->input('bearer') ?: 'N/A',
           'date' => $request->input('date') ?: now()->format('M d, Y'),
           'time' => $request->input('time') ?: now()->format('h:i A'),
+          'status' => $request->input('status') ?: 'Ongoing',
         ]);
       }
 
       public function gatepassList(Request $request){
-        $this->validateTransferSelection($request);
-        $items = $this->prepareGatepassItems($request);
+        $gatepasses = Gatepass::with('inventoryItem')
+          ->latest()
+          ->paginate(15)
+          ->withQueryString();
 
-        return view('gatepass.list', [
-          'items' => $items,
-          'owner' => $request->input('owner') ?: 'N/A',
-          'bearer' => $request->input('bearer') ?: 'N/A',
-          'date' => $request->input('date') ?: now()->format('M d, Y'),
-          'fromSiteFloor' => $request->input('from_site_floor') ?: 'N/A',
-          'toSiteFloor' => $request->input('to_site_floor') ?: 'N/A',
+        return view('gatepass.index', compact('gatepasses'));
+      }
+
+      public function showGatepass(Gatepass $gatepass)
+      {
+        $gatepass->load('inventoryItem');
+
+        return view('gatepass.show', compact('gatepass'));
+      }
+
+      public function editGatepass(Gatepass $gatepass)
+      {
+        $gatepass->load('inventoryItem');
+
+        return view('gatepass.edit', compact('gatepass'));
+      }
+
+      public function updateGatepass(Request $request, Gatepass $gatepass)
+      {
+        $validated = $request->validate([
+          'owner' => ['nullable', 'string', 'max:255'],
+          'contact' => ['nullable', 'string', 'max:255'],
+          'bearer' => ['nullable', 'string', 'max:255'],
+          'date' => ['required', 'date'],
+          'time' => ['required'],
+          'site_floor' => ['nullable', 'string', 'max:255'],
+          'quantity' => ['required', 'integer', 'min:1'],
+          'unit' => ['nullable', 'string', 'max:50'],
+          'description' => ['nullable', 'string', 'max:500'],
+          'status' => ['required', 'in:Ongoing,Completed,Cancelled'],
+          'remarks' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $gatepass->update($validated);
+
+        return redirect()
+          ->route('inventory.gatepass.show', $gatepass)
+          ->with('success', 'Gatepass updated successfully.');
+      }
+
+      public function printSavedGatepass(Gatepass $gatepass)
+      {
+        $gatepass->load('inventoryItem');
+
+        $siteFloor = trim((string) $gatepass->site_floor);
+        $locations = preg_split('/\s+to\s+/i', $siteFloor, 2);
+
+        return view('gatepass.print', [
+          'controlNo' => 'GP-' . str_pad((string) $gatepass->id, 6, '0', STR_PAD_LEFT),
+          'owner' => $gatepass->owner ?: 'N/A',
+          'contact' => $gatepass->contact ?: 'N/A',
+          'bearer' => $gatepass->bearer ?: 'N/A',
+          'date' => $gatepass->date
+            ? \Carbon\Carbon::parse($gatepass->date)->format('M d, Y')
+            : 'N/A',
+          'time' => $gatepass->time ?: null,
+          'status' => $gatepass->status ?: 'Ongoing',
+          'fromSiteFloor' => $locations[0] ?? ($siteFloor ?: 'N/A'),
+          'toSiteFloor' => $locations[1] ?? 'N/A',
+          'items' => [[
+            'quantity' => $gatepass->quantity,
+            'unit' => $gatepass->unit ?: 'Unit',
+            'description' => $gatepass->description
+              ?: ($gatepass->inventoryItem->item_name ?? 'Inventory Item'),
+            'remarks' => $gatepass->remarks ?: '—',
+          ]],
         ]);
       }
 public function storeGatepass(Request $request)
@@ -261,6 +335,7 @@ public function storeGatepass(Request $request)
             'time'             => 'required',
             'from_site_floor'  => 'required|string|max:255',
             'to_site_floor'    => 'required|string|max:255',
+            'status'           => 'nullable|in:Ongoing,Completed,Cancelled',
 
             'items'            => 'required|array|min:1',
             'items.*.item_id'  => 'required|exists:tbl_inventory_items,id',
@@ -286,11 +361,11 @@ public function storeGatepass(Request $request)
                 'bearer'          => $validated['bearer'] ?? null,
                 'date'            => $validated['date'],
                 'time'            => $validated['time'],
-                'from_site_floor' => $validated['from_site_floor'],
-                'to_site_floor'   => $validated['to_site_floor'],
+                'site_floor'      => $validated['from_site_floor'] . ' to ' . $validated['to_site_floor'],
                 'quantity'        => $item['quantity'],
                 'unit'            => $item['unit'] ?? null,
                 'description'     => $item['description'] ?? null,
+                'status'          => $validated['status'] ?? 'Ongoing',
                 'remarks'         => $item['remarks'] ?? null,
             ];
 
@@ -485,18 +560,11 @@ public function createAssetTransfer(){
 }
 
 
-public function assetTransferList(Request $request){
-    $this->validateTransferSelection($request);
-    $items = $this->prepareGatepassItems($request);
+public function assetTransferList()
+{
+    $transfers = AssetTransfer::latest()->paginate(15);
 
-    return view('asset.list', [
-        'items' => $items,
-        'owner' => $request->input('owner') ?: 'N/A',
-        'reference' => $request->input('reference_no') ?: 'N/A',
-        'date' => $request->input('date') ?: now()->format('M d, Y'),
-        'fromCampaign' => $request->input('from_campaign') ?: 'N/A',
-        'toCampaign' => $request->input('to_campaign') ?: 'N/A',
-    ]);
+    return view('transfer.index', compact('transfers'));
 }
 public function assetTransfer(Request $request)
 {
@@ -511,6 +579,7 @@ public function assetTransfer(Request $request)
             'from_campaign'   => $request->input('from_campaign'),
             'to_campaign'     => $request->input('to_campaign'),
             'asset_type'      => $request->input('asset_type'),
+            'status'          => $request->input('status') ?: 'Ongoing',
             'remarks'         => $request->input('remarks'),
         ]);
 
@@ -519,7 +588,6 @@ public function assetTransfer(Request $request)
     }
 
     if ($request->input('action') === 'print') {
-        // Show print view in new tab
         return view('transfer.asset-print', [
             'items'       => $items,
             'owner'       => $request->input('owner') ?: 'N/A',
@@ -527,12 +595,81 @@ public function assetTransfer(Request $request)
             'fromCampaign'=> $request->input('from_campaign') ?: 'N/A',
             'toCampaign'  => $request->input('to_campaign') ?: 'N/A',
             'assetType'   => $request->input('asset_type') ?: 'N/A',
+            'status'      => $request->input('status') ?: 'Ongoing',
             'remarks'     => $request->input('remarks') ?: 'N/A',
             'date'        => $request->input('date_of_transfer') ?: now()->format('M d, Y'),
         ]);
     }
 }
 
+public function assetTransferIndex()
+{
+    $transfers = AssetTransfer::latest()->paginate(15);
 
+    return view('transfer.index', compact('transfers'));
+}
+
+  
+
+public function storeAssetTransfer(Request $request)
+{
+    $data = $request->validate([
+        'reference_no' => 'required|string|max:100|unique:tbl_asset_transfers,reference_no',
+        'date_of_transfer' => 'required|date',
+        'from_campaign' => 'required|string|max:255',
+        'to_campaign' => 'required|string|max:255',
+        'asset_type' => 'required|string|max:255',
+        'status' => 'nullable|in:Ongoing,Completed,Cancelled',
+        'remarks' => 'nullable|string',
+    ]);
+
+    $data['status'] = $data['status'] ?? 'Ongoing';
+
+    AssetTransfer::create($data);
+
+    return redirect()
+        ->route('asset.transfer.index')
+        ->with('success', 'Fixed asset transfer created successfully.');
+}
+
+public function editAssetTransfer(AssetTransfer $assetTransfer)
+{
+    return view('transfer.edit', compact('assetTransfer'));
+}
+
+public function updateAssetTransfer(
+    Request $request,
+    AssetTransfer $assetTransfer
+) {
+    $data = $request->validate([
+        'reference_no' => 'required|string|max:100|unique:tbl_asset_transfers,reference_no,' . $assetTransfer->id,
+        'date_of_transfer' => 'required|date',
+        'from_campaign' => 'required|string|max:255',
+        'to_campaign' => 'required|string|max:255',
+        'asset_type' => 'required|string|max:255',
+        'status' => 'required|in:Ongoing,Completed,Cancelled',
+        'remarks' => 'nullable|string',
+    ]);
+
+    $assetTransfer->update($data);
+
+    return redirect()
+        ->route('asset.transfer.index')
+        ->with('success', 'Fixed asset transfer updated successfully.');
+}
+
+public function printAssetTransfer(AssetTransfer $assetTransfer)
+{
+  return view('transfer.print', compact('assetTransfer'));
+}
+
+public function destroyAssetTransfer(AssetTransfer $assetTransfer)
+{
+    $assetTransfer->delete();
+
+    return redirect()
+        ->route('asset.transfer.index')
+        ->with('success', 'Fixed asset transfer deleted successfully.');
+}
         
 }

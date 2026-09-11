@@ -22,6 +22,7 @@ class Gatepass extends Model
         'quantity',
         'unit',
         'description',
+        'status',
         'remarks',
     ];
 

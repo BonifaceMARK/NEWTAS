@@ -64,6 +64,15 @@
                             <input type="text" class="form-control border-dark" id="asset_type" name="asset_type" placeholder="Enter asset type" value="{{ old('asset_type') }}" required>
                         </div>
 
+                        <div class="col-md-6">
+                            <label for="status" class="form-label fw-semibold">Status</label>
+                            <select class="form-select border-dark" id="status" name="status" required>
+                                @foreach (['Ongoing', 'Completed', 'Cancelled'] as $status)
+                                    <option value="{{ $status }}" @selected(old('status', 'Ongoing') === $status)>{{ $status }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="col-12">
                             <label for="remarks" class="form-label fw-semibold">Reason for Transfer</label>
                             <textarea class="form-control border-dark" id="remarks" name="remarks" rows="3" placeholder="Provide reason">{{ old('remarks') }}</textarea>

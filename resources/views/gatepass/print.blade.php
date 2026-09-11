@@ -316,7 +316,7 @@
 
 				<div class="gatepass">
 					<div class="gatepass-title">GATEPASS</div>
-					<div class="control-number">CONTROL NO.</div>
+					<div class="control-number">CONTROL NO. {{ $controlNo ?? 'N/A' }}<br>STATUS: {{ $status ?? 'Ongoing' }}</div>
 				</div>
 			</div>
 		</header>
@@ -335,7 +335,7 @@
 				<span class="detail-field medium">{{ $date ?? now()->format('M d, Y') }}</span>
 				<span class="detail-label compact">TIME:</span>
 <span class="detail-field medium">
-    {{ $time ? \Carbon\Carbon::parse($time)->format('h:i A') : now()->format('h:i A') }}
+	{{ !empty($time) ? \Carbon\Carbon::parse($time)->format('h:i A') : 'N/A' }}
 </span>
 
 			</div>
