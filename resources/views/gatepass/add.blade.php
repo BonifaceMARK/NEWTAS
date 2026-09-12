@@ -435,6 +435,33 @@
 
     .form-label {
         margin-bottom: 0.45rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600 !important;
+    }
+
+    .form-label i {
+        color: var(--company-violet);
+        font-size: 14px;
+    }
+
+    .form-group-icon {
+        position: relative;
+    }
+
+    .form-group-icon .form-icon {
+        position: absolute;
+        left: 12px;
+        top: 38px;
+        color: rgba(79, 70, 229, 0.6);
+        font-size: 16px;
+        pointer-events: none;
+    }
+
+    .form-group-icon .form-control,
+    .form-group-icon .form-select {
+        padding-left: 38px !important;
     }
 
     .asset-modal-overlay {
@@ -664,8 +691,11 @@
     @csrf
                         <div class="col-12 transfer-highlight">
                             <div class="row g-3 align-items-end">
-                                <div class="col-md-6">
-                                    <label for="from_site_floor" class="form-label fw-semibold">From Site / Floor</label>
+                                <div class="col-md-6 form-group-icon">
+                                    <label for="from_site_floor" class="form-label">
+                                        <i class="bi bi-geo-alt"></i> From Site / Floor
+                                    </label>
+                                    <span class="form-icon"><i class="bi bi-geo-alt"></i></span>
                                     <select id="from_site_floor" name="from_site_floor" class="form-select" required>
                                         <option value="">Select source site</option>
                                         @foreach ($locationOptions ?? [] as $option)
@@ -674,8 +704,11 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-6">
-                                    <label for="to_site_floor" class="form-label fw-semibold">To Site / Floor</label>
+                                <div class="col-md-6 form-group-icon">
+                                    <label for="to_site_floor" class="form-label">
+                                        <i class="bi bi-geo-alt-fill"></i> To Site / Floor
+                                    </label>
+                                    <span class="form-icon"><i class="bi bi-geo-alt-fill"></i></span>
                                     <select id="to_site_floor" name="to_site_floor" class="form-select" required>
                                         <option value="">Select destination site</option>
                                         @foreach ($locationOptions ?? [] as $option)
@@ -686,38 +719,59 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <label for="owner" class="form-label fw-semibold">Owner</label>
+                        <div class="col-md-6 form-group-icon">
+                            <label for="owner" class="form-label">
+                                <i class="bi bi-person-badge"></i> Owner
+                            </label>
+                            <span class="form-icon"><i class="bi bi-person-badge"></i></span>
                             <input id="owner" name="owner" type="text" class="form-control" placeholder="Owner / department head">
                         </div>
 
-                        <div class="col-md-6">
-                            <label for="bearer" class="form-label fw-semibold">Bearer</label>
+                        <div class="col-md-6 form-group-icon">
+                            <label for="bearer" class="form-label">
+                                <i class="bi bi-person-check"></i> Bearer
+                            </label>
+                            <span class="form-icon"><i class="bi bi-person-check"></i></span>
                             <input id="bearer" name="bearer" type="text" class="form-control" placeholder="Mr./Ms.">
                         </div>
 
-                        <div class="col-md-6">
-                            <label for="contact" class="form-label fw-semibold">Contact</label>
+                        <div class="col-md-6 form-group-icon">
+                            <label for="contact" class="form-label">
+                                <i class="bi bi-telephone"></i> Contact
+                            </label>
+                            <span class="form-icon"><i class="bi bi-telephone"></i></span>
                             <input id="contact" name="contact" type="text" class="form-control" placeholder="Contact number or person">
                         </div>
 
-                        <div class="col-md-4">
-                            <label for="date" class="form-label fw-semibold">Date</label>
+                        <div class="col-md-4 form-group-icon">
+                            <label for="date" class="form-label">
+                                <i class="bi bi-calendar"></i> Date
+                            </label>
+                            <span class="form-icon"><i class="bi bi-calendar"></i></span>
                             <input id="date" name="date" type="date" class="form-control" value="{{ date('Y-m-d') }}">
                         </div>
 
-                        <div class="col-md-4">
-                            <label for="time" class="form-label fw-semibold">Time</label>
+                        <div class="col-md-4 form-group-icon">
+                            <label for="time" class="form-label">
+                                <i class="bi bi-clock"></i> Time
+                            </label>
+                            <span class="form-icon"><i class="bi bi-clock"></i></span>
                             <input id="time" name="time" type="time" class="form-control" value="{{ date('H:i') }}">
                         </div>
 
-                        <div class="col-md-4">
-                            <label for="quantity_total" class="form-label fw-semibold">Reference Qty</label>
+                        <div class="col-md-4 form-group-icon">
+                            <label for="quantity_total" class="form-label">
+                                <i class="bi bi-box2"></i> Reference Qty
+                            </label>
+                            <span class="form-icon"><i class="bi bi-box2"></i></span>
                             <input id="quantity_total" type="number" min="1" value="1" class="form-control" readonly>
                         </div>
 
-                        <div class="col-md-4">
-                            <label for="status" class="form-label fw-semibold">Status</label>
+                        <div class="col-md-4 form-group-icon">
+                            <label for="status" class="form-label">
+                                <i class="bi bi-circle-fill"></i> Status
+                            </label>
+                            <span class="form-icon"><i class="bi bi-graph-up"></i></span>
                             <select id="status" name="status" class="form-select" required>
                                 <option value="Ongoing" selected>Ongoing</option>
                                 <option value="Completed">Completed</option>
@@ -725,8 +779,11 @@
                             </select>
                         </div>
 
-                        <div class="col-12">
-                            <label for="remarks" class="form-label fw-semibold">Gatepass note</label>
+                        <div class="col-12 form-group-icon">
+                            <label for="remarks" class="form-label">
+                                <i class="bi bi-pencil"></i> Gatepass note
+                            </label>
+                            <span class="form-icon"><i class="bi bi-pencil"></i></span>
                             <textarea id="remarks" name="remarks" rows="4" class="form-control" placeholder="General remarks for the gatepass..."></textarea>
                         </div>
 
