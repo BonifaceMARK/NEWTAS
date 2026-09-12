@@ -72,6 +72,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/inventory/gatepass/{gatepass}/print', [InventoryController::class, 'printSavedGatepass'])
         ->name('inventory.gatepass.print');
+    Route::post('/inventory/gatepass/{gatepass}/signature', [InventoryController::class, 'uploadGatepassSignature'])
+        ->name('inventory.gatepass.signature');
 
     // Sidebar-compatible Gatepass list route
     Route::get('/gatepasses', [InventoryController::class, 'gatepassList'])
@@ -114,6 +116,8 @@ Route::get('/asset/transfer/{assetTransfer}/print', [InventoryController::class,
 
 Route::delete('/asset/transfer/{assetTransfer}', [InventoryController::class, 'destroyAssetTransfer'])
     ->name('asset.transfer.destroy');
+Route::post('/asset/transfer/{assetTransfer}/signature', [InventoryController::class, 'uploadAssetTransferSignature'])
+    ->name('asset.transfer.signature');
    Route::get('/asset/transfer/create', [InventoryController::class, 'createAssetTransfer'])->name('asset.transfer.create');
 Route::post('/asset/transfer', [InventoryController::class, 'assetTransfer'])->name('asset.transfer');
 Route::post('/asset/transfer-list', [InventoryController::class, 'assetTransferList'])->name('asset.transfer.list');

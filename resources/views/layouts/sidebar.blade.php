@@ -136,10 +136,7 @@
 </style>
 
 <aside id="sidebar" class="sidebar asi-sidebar">
-    <div class="sidebar-brand">
-        <img src="{{ asset('assets/img/asi_logo.jpg') }}" alt="ASI Inventory logo">
-        <strong>AD Inventory</strong>
-    </div>
+   
 
     <ul class="sidebar-nav" id="sidebar-nav">
         <li class="sidebar-label">Workspace</li>

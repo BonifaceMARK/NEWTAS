@@ -349,6 +349,13 @@
 			</div>
 		</section>
 
+		@if (!empty($signaturePath))
+			<div style="margin-top: 8mm; font-size: 10px;">
+				<strong>Employee signature:</strong><br>
+				<img src="{{ asset('storage/' . $signaturePath) }}" alt="Employee signature" style="max-width: 45mm; max-height: 18mm; object-fit: contain;">
+			</div>
+		@endif
+
 		<p class="allowance">
 			Please allow the bearer Mr./Ms. <span class="detail-field wide">{{ $bearer ?? 'N/A' }}</span>
 			to bring out/in the following items from <strong>{{ $fromSiteFloor ?? 'N/A' }}</strong> to <strong>{{ $toSiteFloor ?? 'N/A' }}</strong>:

@@ -48,6 +48,29 @@
                 </div>
 
                 <div class="card-body p-4">
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
+                    @if (auth()->check() && (int) auth()->user()->role !== 9)
+                        <div class="border rounded p-3 mb-4 bg-light">
+                            <form action="{{ route('inventory.gatepass.signature', $gatepass->id) }}" method="POST" enctype="multipart/form-data" class="row g-2 align-items-end">
+                                @csrf
+                                <div class="col-md-8">
+                                    <label for="signature" class="form-label">Attach employee signature</label>
+                                    <input type="file" id="signature" name="signature" class="form-control" accept="image/png,image/jpeg" required>
+                                    <small class="text-muted">PNG or JPG, maximum 2 MB.</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-pen me-1"></i>Attach Signature</button>
+                                </div>
+                            </form>
+                        </div>
+                    @endif
+
                     <div class="row g-3">
                         <div class="col-12 col-md-4">
                             <div class="detail-card">
@@ -118,6 +141,14 @@
                                 <span class="detail-value">{{ $gatepass->description ?: '—' }}</span>
                             </div>
                         </div>
+                        @if ($gatepass->signature_path)
+                            <div class="col-12 col-md-6">
+                                <div class="detail-card">
+                                    <span class="detail-label">Attached Employee Signature</span>
+                                    <img src="{{ asset('storage/' . $gatepass->signature_path) }}" alt="Employee signature" style="max-width: 260px; max-height: 90px; object-fit: contain;">
+                                </div>
+                            </div>
+                        @endif
                         <div class="col-12">
                             <div class="detail-card description-box">
                                 <span class="detail-label">Remarks</span>

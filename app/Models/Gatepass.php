@@ -23,6 +23,7 @@ class Gatepass extends Model
         'unit',
         'description',
         'status',
+        'signature_path',
         'remarks',
     ];
 

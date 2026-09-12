@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fixed Asset Transfer - {{ $assetTransfer->reference_no }}</title>
     <style>
-        @page { size: A4 portrait; margin: 12mm; }
+        @page { size: A4 landscape; margin: 12mm; }
         * { box-sizing: border-box; }
         body { margin: 0; color: #111; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
-        .page { max-width: 190mm; margin: 0 auto; }
+        .page { max-width: 273mm; margin: 0 auto; }
         .top-border { border: 1px solid #222; }
-        .brand { padding: 8px 12px 5px; text-align: center; }
-        .brand img { width: 180px; max-height: 55px; object-fit: contain; }
+        .brand { padding: 8px 12px 5px; display: flex; align-items: center; justify-content: center; }
+        .brand img { max-height: 55px; object-fit: contain; }
         .address { padding: 6px; color: #fff; background: #111; text-align: center; font-size: 11px; font-weight: 700; }
         .title { padding: 9px; border-bottom: 1px solid #222; text-align: center; font-size: 16px; font-weight: 700; }
         .information { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 28px; padding: 18px 14px 12px; }
@@ -38,10 +38,6 @@
         .signature:last-child { border-right: 0; }
         .signature-title { font-weight: 700; }
         .signature-line { margin-top: 42px; padding-top: 4px; border-top: 1px solid #222; text-align: center; font-size: 10px; }
-        .print-actions { margin: 18px auto; text-align: center; }
-        .print-actions button, .print-actions a { display: inline-block; padding: 8px 15px; border: 1px solid #123b78; background: #123b78; color: #fff; text-decoration: none; cursor: pointer; }
-        .print-actions a { background: #fff; color: #123b78; }
-        @media print { .print-actions { display: none; } }
         @media (max-width: 650px) {
             .information, .signatures { grid-template-columns: 1fr; }
             .signature { border-right: 0; border-bottom: 1px solid #222; }
@@ -53,7 +49,7 @@
     <div class="page">
         <div class="top-border">
             <div class="brand">
-                <img src="{{ asset('assets/img/asi_logo.jpg') }}" alt="Company logo">
+                <img src="{{ asset('assets/img/Allianz_name_logo.png') }}" alt="Allianz Synergia">
             </div>
             <div class="address">SENECA PLAZA BLDG., E. RODRIGUEZ SR. AVE., NEW MANILA, BRGY. MARIANA, QUEZON CITY</div>
             <div class="title">FIXED ASSET TRANSFER FORM</div>
@@ -100,6 +96,13 @@
                 {{ $assetTransfer->remarks ?: '—' }}
             </div>
 
+            @if ($assetTransfer->signature_path)
+                <div style="margin-top: 10px; font-size: 11px;">
+                    <strong>Employee signature:</strong><br>
+                    <img src="{{ asset('storage/' . $assetTransfer->signature_path) }}" alt="Employee signature" style="max-width: 150px; max-height: 60px; object-fit: contain;">
+                </div>
+            @endif
+
             <div class="signatures">
                 <div class="signature"><div class="signature-title">PREPARED BY:</div><div class="signature-line">Signature over printed name &nbsp;&nbsp; Date</div></div>
                 <div class="signature"><div class="signature-title">CHECKED BY:</div><div class="signature-line">Signature over printed name &nbsp;&nbsp; Date</div></div>
@@ -107,10 +110,6 @@
             </div>
         </div>
 
-        <div class="print-actions">
-            <button type="button" onclick="window.print()">Print</button>
-            <a href="{{ route('asset.transfer.index') }}">Back</a>
-        </div>
     </div>
 </body>
 </html>

@@ -299,6 +299,7 @@ public function values(Request $request)
             ? \Carbon\Carbon::parse($gatepass->date)->format('M d, Y')
             : 'N/A',
           'time' => $gatepass->time ?: null,
+          'signaturePath' => $gatepass->signature_path,
           'status' => $gatepass->status ?: 'Ongoing',
           'fromSiteFloor' => $locations[0] ?? ($siteFloor ?: 'N/A'),
           'toSiteFloor' => $locations[1] ?? 'N/A',
@@ -310,6 +311,26 @@ public function values(Request $request)
             'remarks' => $gatepass->remarks ?: '—',
           ]],
         ]);
+      }
+
+      public function uploadGatepassSignature(Request $request, Gatepass $gatepass)
+      {
+        abort_if((int) auth()->user()->role === 9, 403, 'Only employees can attach signatures.');
+
+        $validated = $request->validate([
+          'signature' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
+        ]);
+
+        if ($gatepass->signature_path) {
+          Storage::disk('public')->delete($gatepass->signature_path);
+        }
+
+        $gatepass->update([
+          'signature_path' => $validated['signature']->store('signatures/gatepasses', 'public'),
+        ]);
+
+        return redirect()->route('inventory.gatepass.show', $gatepass)
+          ->with('success', 'Gatepass signature attached successfully.');
       }
 public function storeGatepass(Request $request)
 {
@@ -661,6 +682,26 @@ public function updateAssetTransfer(
 public function printAssetTransfer(AssetTransfer $assetTransfer)
 {
   return view('transfer.print', compact('assetTransfer'));
+}
+
+public function uploadAssetTransferSignature(Request $request, AssetTransfer $assetTransfer)
+{
+    abort_if((int) auth()->user()->role === 9, 403, 'Only employees can attach signatures.');
+
+    $validated = $request->validate([
+        'signature' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
+    ]);
+
+    if ($assetTransfer->signature_path) {
+        Storage::disk('public')->delete($assetTransfer->signature_path);
+    }
+
+    $assetTransfer->update([
+        'signature_path' => $validated['signature']->store('signatures/asset-transfers', 'public'),
+    ]);
+
+    return redirect()->route('asset.transfer.index')
+        ->with('success', 'Asset transfer signature attached successfully.');
 }
 
 public function destroyAssetTransfer(AssetTransfer $assetTransfer)

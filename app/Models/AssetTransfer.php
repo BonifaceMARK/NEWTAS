@@ -18,6 +18,7 @@ class AssetTransfer extends Model
         'to_campaign',
         'asset_type',
         'status',
+        'signature_path',
         'remarks',
     ];
 

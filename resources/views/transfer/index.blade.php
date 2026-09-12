@@ -127,6 +127,8 @@
         white-space: pre-wrap;
     }
 
+    .signature-preview { max-width: 150px; max-height: 55px; object-fit: contain; }
+
     @media (max-width: 768px) {
         .transfer-page {
             padding: .75rem;
@@ -379,6 +381,26 @@
                                                         {{ $transfer->remarks ?: 'No remarks provided.' }}
                                                     </div>
                                                 </div>
+                                                @if ($transfer->signature_path)
+                                                    <div class="col-12 col-md-6">
+                                                        <div class="detail-item">
+                                                            <span class="detail-label">Employee Signature</span>
+                                                            <img class="signature-preview" src="{{ asset('storage/' . $transfer->signature_path) }}" alt="Employee signature">
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                                @if (auth()->check() && (int) auth()->user()->role !== 9)
+                                                    <div class="col-12 col-md-6">
+                                                        <div class="detail-item">
+                                                            <form action="{{ route('asset.transfer.signature', $transfer->id) }}" method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <label class="detail-label" for="signature-{{ $transfer->id }}">Attach employee signature</label>
+                                                                <input id="signature-{{ $transfer->id }}" type="file" name="signature" class="form-control form-control-sm mb-2" accept="image/png,image/jpeg" required>
+                                                                <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-pen me-1"></i>Attach Signature</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </td>
