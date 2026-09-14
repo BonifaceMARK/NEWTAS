@@ -1,4 +1,3 @@
-{{-- filepath: c:\xampp\htdocs\ASI-INVENTORY\resources\views\layouts\header.blade.php --}}
 
 <style>
     #header.app-header {

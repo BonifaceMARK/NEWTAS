@@ -549,10 +549,11 @@ public function storeGatepass(Request $request)
         }
 
 public function createAssetTransfer(){
-    $inventoryItems = InventoryItem::orderBy('item_name')->get();
-    $campaignOptions = InventoryOption::where('option_type', 'campaign')
-        ->orderBy('option_value')
-        ->get();
+   $inventoryItems = InventoryItem::orderBy('item_name')->get();
+$campaignOptions = InventoryOption::where('option_type', 'campaign')
+    ->orderBy('option_value')
+    ->get();
+
     $assetTypes = InventoryOption::where('option_type', 'category')
         ->orderBy('option_value')
         ->get();
@@ -566,18 +567,19 @@ public function createAssetTransfer(){
     $remarks = '';
     $items = [];
 
-    return view('transfer.asset-add', compact(
-        'inventoryItems',
-        'campaignOptions',
-        'assetTypes',
-        'date',
-        'reference',
-        'fromCampaign',
-        'toCampaign',
-        'assetType',
-        'remarks',
-        'items'
-    ));
+return view('transfer.asset-add', compact(
+    'inventoryItems',
+    'campaignOptions',
+    'assetTypes',
+    'date',
+    'reference',
+    'fromCampaign',
+    'toCampaign',
+    'assetType',
+    'remarks',
+    'items'
+));
+
 }
 
 
@@ -631,7 +633,6 @@ public function assetTransferIndex()
 }
 
   
-
 public function storeAssetTransfer(Request $request)
 {
     $data = $request->validate([
@@ -642,15 +643,29 @@ public function storeAssetTransfer(Request $request)
         'asset_type' => 'required|string|max:255',
         'status' => 'nullable|in:Ongoing,Completed,Cancelled',
         'remarks' => 'nullable|string',
+        'items' => 'required|array', // IDs of inventory items being transferred
     ]);
 
     $data['status'] = $data['status'] ?? 'Ongoing';
 
-    AssetTransfer::create($data);
+    // Save transfer record
+    $transfer = AssetTransfer::create($data);
+
+    // Update each inventory item’s campaign
+    foreach ($request->input('items', []) as $itemId) {
+        $inventoryItem = InventoryItem::find($itemId);
+        if ($inventoryItem) {
+            $inventoryItem->transferToCampaign(
+                $data['to_campaign'],
+                $request->input('department'),
+                $request->input('assigned_to')
+            );
+        }
+    }
 
     return redirect()
         ->route('asset.transfer.index')
-        ->with('success', 'Fixed asset transfer created successfully.');
+        ->with('success', 'Fixed asset transfer created successfully and items updated.');
 }
 
 public function editAssetTransfer(AssetTransfer $assetTransfer)

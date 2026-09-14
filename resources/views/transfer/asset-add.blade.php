@@ -167,217 +167,259 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('asset.transfer') }}" method="POST" class="row g-3">
-                        @csrf
+        <form action="{{ route('asset.transfer') }}" method="POST" class="row g-3" style="padding:20px;">
+    @csrf
 
-                        <!-- Transfer Identification Section -->
-                        <div class="col-12">
-                            <div class="form-section-header">
-                                <i class="bi bi-tag-fill" style="margin-right: 8px; color: #0d6efd;"></i>
-                                Transfer Identification
-                            </div>
-                        </div>
+    <!-- Transfer Identification Section -->
+    <div class="col-12">
+        <div class="form-section-header" style="font-weight:600; font-size:18px; margin-bottom:10px;">
+            <i class="bi bi-tag-fill" style="margin-right:8px; color:#0d6efd;"></i> Transfer Identification
+        </div>
+    </div>
 
-                        <div class="col-md-6">
-                            <div class="form-group-icon">
-                                <label for="reference_no" class="form-label">
-                                    <i class="bi bi-hash"></i> Reference No.
-                                </label>
-                                <span class="form-icon"><i class="bi bi-hash"></i></span>
-                                <input type="text" class="form-control" id="reference_no" name="reference_no" placeholder="REF-001" value="{{ old('reference_no') }}" required>
-                            </div>
-                        </div>
+    <div class="col-md-6">
+        <div class="form-group-icon">
+            <label for="reference_no" class="form-label">
+                <i class="bi bi-hash"></i> Reference No.
+            </label>
+            <input type="text" class="form-control" id="reference_no" name="reference_no"
+                   placeholder="REF-001" value="{{ old('reference_no') }}" required>
+        </div>
+    </div>
 
-                        <div class="col-md-6">
-                            <div class="form-group-icon">
-                                <label for="date_of_transfer" class="form-label">
-                                    <i class="bi bi-calendar-event"></i> Date of Transfer
-                                </label>
-                                <span class="form-icon"><i class="bi bi-calendar"></i></span>
-                                <input type="date" class="form-control" id="date_of_transfer" name="date_of_transfer" value="{{ old('date_of_transfer') }}" required>
-                            </div>
-                        </div>
+    <div class="col-md-6">
+        <div class="form-group-icon">
+            <label for="date_of_transfer" class="form-label">
+                <i class="bi bi-calendar-event"></i> Date of Transfer
+            </label>
+            <input type="date" class="form-control" id="date_of_transfer" name="date_of_transfer"
+                   value="{{ old('date_of_transfer') }}" required>
+        </div>
+    </div>
 
-                        <!-- Campaign Transfer Section -->
-                        <div class="col-12">
-                            <div class="form-divider"></div>
-                            <div class="form-section-header">
-                                <i class="bi bi-diagram-3-fill" style="margin-right: 8px; color: #0d6efd;"></i>
-                                Campaign Transfer
-                            </div>
-                        </div>
+    <!-- Campaign Transfer Section -->
+    <div class="col-12">
+        <div class="form-divider" style="border-top:1px solid #ddd; margin:20px 0;"></div>
+        <div class="form-section-header" style="font-weight:600; font-size:18px; margin-bottom:10px;">
+            <i class="bi bi-diagram-3-fill" style="margin-right:8px; color:#0d6efd;"></i> Campaign Transfer
+        </div>
+    </div>
 
-                        <div class="col-md-6">
-                            <div class="form-group-icon">
-                                <label for="from_campaign" class="form-label">
-                                    <i class="bi bi-box-arrow-left"></i> Original Campaign/Team
-                                </label>
-                                <span class="form-icon"><i class="bi bi-building"></i></span>
-                                <select class="form-select" id="from_campaign" name="from_campaign" required>
-                                    <option value="">Select Campaign/Team</option>
-                                    @foreach ($campaignOptions as $option)
-                                        <option value="{{ $option->option_value }}" {{ old('from_campaign') == $option->option_value ? 'selected' : '' }}>
-                                            {{ $option->option_value }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
+    <div class="col-md-6">
+        <label for="from_campaign" class="form-label">
+            <i class="bi bi-box-arrow-left"></i> Original Campaign/Team
+        </label>
+        <select class="form-select" id="from_campaign" name="from_campaign" required>
+            <option value="">Select Campaign/Team</option>
+            @foreach ($campaignOptions as $option)
+                <option value="{{ $option->option_value }}"
+                    {{ old('from_campaign') == $option->option_value ? 'selected' : '' }}>
+                    {{ $option->option_value }}
+                </option>
+            @endforeach
+        </select>
+    </div>
 
-                        <div class="col-md-6">
-                            <div class="form-group-icon">
-                                <label for="to_campaign" class="form-label">
-                                    <i class="bi bi-box-arrow-right"></i> Transferred Campaign
-                                </label>
-                                <span class="form-icon"><i class="bi bi-building"></i></span>
-                                <select class="form-select" id="to_campaign" name="to_campaign" required>
-                                    <option value="">Select Transferred Campaign</option>
-                                    @foreach ($campaignOptions as $option)
-                                        <option value="{{ $option->option_value }}" {{ old('to_campaign') == $option->option_value ? 'selected' : '' }}>
-                                            {{ $option->option_value }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
+    <!-- Item List -->
+    <div id="item-list" class="mt-3 col-12" style="display:flex; flex-wrap:wrap; gap:15px;">
+        @foreach($inventoryItems as $item)
+            <div class="form-check item-row"
+                 data-campaign="{{ strtolower($item->campaign) }}"
+                 style="position:relative; flex:0 0 250px; padding:15px; border:1px solid #e0e0e0; border-radius:10px;
+                        background-color:#f9f9f9; box-shadow:0 2px 6px rgba(0,0,0,0.08); transition:all 0.3s ease; cursor:pointer;">
+                <i class="bi bi-box-seam" style="color:#0d6efd; font-size:20px; margin-right:8px;"></i>
+                <input type="checkbox" name="items[]" value="{{ $item->id }}" class="form-check-input" style="margin-right:6px;">
+                <label class="form-check-label" style="font-weight:600; color:#333;">
+                    {{ $item->item_name }} ({{ $item->asset_tag }})
+                </label>
 
-                        <!-- Asset Details Section -->
-                        <div class="col-12">
-                            <div class="form-divider"></div>
-                            <div class="form-section-header">
-                                <i class="bi bi-box-seam-fill" style="margin-right: 8px; color: #0d6efd;"></i>
-                                Asset Details
-                            </div>
-                        </div>
+                <!-- Hover Cloud Tooltip -->
+                <div class="item-tooltip"
+                     style="display:none; position:absolute; top:-10px; left:50%; transform:translateX(-50%);
+                            background:#fff; border:1px solid #ddd; border-radius:12px; padding:12px 16px;
+                            box-shadow:0 4px 12px rgba(0,0,0,0.15); width:260px; z-index:10;">
+                    <strong style="color:#0d6efd;">Asset Details</strong><br>
+                    <span style="font-size:13px; color:#555;">
+                        Category: {{ $item->category }}<br>
+                        Brand: {{ $item->brand }}<br>
+                        Model: {{ $item->model }}<br>
+                        Serial: {{ $item->serial_number }}<br>
+                        Location: {{ $item->location }}<br>
+                        Status: {{ $item->status }}
+                    </span>
+                </div>
+            </div>
+        @endforeach
+    </div>
 
-                        <div class="col-md-6">
-                            <div class="form-group-icon">
-                                <label for="asset_type" class="form-label">
-                                    <i class="bi bi-tools"></i> Asset Type
-                                </label>
-                                <span class="form-icon"><i class="bi bi-tools"></i></span>
-                                <input type="text" class="form-control" id="asset_type" name="asset_type" placeholder="e.g., Computer, Printer" value="{{ old('asset_type') }}" required>
-                            </div>
-                        </div>
+    <div class="col-md-6">
+        <label for="to_campaign" class="form-label">
+            <i class="bi bi-box-arrow-right"></i> Transferred Campaign
+        </label>
+        <select class="form-select" id="to_campaign" name="to_campaign" required>
+            <option value="">Select Transferred Campaign</option>
+            @foreach ($campaignOptions as $option)
+                <option value="{{ $option->option_value }}"
+                    {{ old('to_campaign') == $option->option_value ? 'selected' : '' }}>
+                    {{ $option->option_value }}
+                </option>
+            @endforeach
+        </select>
+    </div>
 
-                        <div class="col-md-6">
-                            <div class="form-group-icon">
-                                <label for="status" class="form-label">
-                                    <i class="bi bi-circle-fill"></i> Status
-                                </label>
-                                <span class="form-icon"><i class="bi bi-graph-up"></i></span>
-                                <select class="form-select" id="status" name="status" required>
-                                    @foreach (['Ongoing', 'Completed', 'Cancelled'] as $status)
-                                        <option value="{{ $status }}" @selected(old('status', 'Ongoing') === $status)>{{ $status }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
+    <!-- Asset Details Section -->
+    <div class="col-12">
+        <div class="form-divider" style="border-top:1px solid #ddd; margin:20px 0;"></div>
+        <div class="form-section-header" style="font-weight:600; font-size:18px; margin-bottom:10px;">
+            <i class="bi bi-box-seam-fill" style="margin-right:8px; color:#0d6efd;"></i> Asset Details
+        </div>
+    </div>
 
-                        <!-- Additional Information Section -->
-                        <div class="col-12">
-                            <div class="form-divider"></div>
-                            <div class="form-section-header">
-                                <i class="bi bi-chat-left-text-fill" style="margin-right: 8px; color: #0d6efd;"></i>
-                                Additional Information
-                            </div>
-                        </div>
+    <div class="col-md-6">
+        <label for="asset_type" class="form-label">
+            <i class="bi bi-tools"></i> Asset Type
+        </label>
+        <input type="text" class="form-control" id="asset_type" name="asset_type"
+               placeholder="e.g., Computer, Printer" value="{{ old('asset_type') }}" required>
+    </div>
 
-                        <div class="col-12">
-                            <div class="form-group-icon">
-                                <label for="remarks" class="form-label">
-                                    <i class="bi bi-pencil"></i> Reason for Transfer
-                                </label>
-                                <span class="form-icon"><i class="bi bi-pencil"></i></span>
-                                <textarea class="form-control" id="remarks" name="remarks" rows="4" placeholder="Provide detailed reason for transfer...">{{ old('remarks') }}</textarea>
-                            </div>
-                        </div>
+    <div class="col-md-6">
+        <label for="status" class="form-label">
+            <i class="bi bi-circle-fill"></i> Status
+        </label>
+        <select class="form-select" id="status" name="status" required>
+            @foreach (['Ongoing', 'Completed', 'Cancelled'] as $status)
+                <option value="{{ $status }}" @selected(old('status', 'Ongoing') === $status)>
+                    {{ $status }}
+                </option>
+            @endforeach
+        </select>
+    </div>
 
-                        <!-- Action Buttons -->
-                        <div class="col-12">
-                            <div class="btn-group-custom">
-                                <button type="submit" name="action" value="save" class="btn btn-success">
-                                    <i class="bi bi-check-circle me-2"></i> Save Transfer
-                                </button>
-                                <button type="submit" name="action" value="print" class="btn btn-primary" formtarget="_blank">
-                                    <i class="bi bi-printer me-2"></i> Print Transfer
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+    <!-- Additional Information Section -->
+    <div class="col-12">
+        <div class="form-divider" style="border-top:1px solid #ddd; margin:20px 0;"></div>
+        <div class="form-section-header" style="font-weight:600; font-size:18px; margin-bottom:10px;">
+            <i class="bi bi-chat-left-text-fill" style="margin-right:8px; color:#0d6efd;"></i> Additional Information
+        </div>
+    </div>
+
+    <div class="col-12">
+        <label for="remarks" class="form-label">
+            <i class="bi bi-pencil"></i> Reason for Transfer
+        </label>
+        <textarea class="form-control" id="remarks" name="remarks" rows="4"
+                  placeholder="Provide detailed reason for transfer...">{{ old('remarks') }}</textarea>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="col-12 text-center" style="margin-top:20px;">
+        <button type="submit" name="action" value="save" class="btn btn-success me-2">
+            <i class="bi bi-check-circle me-2"></i> Save Transfer
+        </button>
+        <button type="submit" name="action" value="print" class="btn btn-primary" formtarget="_blank">
+            <i class="bi bi-printer me-2"></i> Print Transfer
+        </button>
+    </div>
+</form>
+
+
                 </div>
             </div>
         </section>
     </main>
 
     @include('layouts.footer')
+<script>
+    const fromCampaignSelect = document.getElementById('from_campaign');
+    const toCampaignSelect   = document.getElementById('to_campaign');
+    const form               = document.querySelector('form');
 
-    <script>
-        // Prevent campaign to campaign transfer logic
-        const fromCampaignSelect = document.getElementById('from_campaign');
-        const toCampaignSelect = document.getElementById('to_campaign');
-        const form = document.querySelector('form');
+    // Filter items by selected campaign
+    fromCampaignSelect.addEventListener('change', function() {
+        const selectedCampaign = this.value.toLowerCase();
+        const items = document.querySelectorAll('#item-list .item-row');
 
-        // Function to update available options in "to_campaign" based on "from_campaign"
-        function updateCampaignOptions() {
-            const fromValue = fromCampaignSelect.value;
-            const toCampaignOptions = toCampaignSelect.querySelectorAll('option');
-
-            toCampaignOptions.forEach(option => {
-                // Disable the option if it matches the selected "from_campaign"
-                if (option.value === fromValue && option.value !== '') {
-                    option.disabled = true;
-                    option.style.display = 'none';
-                } else if (option.value !== '') {
-                    option.disabled = false;
-                    option.style.display = 'block';
-                }
-            });
-
-            // If "to_campaign" value matches "from_campaign", clear it
-            if (toCampaignSelect.value === fromValue && fromValue !== '') {
-                toCampaignSelect.value = '';
+        items.forEach(item => {
+            const itemCampaign = (item.dataset.campaign || '').toLowerCase();
+            if (!selectedCampaign || itemCampaign === selectedCampaign) {
+                item.style.display = 'inline-block';
+            } else {
+                item.style.display = 'none';
+                item.querySelector('input[type="checkbox"]').checked = false;
             }
-        }
-
-        // Function to validate form before submission
-        function validateCampaignTransfer(e) {
-            const fromValue = fromCampaignSelect.value;
-            const toValue = toCampaignSelect.value;
-
-            if (!fromValue || !toValue) {
-                e.preventDefault();
-                alert('Please select both Original Campaign and Transferred Campaign');
-                return false;
-            }
-
-            if (fromValue === toValue) {
-                e.preventDefault();
-                alert('Cannot transfer items to the same campaign. Please select a different campaign.');
-                return false;
-            }
-
-            return true;
-        }
-
-        // Attach event listeners
-        if (fromCampaignSelect) {
-            fromCampaignSelect.addEventListener('change', updateCampaignOptions);
-        }
-
-        if (toCampaignSelect) {
-            toCampaignSelect.addEventListener('change', updateCampaignOptions);
-        }
-
-        if (form) {
-            form.addEventListener('submit', validateCampaignTransfer);
-        }
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCampaignOptions();
         });
-    </script>
+
+        updateCampaignOptions();
+    });
+
+    // Prevent transferring to the same campaign
+    function updateCampaignOptions() {
+        const fromValue = fromCampaignSelect.value;
+        const toCampaignOptions = toCampaignSelect.querySelectorAll('option');
+
+        toCampaignOptions.forEach(option => {
+            if (option.value === fromValue && option.value !== '') {
+                option.disabled = true;
+                option.style.display = 'none';
+            } else if (option.value !== '') {
+                option.disabled = false;
+                option.style.display = 'block';
+            }
+        });
+
+        if (toCampaignSelect.value === fromValue && fromValue !== '') {
+            toCampaignSelect.value = '';
+        }
+    }
+
+    // Validate before submission
+    function validateCampaignTransfer(e) {
+        const fromValue = fromCampaignSelect.value;
+        const toValue   = toCampaignSelect.value;
+
+        if (!fromValue || !toValue) {
+            e.preventDefault();
+            alert('Please select both Original Campaign and Transferred Campaign');
+            return false;
+        }
+
+        if (fromValue === toValue) {
+            e.preventDefault();
+            alert('Cannot transfer items to the same campaign. Please select a different campaign.');
+            return false;
+        }
+
+        return true;
+    }
+
+    if (toCampaignSelect) {
+        toCampaignSelect.addEventListener('change', updateCampaignOptions);
+    }
+
+    if (form) {
+        form.addEventListener('submit', validateCampaignTransfer);
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCampaignOptions();
+
+        // Tooltip hover logic
+        document.querySelectorAll('.item-row').forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                const tooltip = item.querySelector('.item-tooltip');
+                tooltip.style.display = 'block';
+            });
+            item.addEventListener('mouseleave', () => {
+                const tooltip = item.querySelector('.item-tooltip');
+                tooltip.style.display = 'none';
+            });
+        });
+    });
+</script>
+
+
 </body>
 
 </html>
