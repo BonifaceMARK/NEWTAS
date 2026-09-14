@@ -311,6 +311,73 @@
     </main>
 
     @include('layouts.footer')
+
+    <script>
+        // Prevent campaign to campaign transfer logic
+        const fromCampaignSelect = document.getElementById('from_campaign');
+        const toCampaignSelect = document.getElementById('to_campaign');
+        const form = document.querySelector('form');
+
+        // Function to update available options in "to_campaign" based on "from_campaign"
+        function updateCampaignOptions() {
+            const fromValue = fromCampaignSelect.value;
+            const toCampaignOptions = toCampaignSelect.querySelectorAll('option');
+
+            toCampaignOptions.forEach(option => {
+                // Disable the option if it matches the selected "from_campaign"
+                if (option.value === fromValue && option.value !== '') {
+                    option.disabled = true;
+                    option.style.display = 'none';
+                } else if (option.value !== '') {
+                    option.disabled = false;
+                    option.style.display = 'block';
+                }
+            });
+
+            // If "to_campaign" value matches "from_campaign", clear it
+            if (toCampaignSelect.value === fromValue && fromValue !== '') {
+                toCampaignSelect.value = '';
+            }
+        }
+
+        // Function to validate form before submission
+        function validateCampaignTransfer(e) {
+            const fromValue = fromCampaignSelect.value;
+            const toValue = toCampaignSelect.value;
+
+            if (!fromValue || !toValue) {
+                e.preventDefault();
+                alert('Please select both Original Campaign and Transferred Campaign');
+                return false;
+            }
+
+            if (fromValue === toValue) {
+                e.preventDefault();
+                alert('Cannot transfer items to the same campaign. Please select a different campaign.');
+                return false;
+            }
+
+            return true;
+        }
+
+        // Attach event listeners
+        if (fromCampaignSelect) {
+            fromCampaignSelect.addEventListener('change', updateCampaignOptions);
+        }
+
+        if (toCampaignSelect) {
+            toCampaignSelect.addEventListener('change', updateCampaignOptions);
+        }
+
+        if (form) {
+            form.addEventListener('submit', validateCampaignTransfer);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCampaignOptions();
+        });
+    </script>
 </body>
 
 </html>
