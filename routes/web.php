@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\Crypt;
 use App\Models\InventoryItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\FloorController;
+use App\Http\Controllers\WorkstationController;
+use App\Http\Controllers\LayoutController;
 use App\Models\User;
 use App\Models\fileviolation;
 use App\Models\G5ChatMessage;
@@ -122,6 +125,9 @@ Route::post('/asset/transfer/{assetTransfer}/signature', [InventoryController::c
 Route::post('/asset/transfer', [InventoryController::class, 'assetTransfer'])->name('asset.transfer');
 Route::post('/asset/transfer-list', [InventoryController::class, 'assetTransferList'])->name('asset.transfer.list');
 Route::get('/asset/transfer/{inventoryItem}', [InventoryController::class, 'assetTransferForItem'])->name('asset.transfer.item');
+
+
+
 
 });
 

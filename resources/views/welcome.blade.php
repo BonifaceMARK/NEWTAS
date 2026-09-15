@@ -68,7 +68,7 @@
 
   <section id="hero-fullscreen" class="hero-fullscreen d-flex align-items-center">
     <div class="container d-flex flex-column align-items-center position-relative" data-aos="zoom-out">
-      <h2>Inventory Management System</h2>
+      <h2>Asset & Data Inventory System</h2>
       <h3>WORLD - PRIME</h3>
       <div class="d-flex">
         <a href="{{route('login')}}" class="btn-get-started scrollto">Login</a>
