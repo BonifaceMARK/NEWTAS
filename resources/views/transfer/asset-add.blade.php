@@ -201,8 +201,7 @@
                    value="{{ old('date_of_transfer') }}" required>
         </div>
     </div>
-
-   <!-- Campaign Transfer Section -->
+<!-- Campaign Transfer Section -->
 <div class="col-12">
     <div class="form-divider" style="border-top:1px solid #ddd; margin:20px 0;"></div>
     <div class="form-section-header" style="font-weight:600; font-size:18px; margin-bottom:10px;">
@@ -226,25 +225,28 @@
             @endforeach
         </select>
 
-     <div id="item-list" class="mt-3 col-12" style="display:flex; flex-wrap:wrap; gap:15px;">
-    @foreach($inventoryItems as $item)
-        <div class="item-row"
-             draggable="true"
-             data-campaign="{{ strtolower($item->campaign) }}"
-             style="position:relative; flex:0 0 220px; padding:18px; border-radius:10px;
-                    background-color:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.08);
-                    transition:all 0.3s ease; cursor:grab; text-align:center;">
-            <i class="bi bi-pc-display" style="color:#0d6efd; font-size:28px; margin-bottom:8px;"></i>
-            <div style="font-weight:600; color:#333; font-size:14px;">
-                {{ $item->item_name }}
-            </div>
-            <div style="font-size:12px; color:#6c757d;">
-                {{ $item->asset_tag }}
-            </div>
+        <!-- Item List -->
+        <div id="item-list" class="mt-3 col-12"
+             style="display:none; flex-wrap:wrap; gap:15px;">
+            @foreach($inventoryItems as $item)
+                <div class="item-row"
+                     data-id="{{ $item->id }}"
+                     data-campaign="{{ strtolower(trim($item->campaign)) }}"
+                     draggable="true"
+                     style="position:relative; flex:0 0 220px; padding:18px; border-radius:10px;
+                            background-color:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.08);
+                            transition:all 0.3s ease; text-align:center; cursor:grab;">
+                    <i class="bi bi-box-seam" style="color:#0d6efd; font-size:28px; margin-bottom:8px;"></i>
+                    <div style="font-weight:600; color:#333; font-size:14px;">
+                        {{ $item->item_name }}
+                    </div>
+                    <div style="font-size:12px; color:#6c757d;">
+                        {{ $item->asset_tag }}
+                    </div>
+                    <input type="checkbox" name="items[]" value="{{ $item->id }}" hidden>
+                </div>
+            @endforeach
         </div>
-    @endforeach
-</div>
-
     </div>
 
     <!-- Transferred Campaign -->
@@ -262,15 +264,21 @@
             @endforeach
         </select>
 
-     <div id="transfer-box" class="mt-3"
-     style="min-height:220px; border:2px dashed #0d6efd; border-radius:10px;
-            background:#f8fbff; padding:15px; display:flex; flex-wrap:wrap; gap:15px;
-            align-items:flex-start; justify-content:flex-start;">
-    <p class="text-muted" style="width:100%; text-align:center;">Drag items here to transfer...</p>
-</div>
+        <!-- Drop Zone -->
+        <div id="transfer-box" class="mt-3"
+             style="min-height:220px; border:2px dashed #0d6efd; border-radius:10px;
+                    background:#f8fbff; padding:15px; display:flex; flex-wrap:wrap; gap:15px;
+                    align-items:flex-start; justify-content:flex-start;">
+            <p class="text-muted" style="width:100%; text-align:center;">Drag items here to transfer...</p>
+        </div>
 
+        <!-- Counter -->
+        <div id="transfer-count" class="mt-2 text-muted" style="font-size:13px;">
+            0 items transferred
+        </div>
     </div>
 </div>
+
 
 
     <!-- Asset Details Section -->
@@ -342,52 +350,143 @@
     const form               = document.querySelector('form');
 
     document.addEventListener('DOMContentLoaded', () => {
-    const items = document.querySelectorAll('.item-row');
-    const transferBox = document.getElementById('transfer-box');
+        const transferBox = document.getElementById('transfer-box');
+        const itemList = document.getElementById('item-list');
+        const transferCount = document.getElementById('transfer-count');
 
-    items.forEach(item => {
-        item.addEventListener('dragstart', e => {
-            e.dataTransfer.setData('text/plain', item.outerHTML);
-            item.classList.add('dragging');
-        });
-        item.addEventListener('dragend', () => {
-            item.classList.remove('dragging');
-        });
-    });
-
-    transferBox.addEventListener('dragover', e => {
-        e.preventDefault();
-        transferBox.style.background = '#e6f0ff';
-    });
-
-    transferBox.addEventListener('dragleave', () => {
-        transferBox.style.background = '#f0f8ff';
-    });
-
-    transferBox.addEventListener('drop', e => {
-        e.preventDefault();
-        transferBox.style.background = '#f0f8ff';
-        const data = e.dataTransfer.getData('text/plain');
-        transferBox.insertAdjacentHTML('beforeend', data);
-
-        // Ensure checkbox stays checked when dropped
-        const lastItem = transferBox.lastElementChild;
-        if (lastItem) {
-            lastItem.querySelector('input[type="checkbox"]').checked = true;
+        // --- Helper Functions ---
+        function updateCount() {
+            const count = transferBox.querySelectorAll('.item-row').length;
+            transferCount.textContent = count + ' item' + (count !== 1 ? 's' : '') + ' transferred';
         }
+
+        function enableDrag(item) {
+            item.setAttribute('draggable', 'true');
+            item.addEventListener('dragstart', e => {
+                e.dataTransfer.setData('text/plain', item.dataset.id);
+                e.dataTransfer.effectAllowed = 'move';
+                item.classList.add('dragging');
+            });
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+            });
+        }
+
+        function refreshDraggableItems() {
+            document.querySelectorAll('.item-row').forEach(enableDrag);
+        }
+
+        function attachReturnButtons() {
+            document.querySelectorAll('#transfer-box .return-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const card = btn.closest('.item-row');
+                    itemList.appendChild(card);
+                    card.querySelector('input[type="checkbox"]').checked = false;
+
+                    enableDrag(card);
+                    refreshDraggableItems();
+                    updateCount();
+
+                    if (!transferBox.querySelector('.item-row')) {
+                        transferBox.innerHTML = '<p class="text-muted" style="width:100%; text-align:center;">Drag items here to transfer...</p>';
+                    }
+                });
+            });
+        }
+
+        // --- Initialize Draggable Items ---
+        refreshDraggableItems();
+
+        // --- Drop Zone Logic (Transfer to Transferred Campaign) ---
+        transferBox.addEventListener('dragover', e => {
+            e.preventDefault();
+            transferBox.style.background = '#e6f0ff';
+        });
+
+        transferBox.addEventListener('dragleave', () => {
+            transferBox.style.background = '#f8fbff';
+        });
+
+        transferBox.addEventListener('drop', e => {
+            e.preventDefault();
+            transferBox.style.background = '#f8fbff';
+            const draggedItem = document.querySelector('.dragging');
+            if (draggedItem) {
+                transferBox.appendChild(draggedItem);
+                draggedItem.querySelector('input[type="checkbox"]').checked = true;
+
+                // Add return button if missing
+                if (!draggedItem.querySelector('.return-btn')) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'return-btn btn btn-sm btn-outline-secondary';
+                    btn.style.position = 'absolute';
+                    btn.style.top = '8px';
+                    btn.style.right = '8px';
+                    btn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i>';
+                    draggedItem.appendChild(btn);
+                }
+
+                enableDrag(draggedItem);
+                refreshDraggableItems();
+                attachReturnButtons();
+                updateCount();
+            }
+            if (transferBox.querySelector('p')) {
+                transferBox.querySelector('p').remove();
+            }
+        });
+
+        // --- Reverse Drop Logic (Return to Original Campaign) ---
+        itemList.addEventListener('dragover', e => {
+            e.preventDefault();
+            itemList.style.background = '#f8f9fa';
+        });
+
+        itemList.addEventListener('dragleave', () => {
+            itemList.style.background = 'transparent';
+        });
+
+        itemList.addEventListener('drop', e => {
+            e.preventDefault();
+            itemList.style.background = 'transparent';
+            const draggedItem = document.querySelector('.dragging');
+            if (draggedItem && draggedItem.closest('#transfer-box')) {
+                itemList.appendChild(draggedItem);
+                draggedItem.querySelector('input[type="checkbox"]').checked = false;
+
+                // Remove return button when back in original list
+                const btn = draggedItem.querySelector('.return-btn');
+                if (btn) btn.remove();
+
+                enableDrag(draggedItem);
+                refreshDraggableItems();
+                updateCount();
+
+                if (!transferBox.querySelector('.item-row')) {
+                    transferBox.innerHTML = '<p class="text-muted" style="width:100%; text-align:center;">Drag items here to transfer...</p>';
+                }
+            }
+        });
+
+        updateCount();
     });
-});
 
-
-
-    // Filter items by selected campaign
+    // --- Campaign Filtering ---
     fromCampaignSelect.addEventListener('change', function() {
         const selectedCampaign = this.value.toLowerCase();
-        const items = document.querySelectorAll('#item-list .item-row');
+        const itemList = document.getElementById('item-list');
+        const items = itemList.querySelectorAll('.item-row');
+
+        if (!selectedCampaign) {
+            itemList.style.display = 'none';
+        } else {
+            itemList.style.display = 'flex';
+        }
 
         items.forEach(item => {
             const itemCampaign = (item.dataset.campaign || '').toLowerCase();
-            if (!selectedCampaign || itemCampaign === selectedCampaign) {
+            if (itemCampaign === selectedCampaign) {
                 item.style.display = 'inline-block';
             } else {
                 item.style.display = 'none';
@@ -398,7 +497,7 @@
         updateCampaignOptions();
     });
 
-    // Prevent transferring to the same campaign
+    // --- Prevent Same Campaign Selection ---
     function updateCampaignOptions() {
         const fromValue = fromCampaignSelect.value;
         const toCampaignOptions = toCampaignSelect.querySelectorAll('option');
@@ -418,7 +517,7 @@
         }
     }
 
-    // Validate before submission
+    // --- Form Validation ---
     function validateCampaignTransfer(e) {
         const fromValue = fromCampaignSelect.value;
         const toValue   = toCampaignSelect.value;
@@ -446,19 +545,18 @@
         form.addEventListener('submit', validateCampaignTransfer);
     }
 
-    // Initialize on page load
+    // --- Tooltip Hover Logic ---
     document.addEventListener('DOMContentLoaded', function() {
         updateCampaignOptions();
 
-        // Tooltip hover logic
         document.querySelectorAll('.item-row').forEach(item => {
             item.addEventListener('mouseenter', () => {
                 const tooltip = item.querySelector('.item-tooltip');
-                tooltip.style.display = 'block';
+                if (tooltip) tooltip.style.display = 'block';
             });
             item.addEventListener('mouseleave', () => {
                 const tooltip = item.querySelector('.item-tooltip');
-                tooltip.style.display = 'none';
+                if (tooltip) tooltip.style.display = 'none';
             });
         });
     });

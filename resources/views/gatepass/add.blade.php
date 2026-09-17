@@ -3,6 +3,23 @@
 @include('layouts.title')
 
 <style>
+ 
+.asset-drag-card {
+  width: 100%;
+  max-width: 120px;
+  text-align: center;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  padding: 12px;
+  cursor: grab;
+  transition: all 0.3s ease;
+}
+.asset-drag-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(13,110,253,0.2);
+}
+
     :root {
         --company-violet: #4f46e5;
         --company-violet-dark: #312e81;
@@ -102,26 +119,47 @@
         gap: 1rem;
     }
 
-    .asset-pool,
-    .transfer-box {
-        min-height: 220px;
-        border: 1px dashed rgba(79, 70, 229, 0.35);
-        border-radius: 16px;
-        background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(248, 250, 252, 0.9));
-        padding: 0.85rem;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-    }
+  .asset-pool,
+.transfer-box {
+  min-height: 240px;
+  border: 2px dashed #2563eb;       /* vivid blue dashed border */
+  border-radius: 12px;
+  background: #f9fafb;              /* clean neutral background */
+  padding: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
 
-    .transfer-box {
-        border-style: solid;
-        background: linear-gradient(180deg, rgba(79, 70, 229, 0.04), rgba(250, 204, 21, 0.08));
-    }
+/* Differentiate the transfer box slightly */
+.transfer-box {
+  background: #f0f9ff;              /* very light blue tint */
+}
 
-    .transfer-box.is-active,
-    .asset-pool.is-active {
-        border-color: rgba(79, 70, 229, 0.7);
-        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.08);
-    }
+/* Active state when dragging over */
+.asset-pool.is-active,
+.transfer-box.is-active {
+  border-color: #1d4ed8;            /* deeper blue highlight */
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.2);
+}
+
+/* Panel headers */
+.dnd-panel-header h6 {
+  margin: 0 0 0.75rem 0;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #1e3a8a;                   /* dark blue text */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Empty state message */
+.empty-drop-state {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+
 
     .dnd-panel-header {
         display: flex;
@@ -461,7 +499,7 @@
 
     .form-group-icon .form-control,
     .form-group-icon .form-select {
-        padding-left: 38px !important;
+        padding-left: 10px !important;
     }
 
     .asset-modal-overlay {
@@ -689,166 +727,150 @@
       class="row g-3">
 
     @csrf
-                        <div class="col-12 transfer-highlight">
-                            <div class="row g-3 align-items-end">
-                                <div class="col-md-6 form-group-icon">
-                                    <label for="from_site_floor" class="form-label">
-                                        <i class="bi bi-geo-alt"></i> From Site / Floor
-                                    </label>
-                                    <span class="form-icon"><i class="bi bi-geo-alt"></i></span>
-                                    <select id="from_site_floor" name="from_site_floor" class="form-select" required>
-                                        <option value="">Select source site</option>
-                                        @foreach ($locationOptions ?? [] as $option)
-                                            <option value="{{ $option->option_value }}">{{ $option->option_value }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                      
 
-                                <div class="col-md-6 form-group-icon">
-                                    <label for="to_site_floor" class="form-label">
-                                        <i class="bi bi-geo-alt-fill"></i> To Site / Floor
-                                    </label>
-                                    <span class="form-icon"><i class="bi bi-geo-alt-fill"></i></span>
-                                    <select id="to_site_floor" name="to_site_floor" class="form-select" required>
-                                        <option value="">Select destination site</option>
-                                        @foreach ($locationOptions ?? [] as $option)
-                                            <option value="{{ $option->option_value }}">{{ $option->option_value }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 form-group-icon">
-                            <label for="owner" class="form-label">
+                        <div class="col-md-2 form-group-icon">
+                            <label  style="font-size: 15px;" for="owner" class="form-label">
                                 <i class="bi bi-person-badge"></i> Owner
                             </label>
-                            <span class="form-icon"><i class="bi bi-person-badge"></i></span>
-                            <input id="owner" name="owner" type="text" class="form-control" placeholder="Owner / department head">
-                        </div>
-
-                        <div class="col-md-6 form-group-icon">
-                            <label for="bearer" class="form-label">
+                            <span class="form-icon"> </span>
+                            <input style="font-size: 12px;" id="owner" name="owner" type="text" class="form-control" placeholder="Owner / department head">
+                              <label style="font-size: 15px;" for="bearer" class="form-label mt-2">
                                 <i class="bi bi-person-check"></i> Bearer
                             </label>
-                            <span class="form-icon"><i class="bi bi-person-check"></i></span>
-                            <input id="bearer" name="bearer" type="text" class="form-control" placeholder="Mr./Ms.">
+                            
+                            <input style="font-size: 12px;" id="bearer" name="bearer" type="text" class="form-control" placeholder="Mr./Ms.">
                         </div>
 
-                        <div class="col-md-6 form-group-icon">
-                            <label for="contact" class="form-label">
+                        
+
+                        <div class="col-md-2 form-group-icon">
+                            <label style="font-size: 15px;" for="contact" class="form-label">
                                 <i class="bi bi-telephone"></i> Contact
                             </label>
-                            <span class="form-icon"><i class="bi bi-telephone"></i></span>
-                            <input id="contact" name="contact" type="text" class="form-control" placeholder="Contact number or person">
-                        </div>
-
-                        <div class="col-md-4 form-group-icon">
-                            <label for="date" class="form-label">
+                             
+                            <input style="font-size: 12px;" id="contact" name="contact" type="text" class="form-control" placeholder="Contact number or person">
+                              <label style="font-size: 15px;" for="date" class="form-label mt-2">
                                 <i class="bi bi-calendar"></i> Date
                             </label>
-                            <span class="form-icon"><i class="bi bi-calendar"></i></span>
-                            <input id="date" name="date" type="date" class="form-control" value="{{ date('Y-m-d') }}">
+                             
+                            <input style="font-size: 12px;" id="date" name="date" type="date" class="form-control" value="{{ date('Y-m-d') }}">
                         </div>
 
-                        <div class="col-md-4 form-group-icon">
-                            <label for="time" class="form-label">
+                         
+
+                        <div class="col-md-1 form-group-icon">
+                            <label style="font-size: 15px;" for="time" class="form-label">
                                 <i class="bi bi-clock"></i> Time
                             </label>
-                            <span class="form-icon"><i class="bi bi-clock"></i></span>
-                            <input id="time" name="time" type="time" class="form-control" value="{{ date('H:i') }}">
-                        </div>
-
-                        <div class="col-md-4 form-group-icon">
-                            <label for="quantity_total" class="form-label">
-                                <i class="bi bi-box2"></i> Reference Qty
-                            </label>
-                            <span class="form-icon"><i class="bi bi-box2"></i></span>
-                            <input id="quantity_total" type="number" min="1" value="1" class="form-control" readonly>
-                        </div>
-
-                        <div class="col-md-4 form-group-icon">
-                            <label for="status" class="form-label">
+                     
+                            <input  style="font-size: 12px;" id="time" name="time" type="time" class="form-control" value="{{ date('H:i') }}">
+                                <label for="status" class="form-label mt-2">
                                 <i class="bi bi-circle-fill"></i> Status
                             </label>
-                            <span class="form-icon"><i class="bi bi-graph-up"></i></span>
-                            <select id="status" name="status" class="form-select" required>
+                            <span class="form-icon"> </span>
+                            <select  style="font-size: 12px;" id="status" name="status" class="form-select" required>
                                 <option value="Ongoing" selected>Ongoing</option>
                                 <option value="Completed">Completed</option>
                                 <option value="Cancelled">Cancelled</option>
                             </select>
                         </div>
+ 
+ 
+                        <div class="col-md-2 form-group-icon">
+   <label for="from_site_floor" class="form-label">
+                                        <i class="bi bi-geo-alt"></i> From Site  
+                                    </label>
+                                    <select  style="font-size: 12px;" id="from_site_floor" name="from_site_floor" class="form-select" required>
+                                        <option value="">Select source site</option>
+                                        @foreach ($locationOptions ?? [] as $option)
+                                            <option value="{{ $option->option_value }}">{{ $option->option_value }}</option>
+                                        @endforeach
+                                    </select>
+                                      <label for="to_site_floor" class="form-label mt-2">
+                                        <i class="bi bi-geo-alt-fill"></i> To Site  
+                                    </label>
+                                    <span class="form-icon"> </span>
+                                    <select  style="font-size: 12px;" id="to_site_floor" name="to_site_floor" class="form-select" required>
+                                        <option value="">Select destination site</option>
+                                        @foreach ($locationOptions ?? [] as $option)
+                                            <option value="{{ $option->option_value }}">{{ $option->option_value }}</option>
+                                        @endforeach
+                                    </select>
+                        </div>
 
-                        <div class="col-12 form-group-icon">
-                            <label for="remarks" class="form-label">
+                        
+    <div class="col-md-4 form-group-icon">
+                         <label for="remarks" class="form-label">
                                 <i class="bi bi-pencil"></i> Gatepass note
                             </label>
-                            <span class="form-icon"><i class="bi bi-pencil"></i></span>
-                            <textarea id="remarks" name="remarks" rows="4" class="form-control" placeholder="General remarks for the gatepass..."></textarea>
+                            <span class="form-icon"> </span>
+                            <textarea  style="font-size: 12px;" id="remarks" name="remarks" rows="5" class="form-control" placeholder="General remarks for the gatepass..."></textarea>
+ 
                         </div>
+                          
+  
+                        
+        <div class="row g-3">
+  <!-- Left column: All Assets -->
+  <div class="col-md-6">
+    <div class="asset-pool" id="inventory-pool" aria-label="All assets list">
+      <div class="dnd-panel-header">
+        <h6>All Assets</h6>
+      </div>
+      <input type="text" id="asset-search" class="asset-search-input"
+             placeholder="Search by tag, name, brand, or model..." aria-label="Search assets" />
+      <div class="asset-filter-controls" id="filter-controls"></div>
+      <div class="interactive-note">
+        <i class="bi bi-lightning-charge"></i>
+        Use search or filters to find and add assets to the transfer list.
+      </div>
 
-                        <div class="col-12">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="mb-0">Transfer assets</h5>
-                            </div>
+      <div id="inventory-grid"
+           style="display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:15px;">
+        @foreach ($inventoryItems as $item)
+          @php
+            $availableQty = (int) ($item->quantity ?? 1);
+            $availableQty = max(1, $availableQty);
+            $icon = match(strtolower($item->category)) {
+              'computer' => 'bi-pc-display',
+              'printer' => 'bi-printer',
+              'router' => 'bi-hdd-network',
+              'monitor' => 'bi-display',
+              default => 'bi-box-seam',
+            };
+          @endphp
+          <div class="asset-drag-card hidden-by-default"
+               draggable="true"
+               data-item-id="{{ $item->id }}"
+               data-item-name="{{ $item->item_name }}"
+               data-category="{{ $item->category ?? '' }}"
+               data-current-location="{{ $item->location ?? 'Unknown' }}"
+               style="text-align:center; border-radius:10px; background:#fff;
+                      box-shadow:0 2px 6px rgba(0,0,0,0.08); padding:12px; cursor:grab;
+                      transition:all 0.3s ease;">
+            <i class="bi {{ $icon }}" style="font-size:32px; color:#0d6efd;"></i>
+            <div class="asset-card-name" style="font-size:12px; margin-top:6px;">
+              {{ $item->item_name }}
+            </div>
+            <span class="badge bg-primary mt-2">Qty: {{ $availableQty }}</span>
+          </div>
+        @endforeach
+      </div>
+    </div>
+  </div>
 
-                            <div class="drag-drop-shell">
-                                <div class="asset-pool" id="inventory-pool" aria-label="All assets list">
-                                    <div class="dnd-panel-header">
-                                        <h6>All Assets</h6>
-                                    </div>
-                                    <input
-                                        type="text"
-                                        id="asset-search"
-                                        class="asset-search-input"
-                                        placeholder="Search by tag, name, brand, or model..."
-                                        aria-label="Search assets"
-                                    />
-                                    <div class="asset-filter-controls" id="filter-controls"></div>
-                                    <div class="interactive-note">
-                                        <i class="bi bi-lightning-charge"></i>
-                                        Use search or filters to find and add assets to the transfer list.
-                                    </div>
-                                    @foreach ($inventoryItems as $item)
-                                        @php
-                                            $availableQty = (int) ($item->quantity ?? 1);
-                                            $availableQty = max(1, $availableQty);
-                                            $description = trim(($item->item_name ?? 'Inventory Item') . ' ' . ($item->brand ?? '') . ' ' . ($item->model ?? ''));
-                                        @endphp
-                                        <div
-                                            class="asset-drag-card hidden-by-default"
-                                            draggable="true"
-                                            data-item-id="{{ $item->id }}"
-                                            data-item-name="{{ $item->item_name }}"
-                                            data-unit="{{ $item->category ?? 'Unit' }}"
-                                            data-category="{{ $item->category ?? '' }}"
-                                            data-available-qty="{{ $availableQty }}"
-                                            data-original-qty="{{ $availableQty }}"
-                                            data-description="{{ $description }}"
-                                            data-asset-tag="{{ $item->asset_tag ?? 'ASSET' }}"
-                                            data-brand="{{ $item->brand ?? 'N/A' }}"
-                                            data-model="{{ $item->model ?? 'N/A' }}"
-                                            data-current-location="{{ $item->location ?? 'Unknown' }}">
-                                            <div class="asset-card-top">
-                                                <span>{{ $item->asset_tag ?? 'ASSET' }}</span>
-                                                <span class="qty-badge">Qty: {{ $availableQty }}</span>
-                                            </div>
-                                            <div class="asset-card-name">{{ $item->item_name }}</div>
-                                            <div class="asset-card-meta">
-                                                {{ trim(($item->brand ?? '') . ' ' . ($item->model ?? '')) ?: 'No details provided' }}
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
+  <!-- Right column: Transfer List -->
+  <div class="col-md-6">
+    <div class="transfer-box" id="transfer-box" aria-label="Transfer assets box">
+      <div class="dnd-panel-header">
+        <h6>Transfer List</h6>
+      </div>
+      <div class="empty-drop-state">Drag an asset here to transfer it.</div>
+    </div>
+  </div>
+</div>
 
-                                <div class="transfer-box" id="transfer-box" aria-label="Transfer assets box">
-                                    <div class="dnd-panel-header">
-                                        <h6>Transfer List</h6>
-                                    </div>
-                                    <div class="empty-drop-state">Drag an asset here to transfer it.</div>
-                                </div>
-                            </div>
-                        </div>
 
                 
 
