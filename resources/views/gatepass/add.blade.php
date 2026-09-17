@@ -778,25 +778,8 @@
  
  
                         <div class="col-md-2 form-group-icon">
-   <label for="from_site_floor" class="form-label">
-                                        <i class="bi bi-geo-alt"></i> From Site  
-                                    </label>
-                                    <select  style="font-size: 12px;" id="from_site_floor" name="from_site_floor" class="form-select" required>
-                                        <option value="">Select source site</option>
-                                        @foreach ($locationOptions ?? [] as $option)
-                                            <option value="{{ $option->option_value }}">{{ $option->option_value }}</option>
-                                        @endforeach
-                                    </select>
-                                      <label for="to_site_floor" class="form-label mt-2">
-                                        <i class="bi bi-geo-alt-fill"></i> To Site  
-                                    </label>
-                                    <span class="form-icon"> </span>
-                                    <select  style="font-size: 12px;" id="to_site_floor" name="to_site_floor" class="form-select" required>
-                                        <option value="">Select destination site</option>
-                                        @foreach ($locationOptions ?? [] as $option)
-                                            <option value="{{ $option->option_value }}">{{ $option->option_value }}</option>
-                                        @endforeach
-                                    </select>
+   
+                               
                         </div>
 
                         
@@ -817,6 +800,15 @@
     <div class="asset-pool" id="inventory-pool" aria-label="All assets list">
       <div class="dnd-panel-header">
         <h6>All Assets</h6>
+        <label for="from_site_floor" class="form-label">
+                                        <i class="bi bi-geo-alt"></i> From Site  
+                                    </label>
+                                    <select  style="font-size: 12px;" id="from_site_floor" name="from_site_floor" class="form-select" required>
+                                        <option value="">Select source site</option>
+                                        @foreach ($locationOptions ?? [] as $option)
+                                            <option value="{{ $option->option_value }}">{{ $option->option_value }}</option>
+                                        @endforeach
+                                    </select>
       </div>
       <input type="text" id="asset-search" class="asset-search-input"
              placeholder="Search by tag, name, brand, or model..." aria-label="Search assets" />
@@ -865,6 +857,16 @@
     <div class="transfer-box" id="transfer-box" aria-label="Transfer assets box">
       <div class="dnd-panel-header">
         <h6>Transfer List</h6>
+               <label for="to_site_floor" class="form-label mt-2">
+                                        <i class="bi bi-geo-alt-fill"></i> To Site  
+                                    </label>
+                                    <span class="form-icon"> </span>
+                                    <select  style="font-size: 12px;" id="to_site_floor" name="to_site_floor" class="form-select" required>
+                                        <option value="">Select destination site</option>
+                                        @foreach ($locationOptions ?? [] as $option)
+                                            <option value="{{ $option->option_value }}">{{ $option->option_value }}</option>
+                                        @endforeach
+                                    </select>
       </div>
       <div class="empty-drop-state">Drag an asset here to transfer it.</div>
     </div>
