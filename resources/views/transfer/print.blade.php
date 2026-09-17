@@ -11,8 +11,8 @@
         body { margin: 0; color: #111; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
         .page { max-width: 273mm; margin: 0 auto; }
         .top-border { border: 1px solid #222; }
-        .brand { padding: 8px 12px 5px; display: flex; align-items: center; justify-content: center; }
-        .brand img { max-height: 55px; object-fit: contain; }
+        .brand { padding: 8px 12px 5px; text-align: center; }
+        .brand img { width: 180px; max-height: 55px; object-fit: contain; }
         .address { padding: 6px; color: #fff; background: #111; text-align: center; font-size: 11px; font-weight: 700; }
         .title { padding: 9px; border-bottom: 1px solid #222; text-align: center; font-size: 16px; font-weight: 700; }
         .information { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 28px; padding: 18px 14px 12px; }
@@ -49,7 +49,7 @@
     <div class="page">
         <div class="top-border">
             <div class="brand">
-                <img src="{{ asset('assets/img/Allianz_name_logo.png') }}" alt="Allianz Synergia">
+                <img src="{{ asset('assets/img/asi_logo.jpg') }}" alt="Company logo">
             </div>
             <div class="address">SENECA PLAZA BLDG., E. RODRIGUEZ SR. AVE., NEW MANILA, BRGY. MARIANA, QUEZON CITY</div>
             <div class="title">FIXED ASSET TRANSFER FORM</div>

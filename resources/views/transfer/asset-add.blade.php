@@ -3,6 +3,11 @@
 @include('layouts.title')
 
 <style>
+    .item-row:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(13,110,253,0.2);
+}
+
     .form-group-icon {
         position: relative;
     }
@@ -197,14 +202,16 @@
         </div>
     </div>
 
-    <!-- Campaign Transfer Section -->
-    <div class="col-12">
-        <div class="form-divider" style="border-top:1px solid #ddd; margin:20px 0;"></div>
-        <div class="form-section-header" style="font-weight:600; font-size:18px; margin-bottom:10px;">
-            <i class="bi bi-diagram-3-fill" style="margin-right:8px; color:#0d6efd;"></i> Campaign Transfer
-        </div>
+   <!-- Campaign Transfer Section -->
+<div class="col-12">
+    <div class="form-divider" style="border-top:1px solid #ddd; margin:20px 0;"></div>
+    <div class="form-section-header" style="font-weight:600; font-size:18px; margin-bottom:10px;">
+        <i class="bi bi-diagram-3-fill" style="margin-right:8px; color:#0d6efd;"></i> Campaign Transfer
     </div>
+</div>
 
+<div class="row">
+    <!-- Original Campaign -->
     <div class="col-md-6">
         <label for="from_campaign" class="form-label">
             <i class="bi bi-box-arrow-left"></i> Original Campaign/Team
@@ -218,40 +225,29 @@
                 </option>
             @endforeach
         </select>
-    </div>
 
-    <!-- Item List -->
-    <div id="item-list" class="mt-3 col-12" style="display:flex; flex-wrap:wrap; gap:15px;">
-        @foreach($inventoryItems as $item)
-            <div class="form-check item-row"
-                 data-campaign="{{ strtolower($item->campaign) }}"
-                 style="position:relative; flex:0 0 250px; padding:15px; border:1px solid #e0e0e0; border-radius:10px;
-                        background-color:#f9f9f9; box-shadow:0 2px 6px rgba(0,0,0,0.08); transition:all 0.3s ease; cursor:pointer;">
-                <i class="bi bi-box-seam" style="color:#0d6efd; font-size:20px; margin-right:8px;"></i>
-                <input type="checkbox" name="items[]" value="{{ $item->id }}" class="form-check-input" style="margin-right:6px;">
-                <label class="form-check-label" style="font-weight:600; color:#333;">
-                    {{ $item->item_name }} ({{ $item->asset_tag }})
-                </label>
-
-                <!-- Hover Cloud Tooltip -->
-                <div class="item-tooltip"
-                     style="display:none; position:absolute; top:-10px; left:50%; transform:translateX(-50%);
-                            background:#fff; border:1px solid #ddd; border-radius:12px; padding:12px 16px;
-                            box-shadow:0 4px 12px rgba(0,0,0,0.15); width:260px; z-index:10;">
-                    <strong style="color:#0d6efd;">Asset Details</strong><br>
-                    <span style="font-size:13px; color:#555;">
-                        Category: {{ $item->category }}<br>
-                        Brand: {{ $item->brand }}<br>
-                        Model: {{ $item->model }}<br>
-                        Serial: {{ $item->serial_number }}<br>
-                        Location: {{ $item->location }}<br>
-                        Status: {{ $item->status }}
-                    </span>
-                </div>
+     <div id="item-list" class="mt-3 col-12" style="display:flex; flex-wrap:wrap; gap:15px;">
+    @foreach($inventoryItems as $item)
+        <div class="item-row"
+             draggable="true"
+             data-campaign="{{ strtolower($item->campaign) }}"
+             style="position:relative; flex:0 0 220px; padding:18px; border-radius:10px;
+                    background-color:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.08);
+                    transition:all 0.3s ease; cursor:grab; text-align:center;">
+            <i class="bi bi-pc-display" style="color:#0d6efd; font-size:28px; margin-bottom:8px;"></i>
+            <div style="font-weight:600; color:#333; font-size:14px;">
+                {{ $item->item_name }}
             </div>
-        @endforeach
+            <div style="font-size:12px; color:#6c757d;">
+                {{ $item->asset_tag }}
+            </div>
+        </div>
+    @endforeach
+</div>
+
     </div>
 
+    <!-- Transferred Campaign -->
     <div class="col-md-6">
         <label for="to_campaign" class="form-label">
             <i class="bi bi-box-arrow-right"></i> Transferred Campaign
@@ -265,7 +261,17 @@
                 </option>
             @endforeach
         </select>
+
+     <div id="transfer-box" class="mt-3"
+     style="min-height:220px; border:2px dashed #0d6efd; border-radius:10px;
+            background:#f8fbff; padding:15px; display:flex; flex-wrap:wrap; gap:15px;
+            align-items:flex-start; justify-content:flex-start;">
+    <p class="text-muted" style="width:100%; text-align:center;">Drag items here to transfer...</p>
+</div>
+
     </div>
+</div>
+
 
     <!-- Asset Details Section -->
     <div class="col-12">
@@ -334,6 +340,45 @@
     const fromCampaignSelect = document.getElementById('from_campaign');
     const toCampaignSelect   = document.getElementById('to_campaign');
     const form               = document.querySelector('form');
+
+    document.addEventListener('DOMContentLoaded', () => {
+    const items = document.querySelectorAll('.item-row');
+    const transferBox = document.getElementById('transfer-box');
+
+    items.forEach(item => {
+        item.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('text/plain', item.outerHTML);
+            item.classList.add('dragging');
+        });
+        item.addEventListener('dragend', () => {
+            item.classList.remove('dragging');
+        });
+    });
+
+    transferBox.addEventListener('dragover', e => {
+        e.preventDefault();
+        transferBox.style.background = '#e6f0ff';
+    });
+
+    transferBox.addEventListener('dragleave', () => {
+        transferBox.style.background = '#f0f8ff';
+    });
+
+    transferBox.addEventListener('drop', e => {
+        e.preventDefault();
+        transferBox.style.background = '#f0f8ff';
+        const data = e.dataTransfer.getData('text/plain');
+        transferBox.insertAdjacentHTML('beforeend', data);
+
+        // Ensure checkbox stays checked when dropped
+        const lastItem = transferBox.lastElementChild;
+        if (lastItem) {
+            lastItem.querySelector('input[type="checkbox"]').checked = true;
+        }
+    });
+});
+
+
 
     // Filter items by selected campaign
     fromCampaignSelect.addEventListener('change', function() {
