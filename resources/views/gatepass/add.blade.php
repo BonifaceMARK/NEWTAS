@@ -729,7 +729,7 @@
     @csrf
                       
 
-                        <div class="col-md-2 form-group-icon">
+                        <div class="col-md-3 form-group-icon">
                             <label  style="font-size: 15px;" for="owner" class="form-label">
                                 <i class="bi bi-person-badge"></i> Owner
                             </label>
@@ -776,11 +776,7 @@
                             </select>
                         </div>
  
- 
-                        <div class="col-md-2 form-group-icon">
-   
-                               
-                        </div>
+  
 
                         
     <div class="col-md-4 form-group-icon">
@@ -794,26 +790,29 @@
                           
   
                         
-        <div class="row g-3">
+   <div class="row g-4">
   <!-- Left column: All Assets -->
   <div class="col-md-6">
     <div class="asset-pool" id="inventory-pool" aria-label="All assets list">
-      <div class="dnd-panel-header">
-        <h6>All Assets</h6>
-        <label for="from_site_floor" class="form-label">
-                                        <i class="bi bi-geo-alt"></i> From Site  
-                                    </label>
-                                    <select  style="font-size: 12px;" id="from_site_floor" name="from_site_floor" class="form-select" required>
-                                        <option value="">Select source site</option>
-                                        @foreach ($locationOptions ?? [] as $option)
-                                            <option value="{{ $option->option_value }}">{{ $option->option_value }}</option>
-                                        @endforeach
-                                    </select>
+      <div class="dnd-panel-header d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0">All Assets</h6>
+        <div class="form-group mb-0">
+          <label for="from_site_floor" class="form-label mb-1" style="font-size:13px;">
+            <i class="bi bi-geo-alt"></i> From Site
+          </label>
+          <select id="from_site_floor" name="from_site_floor" class="form-select form-select-sm" style="font-size:12px;" required>
+            <option value="">Select source site</option>
+            @foreach ($locationOptions ?? [] as $option)
+              <option value="{{ $option->option_value }}">{{ $option->option_value }}</option>
+            @endforeach
+          </select>
+        </div>
       </div>
-      <input type="text" id="asset-search" class="asset-search-input"
+
+      <input type="text" id="asset-search" class="asset-search-input mb-2"
              placeholder="Search by tag, name, brand, or model..." aria-label="Search assets" />
-      <div class="asset-filter-controls" id="filter-controls"></div>
-      <div class="interactive-note">
+      <div class="asset-filter-controls mb-2" id="filter-controls"></div>
+      <div class="interactive-note mb-3">
         <i class="bi bi-lightning-charge"></i>
         Use search or filters to find and add assets to the transfer list.
       </div>
@@ -855,23 +854,28 @@
   <!-- Right column: Transfer List -->
   <div class="col-md-6">
     <div class="transfer-box" id="transfer-box" aria-label="Transfer assets box">
-      <div class="dnd-panel-header">
-        <h6>Transfer List</h6>
-               <label for="to_site_floor" class="form-label mt-2">
-                                        <i class="bi bi-geo-alt-fill"></i> To Site  
-                                    </label>
-                                    <span class="form-icon"> </span>
-                                    <select  style="font-size: 12px;" id="to_site_floor" name="to_site_floor" class="form-select" required>
-                                        <option value="">Select destination site</option>
-                                        @foreach ($locationOptions ?? [] as $option)
-                                            <option value="{{ $option->option_value }}">{{ $option->option_value }}</option>
-                                        @endforeach
-                                    </select>
+      <div class="dnd-panel-header d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0">Transfer List</h6>
+        <div class="form-group mb-0">
+          <label for="to_site_floor" class="form-label mb-1" style="font-size:13px;">
+            <i class="bi bi-geo-alt-fill"></i> To Site
+          </label>
+          <select id="to_site_floor" name="to_site_floor" class="form-select form-select-sm" style="font-size:12px;" required>
+            <option value="">Select destination site</option>
+            @foreach ($locationOptions ?? [] as $option)
+              <option value="{{ $option->option_value }}">{{ $option->option_value }}</option>
+            @endforeach
+          </select>
+        </div>
       </div>
-      <div class="empty-drop-state">Drag an asset here to transfer it.</div>
+
+      <div class="empty-drop-state text-center p-4 border rounded" style="background:#f8fbff;">
+        Drag an asset here to transfer it.
+      </div>
     </div>
   </div>
 </div>
+
 
 
                 
