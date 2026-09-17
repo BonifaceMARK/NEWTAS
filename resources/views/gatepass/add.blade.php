@@ -712,7 +712,7 @@
                 <div class="card-body">
                     <div class="gatepass-hero d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
                         <div>
-                            <h1 class="h4 mb-1">Create Gatepass</h1>
+                            <h1 class="h4 mb-1"><i class="bi bi-pass"></i> Create Gatepass</h1>
                             <p class="mb-0">Create a single gatepass for one or multiple assets.</p>
                         </div>
                         <div class="summary-pill">
@@ -759,7 +759,7 @@
 
                          
 
-                        <div class="col-md-1 form-group-icon">
+                        <div class="col-md-2 form-group-icon">
                             <label style="font-size: 15px;" for="time" class="form-label">
                                 <i class="bi bi-clock"></i> Time
                             </label>
