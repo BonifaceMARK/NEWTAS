@@ -174,15 +174,9 @@
 
         <form action="{{ route('asset.transfer') }}" method="POST" class="row g-3" style="padding:20px;">
     @csrf
-
-    <!-- Transfer Identification Section -->
-    <div class="col-12">
-        <div class="form-section-header" style="font-weight:600; font-size:18px; margin-bottom:10px;">
-            <i class="bi bi-tag-fill" style="margin-right:8px; color:#0d6efd;"></i> Transfer Identification
-        </div>
-    </div>
-
-    <div class="col-md-6">
+ 
+        <div class="form-divider" style="border-top:1px solid #ddd; margin:20px 0;"></div>
+    <div class="col-md-3">
         <div class="form-group-icon">
             <label for="reference_no" class="form-label">
                 <i class="bi bi-hash"></i> Reference No.
@@ -190,10 +184,7 @@
             <input type="text" class="form-control" id="reference_no" name="reference_no"
                    placeholder="REF-001" value="{{ old('reference_no') }}" required>
         </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="form-group-icon">
+          <div class="form-group-icon">
             <label for="date_of_transfer" class="form-label">
                 <i class="bi bi-calendar-event"></i> Date of Transfer
             </label>
@@ -201,13 +192,55 @@
                    value="{{ old('date_of_transfer') }}" required>
         </div>
     </div>
-<!-- Campaign Transfer Section -->
-<div class="col-12">
-    <div class="form-divider" style="border-top:1px solid #ddd; margin:20px 0;"></div>
-    <div class="form-section-header" style="font-weight:600; font-size:18px; margin-bottom:10px;">
-        <i class="bi bi-diagram-3-fill" style="margin-right:8px; color:#0d6efd;"></i> Campaign Transfer
+
+ 
+    
+    <!-- Asset Details Section -->
+    <div class="col-12">
+
+        <div class="form-section-header" style="font-weight:600; font-size:18px; margin-bottom:10px;">
+            <i class="bi bi-box-seam-fill" style="margin-right:8px; color:#0d6efd;"></i> Asset Details
+        </div>
     </div>
-</div>
+
+    <div class="col-md-6">
+        <label for="asset_type" class="form-label">
+            <i class="bi bi-tools"></i> Asset Type
+        </label>
+        <input type="text" class="form-control" id="asset_type" name="asset_type"
+               placeholder="e.g., Computer, Printer" value="{{ old('asset_type') }}" required>
+    </div>
+
+    <div class="col-md-6">
+        <label for="status" class="form-label">
+            <i class="bi bi-circle-fill"></i> Status
+        </label>
+        <select class="form-select" id="status" name="status" required>
+            @foreach (['Ongoing', 'Completed', 'Cancelled'] as $status)
+                <option value="{{ $status }}" @selected(old('status', 'Ongoing') === $status)>
+                    {{ $status }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
+    <!-- Additional Information Section -->
+    <div class="col-12">
+        <div class="form-divider" style="border-top:1px solid #ddd; margin:20px 0;"></div>
+        <div class="form-section-header" style="font-weight:600; font-size:18px; margin-bottom:10px;">
+            <i class="bi bi-chat-left-text-fill" style="margin-right:8px; color:#0d6efd;"></i> Additional Information
+        </div>
+    </div>
+
+    <div class="col-12">
+        <label for="remarks" class="form-label">
+            <i class="bi bi-pencil"></i> Reason for Transfer
+        </label>
+        <textarea class="form-control" id="remarks" name="remarks" rows="4"
+                  placeholder="Provide detailed reason for transfer...">{{ old('remarks') }}</textarea>
+    </div>
+
+
 
 <div class="row">
     <!-- Original Campaign -->
@@ -280,51 +313,6 @@
 </div>
 
 
-
-    <!-- Asset Details Section -->
-    <div class="col-12">
-        <div class="form-divider" style="border-top:1px solid #ddd; margin:20px 0;"></div>
-        <div class="form-section-header" style="font-weight:600; font-size:18px; margin-bottom:10px;">
-            <i class="bi bi-box-seam-fill" style="margin-right:8px; color:#0d6efd;"></i> Asset Details
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <label for="asset_type" class="form-label">
-            <i class="bi bi-tools"></i> Asset Type
-        </label>
-        <input type="text" class="form-control" id="asset_type" name="asset_type"
-               placeholder="e.g., Computer, Printer" value="{{ old('asset_type') }}" required>
-    </div>
-
-    <div class="col-md-6">
-        <label for="status" class="form-label">
-            <i class="bi bi-circle-fill"></i> Status
-        </label>
-        <select class="form-select" id="status" name="status" required>
-            @foreach (['Ongoing', 'Completed', 'Cancelled'] as $status)
-                <option value="{{ $status }}" @selected(old('status', 'Ongoing') === $status)>
-                    {{ $status }}
-                </option>
-            @endforeach
-        </select>
-    </div>
-
-    <!-- Additional Information Section -->
-    <div class="col-12">
-        <div class="form-divider" style="border-top:1px solid #ddd; margin:20px 0;"></div>
-        <div class="form-section-header" style="font-weight:600; font-size:18px; margin-bottom:10px;">
-            <i class="bi bi-chat-left-text-fill" style="margin-right:8px; color:#0d6efd;"></i> Additional Information
-        </div>
-    </div>
-
-    <div class="col-12">
-        <label for="remarks" class="form-label">
-            <i class="bi bi-pencil"></i> Reason for Transfer
-        </label>
-        <textarea class="form-control" id="remarks" name="remarks" rows="4"
-                  placeholder="Provide detailed reason for transfer...">{{ old('remarks') }}</textarea>
-    </div>
 
     <!-- Action Buttons -->
     <div class="col-12 text-center" style="margin-top:20px;">

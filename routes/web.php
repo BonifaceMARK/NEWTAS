@@ -18,6 +18,8 @@ use App\Models\InventoryItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Http\Controllers\AccountController;
+
 use App\Models\fileviolation;
 use App\Models\G5ChatMessage;
 use Illuminate\Validation\ValidationException;
@@ -122,6 +124,12 @@ Route::post('/asset/transfer/{assetTransfer}/signature', [InventoryController::c
 Route::post('/asset/transfer', [InventoryController::class, 'assetTransfer'])->name('asset.transfer');
 Route::post('/asset/transfer-list', [InventoryController::class, 'assetTransferList'])->name('asset.transfer.list');
 Route::get('/asset/transfer/{inventoryItem}', [InventoryController::class, 'assetTransferForItem'])->name('asset.transfer.item');
+
+
+Route::resource('accounts', AccountController::class);
+
+Route::post('/accounts/import', [AccountController::class, 'import'])->name('accounts.import');
+
 
 });
 

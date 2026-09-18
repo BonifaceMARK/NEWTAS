@@ -155,6 +155,13 @@
             </a>
         </li>
 
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('accounts.index') ? 'active' : '' }}"
+               href="{{ route('accounts.index') }}">
+                <i class="bi bi-people"></i><span>Account Management</span>
+            </a>
+        </li>
+
         <li class="sidebar-label">Operations</li>
 
         <li class="nav-item">

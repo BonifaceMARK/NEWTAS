@@ -683,6 +683,12 @@
             transform: translateY(0);
         }
     }
+    select:disabled {
+  background-color: #f3f4f6;   /* light gray background */
+  color: #9ca3af;              /* muted text */
+  cursor: not-allowed;
+}
+
 </style>
 
 <body>
@@ -730,12 +736,12 @@
                       
 
                         <div class="col-md-3 form-group-icon">
-                            <label  style="font-size: 15px;" for="owner" class="form-label">
+                            <label  style="font-size: 12px;" for="owner" class="form-label">
                                 <i class="bi bi-person-badge"></i> Owner
                             </label>
                             <span class="form-icon"> </span>
                             <input style="font-size: 12px;" id="owner" name="owner" type="text" class="form-control" placeholder="Owner / department head">
-                              <label style="font-size: 15px;" for="bearer" class="form-label mt-2">
+                              <label style="font-size: 12px;" for="bearer" class="form-label mt-2">
                                 <i class="bi bi-person-check"></i> Bearer
                             </label>
                             
@@ -745,12 +751,12 @@
                         
 
                         <div class="col-md-2 form-group-icon">
-                            <label style="font-size: 15px;" for="contact" class="form-label">
+                            <label style="font-size: 12px;" for="contact" class="form-label">
                                 <i class="bi bi-telephone"></i> Contact
                             </label>
                              
                             <input style="font-size: 12px;" id="contact" name="contact" type="text" class="form-control" placeholder="Contact number or person">
-                              <label style="font-size: 15px;" for="date" class="form-label mt-2">
+                              <label style="font-size: 12px;" for="date" class="form-label mt-2">
                                 <i class="bi bi-calendar"></i> Date
                             </label>
                              
@@ -760,12 +766,12 @@
                          
 
                         <div class="col-md-2 form-group-icon">
-                            <label style="font-size: 15px;" for="time" class="form-label">
+                            <label style="font-size: 12px;" for="time" class="form-label">
                                 <i class="bi bi-clock"></i> Time
                             </label>
                      
                             <input  style="font-size: 12px;" id="time" name="time" type="time" class="form-control" value="{{ date('H:i') }}">
-                                <label for="status" class="form-label mt-2">
+                                <label style="font-size: 12px;" for="status" class="form-label mt-2">
                                 <i class="bi bi-circle-fill"></i> Status
                             </label>
                             <span class="form-icon"> </span>
@@ -779,8 +785,8 @@
   
 
                         
-    <div class="col-md-4 form-group-icon">
-                         <label for="remarks" class="form-label">
+                         <div class="col-md-4 form-group-icon">
+                         <label style="font-size: 12px;" for="remarks" class="form-label">
                                 <i class="bi bi-pencil"></i> Gatepass note
                             </label>
                             <span class="form-icon"> </span>
