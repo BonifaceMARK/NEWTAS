@@ -12,6 +12,7 @@ class Account extends Model
     protected $table = 'tbl_accounts';
 
     protected $fillable = [
+        'fullname',
         'nas_username',
         'nas_password',
         'ad_username',

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<main id="main" class="main">
 <div class="container">
     <h1>Account Details</h1>
     <ul class="list-group">
@@ -14,4 +15,5 @@
     </ul>
     <a href="{{ route('accounts.index') }}" class="btn btn-secondary mt-3">Back</a>
 </div>
+</main>
 @endsection
