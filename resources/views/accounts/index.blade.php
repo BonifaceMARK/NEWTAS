@@ -89,11 +89,19 @@
                             <td>{{ $account->agent_number }}</td>
                             <td>{{ $account->campaign }}</td>
                             <td>
-                                <span class="badge rounded-pill 
-                                    {{ $account->status === 'Active' ? 'bg-success' : 
-                                       ($account->status === 'Pending' ? 'bg-warning text-dark' : 'bg-secondary') }}">
-                                    {{ $account->status }}
-                                </span>
+                              <span class="badge rounded-pill 
+    {{ $account->status === 'Active' ? 'bg-success' : 
+       ($account->status === 'Pending' ? 'bg-warning text-dark' : 'bg-secondary') }}">
+    @if($account->status === 'Active')
+        <i class="bi bi-check-circle-fill me-1"></i>
+    @elseif($account->status === 'Pending')
+        <i class="bi bi-hourglass-split me-1"></i>
+    @else
+        <i class="bi bi-x-circle-fill me-1"></i>
+    @endif
+    {{ $account->status }}
+</span>
+
                             </td>
                             <td class="text-center">
                                 <a href="{{ route('accounts.show', $account->id) }}" 

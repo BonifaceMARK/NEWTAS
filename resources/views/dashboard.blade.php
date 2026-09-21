@@ -75,7 +75,6 @@
                         <th>User</th>
                         <th>Username</th>
                         <th>Email</th>
-                        <th>Password</th>
                         <th>Role</th>
                         <th>Availability</th>
                         <th class="text-end">Actions</th>
@@ -87,7 +86,6 @@
                         <td><span class="user-avatar">{{ strtoupper(substr($user->fullname, 0, 1)) }}</span><strong>{{ $user->fullname }}</strong></td>
                         <td>{{ $user->username }}</td>
                         <td><a href="mailto:{{ $user->email }}" class="text-decoration-none">{{ $user->email }}</a></td>
-                        <td><span class="password" data-password="{{ $user->decrypted_password }}">••••••••</span></td>
                         <td>
                             @if ($user->role == 9)<span class="badge rounded-pill bg-primary-subtle text-primary-emphasis">Administrator</span>
                             @elseif($user->role == 2)
@@ -104,7 +102,6 @@
                         </td>
                         <td class="text-end action-group">
                             <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-outline-primary" title="Edit user"><i class="bi bi-pencil"></i><span class="visually-hidden">Edit</span></a>
-                            <button class="toggle-password btn btn-sm btn-outline-secondary" data-visible="false" title="Show password"><i class="bi bi-eye"></i><span class="visually-hidden">Show password</span></button>
                             <form action="{{ route('users.destroy', $user) }}" method="POST" style="display: inline;">
                                 @csrf
                                 @method('DELETE')

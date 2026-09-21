@@ -184,7 +184,7 @@
             <input type="text" class="form-control" id="reference_no" name="reference_no"
                    placeholder="REF-001" value="{{ old('reference_no') }}" required>
         </div>
-          <div class="form-group-icon">
+          <div class="form-group-icon mt-2">
             <label for="date_of_transfer" class="form-label">
                 <i class="bi bi-calendar-event"></i> Date of Transfer
             </label>
@@ -193,26 +193,13 @@
         </div>
     </div>
 
- 
-    
-    <!-- Asset Details Section -->
-    <div class="col-12">
-
-        <div class="form-section-header" style="font-weight:600; font-size:18px; margin-bottom:10px;">
-            <i class="bi bi-box-seam-fill" style="margin-right:8px; color:#0d6efd;"></i> Asset Details
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <label for="asset_type" class="form-label">
+ <div class="col-md-6">
+        <label for="asset_type" class="form-label ">
             <i class="bi bi-tools"></i> Asset Type
         </label>
         <input type="text" class="form-control" id="asset_type" name="asset_type"
                placeholder="e.g., Computer, Printer" value="{{ old('asset_type') }}" required>
-    </div>
-
-    <div class="col-md-6">
-        <label for="status" class="form-label">
+                <label for="status" class="form-label mt-2">
             <i class="bi bi-circle-fill"></i> Status
         </label>
         <select class="form-select" id="status" name="status" required>
@@ -223,14 +210,13 @@
             @endforeach
         </select>
     </div>
+    
+   
 
-    <!-- Additional Information Section -->
-    <div class="col-12">
-        <div class="form-divider" style="border-top:1px solid #ddd; margin:20px 0;"></div>
-        <div class="form-section-header" style="font-weight:600; font-size:18px; margin-bottom:10px;">
-            <i class="bi bi-chat-left-text-fill" style="margin-right:8px; color:#0d6efd;"></i> Additional Information
-        </div>
-    </div>
+    
+ 
+
+   
 
     <div class="col-12">
         <label for="remarks" class="form-label">
@@ -242,7 +228,7 @@
 
 
 
-<div class="row">
+<div class="row mt-2">
     <!-- Original Campaign -->
     <div class="col-md-6">
         <label for="from_campaign" class="form-label">

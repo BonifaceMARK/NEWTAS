@@ -129,6 +129,8 @@ Route::get('/asset/transfer/{inventoryItem}', [InventoryController::class, 'asse
 Route::resource('accounts', AccountController::class);
 
 Route::post('/accounts/import', [AccountController::class, 'import'])->name('accounts.import');
+Route::get('/reset-password/{id}', [AuthController::class, 'loadResetPassword'])->name('auth.loadResetPassword');
+Route::put('/reset-password/{id}', [AuthController::class, 'resetPassword'])->name('auth.resetPassword');
 
 
 });

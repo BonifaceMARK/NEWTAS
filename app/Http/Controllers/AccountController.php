@@ -81,27 +81,31 @@ public function index(Request $request)
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nas_username' => 'nullable|string|max:100',
-            'nas_password' => 'nullable|string|max:255',
-            'ad_username' => 'nullable|string|max:100',
-            'ad_password' => 'nullable|string|max:255',
-            'ad_domain'   => 'nullable|string|max:100',
-            'ad_email'    => 'nullable|email|max:150',
-            'sip_extension' => 'nullable|string|max:50',
-            'sip_password'  => 'nullable|string|max:255',
-            'agent_number'  => 'nullable|string|max:50|unique:tbl_accounts,agent_number',
-            'sip_server_ip' => 'nullable|string|max:100',
-            'campaign'      => 'nullable|string|max:100',
-            'status'        => 'nullable|in:Active,Inactive,Disabled,Pending',
-            'remarks'       => 'nullable|string',
-        ]);
+{
+    $validated = $request->validate([
+        'fullname'      => 'nullable|string|max:150',
+        'nas_username'  => 'nullable|string|max:100',
+        'nas_password'  => 'nullable|string|max:255',
+        'ad_username'   => 'nullable|string|max:100',
+        'ad_password'   => 'nullable|string|max:255',
+        'ad_domain'     => 'nullable|string|max:100',
+        'ad_email'      => 'nullable|email|max:150',
+        'sip_extension' => 'nullable|string|max:50',
+        'sip_password'  => 'nullable|string|max:255',
+        'agent_number'  => 'nullable|string|max:50|unique:tbl_accounts,agent_number',
+        'sip_server_ip' => 'nullable|string|max:100',
+        'campaign'      => 'nullable|string|max:100',
+        'position'      => 'nullable|string|max:100',
+        'level'         => 'nullable|string|max:50',
+        'team'          => 'nullable|string|max:100',
+        'status'        => 'nullable|in:Active,Inactive,Disabled,Pending',
+        'remarks'       => 'nullable|string',
+    ]);
 
-        Account::create($validated);
+    Account::create($validated);
 
-        return redirect()->route('accounts.index')->with('success', 'Account created successfully.');
-    }
+    return redirect()->route('accounts.index')->with('success', 'Account created successfully.');
+}
 
     public function edit($id)
     {
