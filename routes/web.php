@@ -61,7 +61,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/inventory/{inventoryItem}', [InventoryController::class, 'update'])->name('inventory.update');
     Route::get('/inventory/{inventoryItem}/gatepass', [InventoryController::class, 'gatepassForItem'])->name('inventory.gatepass.item');
     Route::get('/inventory/{inventoryItem}', [InventoryController::class, 'show'])->name('inventory.show');
-    
+    Route::post(
+'/inventory/gatepass/{id}/signature',
+[InventoryController::class, 'attachSignature']
+)->name('inventory.gatepass.signature');
     Route::post('/inventory/gatepass/save', [InventoryController::class, 'storeGatepass'])
     ->name('inventory.gatepass.save');
 

@@ -26,7 +26,7 @@
     @include('layouts.header')
     @include('layouts.sidebar')
 
-    <main id="main" class="main">
+    <main id="main" class="main-fluid">
         <div class="container-fluid gatepass-show-page">
             <div class="card gatepass-show-card shadow-sm">
                 <div class="gatepass-show-header d-flex flex-wrap justify-content-between align-items-center gap-3">
@@ -55,49 +55,7 @@
                         </div>
                     @endif
 
-      <div class="col-12">
-    <div class="detail-card">
-
-        <span class="detail-label">Owner Signature</span>
-
-        <div class="text-center py-3">
-
-            @if(!empty($gatepass->signature_path))
-                <img
-                    src="{{ asset('storage/' . $gatepass->signature_path) }}"
-                    alt=ax-height:80px; object-fit:contain;"
-                >
-            @else
-                <div style="height:80px;"></div>
-            @endif
-
-            <hr style="max-width:250px; margin:10px auto;">
-
-            <strong>
-                {{ $gatepass->creator?->fullname }}
-{{ $gatepass->creator?->username }}
-`
-            </strong>
-
-            <div class="text-muted small">
-                Owner
-            </div>
-
-        </div>
-
-    </div>
-</div>
-
-        <hr style="max-width:250px; margin:auto;">
-
-        <strong>{{ $gatepass->owner }}</strong>
-
-        <div class="text-muted small">
-            Owner
-        </div>
-
-    </div>
-</div>
+   
 
                     <div class="row g-3">
                         <div class="col-12 col-md-4">
@@ -162,14 +120,125 @@
                                 <span class="detail-value">{{ $gatepass->time ? \Carbon\Carbon::parse($gatepass->time)->format('h:i A') : '—' }}</span>
                             </div>
                         </div>
+<div class="col-12">
+    <div class="detail-card description-box">
+        <span class="detail-label">Description</span>
+        <span class="detail-value">{{ $gatepass->description ?: '—' }}</span>
+    </div>
+</div>
 
+<!-- SIGNATURE SECTION -->
+<div class="col-12">
+    <div class="detail-card">
+
+        <span class="detail-label">Owner Signature</span>
+
+        <div class="text-center py-3">
+
+            <div style="height:120px;">
+
+                @if(!empty($gatepass->signature_path))
+                    <img
+                        src="{{ asset('storage/' . $gatepass->signature_path) }}"
+                        alt="Employee >
+                @endif
+
+            </div>
+
+            <hr style="max-width:250px; margin:10px auto;">
+
+            <strong>
+                {{ $gatepass->creator?->fullname }}
+
+                @if($gatepass->creator?->username)
+                    ({{ $gatepass->creator->username }})
+                @endif
+            </strong>
+
+            <div class="text-muted small">
+                Created By
+            </div>
+
+        </div>
+
+        @if(auth()->check() && auth()->id() == $gatepass->entry_by)
+
+          
+                @csrf
+
+                <label class="form-label">
+                    Upload Signature Image
+                </label>
+
+                <input
+                    type="file"
+                    name="signature"
+                    class="form-control mb-2"
+                    accept=".png,.jpg,.jpeg">
+
+                <button type="submit" class="btn btn-primary">
+                    Upload Signature
+                </button>
+
+            </form>
+
+            <hr>
+
+            <label class="form-label">
+                Draw Signature
+            </label>
+
+            <canvas
+                id="signature-pad"
+                width="500"
+                height="150"
+                style="border:1px solid #ccc; border-radius:5px;">
+            </canvas>
+
+            <div class="mt-2">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="clearSignature()">
+                    Clear
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    onclick="saveDrawnSignature()">
+                    Save Drawn Signature
+                </button>
+
+            </div>  
+                @csrf
+
+                <input
+                    type="hidden"
+                    name="signature_data"
+                    id="signature_data">
+
+            </form>
+
+        @endif
+
+    </div>
+</div>
+
+<div class="col-12">
+    <div class="detail-card description-box">
+        <span class="detail-label">Remarks</span>
+        <span class="detail-value">{{ $gatepass->remarks ?: '—' }}</span>
+    </div>
+</div>
                         <div class="col-12">
                             <div class="detail-card description-box">
                                 <span class="detail-label">Description</span>
                                 <span class="detail-value">{{ $gatepass->description ?: '—' }}</span>
                             </div>
                         </div>
-                       
+ 
                         <div class="col-12">
                             <div class="detail-card description-box">
                                 <span class="detail-label">Remarks</span>
@@ -182,6 +251,75 @@
         </div>
     </main>
 
+    <script>
+const canvas = document.getElementById('signature-pad');
+
+if (canvas) {
+
+    const ctx = canvas.getContext('2d');
+
+    let drawing = false;
+
+    function getPosition(e) {
+        const rect = canvas.getBoundingClientRect();
+
+        const clientX = e.clientX || e.touches[0].clientX;
+        const clientY = e.clientY || e.touches[0].clientY;
+
+        return {
+            x: clientX - rect.left,
+            y: clientY - rect.top
+        };
+    }
+
+    function startDrawing(e) {
+        drawing = true;
+        draw(e);
+    }
+
+    function stopDrawing() {
+        drawing = false;
+        ctx.beginPath();
+    }
+
+    function draw(e) {
+
+        if (!drawing) return;
+
+        const pos = getPosition(e);
+
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#000';
+
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+    }
+
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mousemove', draw);
+
+    canvas.addEventListener('touchstart', startDrawing);
+    canvas.addEventListener('touchend', stopDrawing);
+    canvas.addEventListener('touchmove', draw);
+
+    window.clearSignature = function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    window.saveDrawnSignature = function() {
+
+        document.getElementById('signature_data').value =
+            canvas.toDataURL('image/png');
+
+        document.getElementById('draw-signature-form').submit();
+    }
+}
+</script>
     @include('layouts.footer')
 </body>
 </html>

@@ -332,6 +332,83 @@ public function values(Request $request)
         return redirect()->route('inventory.gatepass.show', $gatepass)
           ->with('success', 'Gatepass signature attached successfully.');
       }
+ 
+
+public function attachSignature(Request $request, $id)
+{
+    $gatepass = Gatepass::findOrFail($id);
+
+    // Only creator can sign
+    if (auth()->id() != $gatepass->entry_by) {
+        abort(403, 'You are not authorized to sign this gatepass.');
+    }
+
+    // Upload image signature
+    if ($request->hasFile('signature')) {
+
+        $request->validate([
+            'signature' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        // Delete old signature if exists
+        if ($gatepass->signature_path &&
+            Storage::disk('public')->exists($gatepass->signature_path)) {
+
+            Storage::disk('public')->delete($gatepass->signature_path);
+        }
+
+        $path = $request->file('signature')
+                        ->store('gatepass-signatures', 'public');
+
+        $gatepass->update([
+            'signature_path' => $path,
+        ]);
+
+        return redirect()
+            ->back()
+            ->with('success', 'Signature uploaded successfully.');
+    }
+
+    // Drawn signature from canvas
+    if ($request->filled('signature_data')) {
+
+        $image = $request->signature_data;
+
+        $image = str_replace(
+            'data:image/png;base64,',
+            '',
+            $image
+        );
+
+        $image = str_replace(' ', '+', $image);
+
+        $fileName = 'signature_' . time() . '.png';
+
+        // Delete old signature
+        if ($gatepass->signature_path &&
+            Storage::disk('public')->exists($gatepass->signature_path)) {
+
+            Storage::disk('public')->delete($gatepass->signature_path);
+        }
+
+        Storage::disk('public')->put(
+            'gatepass-signatures/' . $fileName,
+            base64_decode($image)
+        );
+
+        $gatepass->update([
+            'signature_path' => 'gatepass-signatures/' . $fileName,
+        ]);
+
+        return redirect()
+            ->back()
+            ->with('success', 'Signature saved successfully.');
+    }
+
+    return redirect()
+        ->back()
+        ->with('error', 'No signature was provided.');
+}
 public function storeGatepass(Request $request)
 {
     Log::info('=== STORE GATEPASS STARTED ===', [
