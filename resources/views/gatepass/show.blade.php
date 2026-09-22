@@ -135,12 +135,13 @@
 
         <div class="text-center py-3">
 
-            <div style="height:120px;">
+            <div style="height:100px;">
 
-                @if(!empty($gatepass->signature_path))
-                    <img
-                        src="{{ asset('storage/' . $gatepass->signature_path) }}"
-                        alt="Employee >
+              @if(!empty($gatepass->signature_path))
+<img
+src="{{ asset('storage/' . $gatepass->signature_path) }}"
+alt="Employee Signature"
+style="max-width:260px; max-height:90px;
                 @endif
 
             </div>
@@ -148,11 +149,7 @@
             <hr style="max-width:250px; margin:10px auto;">
 
             <strong>
-                {{ $gatepass->creator?->fullname }}
-
-                @if($gatepass->creator?->username)
-                    ({{ $gatepass->creator->username }})
-                @endif
+                {{ $gatepass->entry_by ?? 'Unknown User' }}
             </strong>
 
             <div class="text-muted small">
@@ -160,6 +157,9 @@
             </div>
 
         </div>
+
+    </div>
+</div>
 
         @if(auth()->check() && auth()->id() == $gatepass->entry_by)
 
