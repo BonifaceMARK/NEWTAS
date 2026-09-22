@@ -388,6 +388,8 @@ public function storeGatepass(Request $request)
                 'description'     => $item['description'] ?? null,
                 'status'          => $validated['status'] ?? 'Ongoing',
                 'remarks'         => $item['remarks'] ?? null,
+                'entry_by' => auth()->id(),
+                'signature_path' => null,
             ];
 
             Log::info('Creating Gatepass record.', [
@@ -625,12 +627,11 @@ public function assetTransfer(Request $request)
 
 public function assetTransferIndex()
 {
-    $transfers = AssetTransfer::latest()->paginate(15);
+    // Show only 10 records per page
+    $transfers = AssetTransfer::latest()->paginate(10);
 
     return view('transfer.index', compact('transfers'));
 }
-
-  
 
 public function storeAssetTransfer(Request $request)
 {

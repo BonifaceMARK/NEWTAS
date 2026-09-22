@@ -55,21 +55,49 @@
                         </div>
                     @endif
 
-                    @if (auth()->check() && (int) auth()->user()->role !== 9)
-                        <div class="border rounded p-3 mb-4 bg-light">
-                            <form action="{{ route('inventory.gatepass.signature', $gatepass->id) }}" method="POST" enctype="multipart/form-data" class="row g-2 align-items-end">
-                                @csrf
-                                <div class="col-md-8">
-                                    <label for="signature" class="form-label">Attach employee signature</label>
-                                    <input type="file" id="signature" name="signature" class="form-control" accept="image/png,image/jpeg" required>
-                                    <small class="text-muted">PNG or JPG, maximum 2 MB.</small>
-                                </div>
-                                <div class="col-md-4">
-                                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-pen me-1"></i>Attach Signature</button>
-                                </div>
-                            </form>
-                        </div>
-                    @endif
+      <div class="col-12">
+    <div class="detail-card">
+
+        <span class="detail-label">Owner Signature</span>
+
+        <div class="text-center py-3">
+
+            @if(!empty($gatepass->signature_path))
+                <img
+                    src="{{ asset('storage/' . $gatepass->signature_path) }}"
+                    alt=ax-height:80px; object-fit:contain;"
+                >
+            @else
+                <div style="height:80px;"></div>
+            @endif
+
+            <hr style="max-width:250px; margin:10px auto;">
+
+            <strong>
+                {{ $gatepass->creator?->fullname }}
+{{ $gatepass->creator?->username }}
+`
+            </strong>
+
+            <div class="text-muted small">
+                Owner
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+        <hr style="max-width:250px; margin:auto;">
+
+        <strong>{{ $gatepass->owner }}</strong>
+
+        <div class="text-muted small">
+            Owner
+        </div>
+
+    </div>
+</div>
 
                     <div class="row g-3">
                         <div class="col-12 col-md-4">
@@ -141,14 +169,7 @@
                                 <span class="detail-value">{{ $gatepass->description ?: '—' }}</span>
                             </div>
                         </div>
-                        @if ($gatepass->signature_path)
-                            <div class="col-12 col-md-6">
-                                <div class="detail-card">
-                                    <span class="detail-label">Attached Employee Signature</span>
-                                    <img src="{{ asset('storage/' . $gatepass->signature_path) }}" alt="Employee signature" style="max-width: 260px; max-height: 90px; object-fit: contain;">
-                                </div>
-                            </div>
-                        @endif
+                       
                         <div class="col-12">
                             <div class="detail-card description-box">
                                 <span class="detail-label">Remarks</span>

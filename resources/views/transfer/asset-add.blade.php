@@ -210,13 +210,7 @@
             @endforeach
         </select>
     </div>
-    
-   
-
-    
  
-
-   
 
     <div class="col-12">
         <label for="remarks" class="form-label">

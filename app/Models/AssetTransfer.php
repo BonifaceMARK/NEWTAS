@@ -20,6 +20,7 @@ class AssetTransfer extends Model
         'status',
         'signature_path',
         'remarks',
+        'entry_by',
     ];
 
     

@@ -11,22 +11,28 @@ class Gatepass extends Model
 
     protected $table = 'tbl_gatepasses';
 
-    protected $fillable = [
-        'item_id',
-        'owner',
-        'contact',
-        'bearer',
-        'date',
-        'time',
-        'site_floor',
-        'quantity',
-        'unit',
-        'description',
-        'status',
-        'signature_path',
-        'remarks',
-    ];
-
+   protected $fillable = [
+    'item_id',
+    'owner',
+    'contact',
+    'bearer',
+    'date',
+    'time',
+    'site_floor',
+    'quantity',
+    'unit',
+    'description',
+    'status',
+    'owner_signature',
+    'owner_signed_by',
+    'owner_signed_at',
+    'remarks',
+    'entry_by',
+];
+public function creator()
+{
+    return $this->belongsTo(User::class, 'entry_by');
+}
     public function inventoryItem()
     {
         return $this->belongsTo(InventoryItem::class, 'item_id');
