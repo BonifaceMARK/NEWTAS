@@ -18,6 +18,8 @@ use App\Models\InventoryItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Http\Controllers\StockController;
+
 use App\Http\Controllers\AccountController;
 
 use App\Models\fileviolation;
@@ -68,6 +70,41 @@ Route::middleware('auth')->group(function () {
     Route::post('/inventory/gatepass/save', [InventoryController::class, 'storeGatepass'])
     ->name('inventory.gatepass.save');
 
+// STOCK INVENTORY
+Route::get('/stock', [StockController::class, 'index'])
+    ->name('stock.index');
+
+Route::get('/stock/create', [StockController::class, 'create'])
+    ->name('stock.create');
+
+Route::post('/stock/store', [StockController::class, 'store'])
+    ->name('stock.store');
+
+Route::get('/stock/{id}', [StockController::class, 'show'])
+    ->name('stock.show');
+
+Route::get('/stock/{id}/edit', [StockController::class, 'edit'])
+    ->name('stock.edit');
+
+Route::put('/stock/{id}', [StockController::class, 'update'])
+    ->name('stock.update');
+
+Route::delete('/stock/{id}', [StockController::class, 'destroy'])
+    ->name('stock.destroy');
+
+Route::get('/stock-low-stock', [StockController::class, 'lowStock'])
+    ->name('stock.low-stock');
+    Route::get('/stock/{id}/in', [StockController::class, 'stockIn'])
+    ->name('stock.in');
+
+Route::post('/stock/{id}/in', [StockController::class, 'processStockIn'])
+    ->name('stock.process.in');
+
+Route::get('/stock/{id}/out', [StockController::class, 'stockOut'])
+    ->name('stock.out');
+
+Route::post('/stock/{id}/out', [StockController::class, 'processStockOut'])
+    ->name('stock.process.out');
 
     Route::get('/inventory/gatepass', [InventoryController::class, 'gatepass'])
         ->name('inventory.gatepass');
@@ -80,7 +117,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/inventory/gatepass/{gatepass}/signature', [InventoryController::class, 'uploadGatepassSignature'])
         ->name('inventory.gatepass.signature');
 
-    // Sidebar-compatible Gatepass list route
     Route::get('/gatepasses', [InventoryController::class, 'gatepassList'])
         ->name('gatepasses.index');
 

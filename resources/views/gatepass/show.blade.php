@@ -1,32 +1,162 @@
-{{-- filepath: c:\xampp\htdocs\ASI-INVENTORY\resources\views\gatepass\show.blade.php --}}
 
 @section('title', 'Gatepass Details')
 @include('layouts.title')
 
 <style>
-    .gatepass-show-page { padding: 1.25rem; }
-    .gatepass-show-card { max-width: 1050px; margin: 0 auto; overflow: hidden; border: 0; border-radius: 14px; }
-    .gatepass-show-header { padding: 1.5rem; color: #fff; background: linear-gradient(135deg, #123b78, #1769aa); }
-    .gatepass-show-header h1 { margin: 0; font-size: 1.35rem; }
-    .gatepass-show-header p { margin: .35rem 0 0; opacity: .85; }
-    .detail-card { height: 100%; padding: 1rem; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; }
-    .detail-label { display: block; margin-bottom: .3rem; color: #64748b; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
-    .detail-value { color: #1e293b; font-size: 1rem; font-weight: 500; overflow-wrap: anywhere; }
-    .description-box { min-height: 80px; white-space: pre-wrap; }
-    .record-id { display: inline-block; padding: .35rem .65rem; color: #1d4ed8; background: #eff6ff; border-radius: 6px; font-weight: 700; }
-    .status-badge { display: inline-block; padding: .35rem .65rem; border-radius: 999px; font-weight: 700; }
-    .status-ongoing { color: #92400e; background: #fef3c7; }
-    .status-completed { color: #166534; background: #dcfce7; }
-    .status-cancelled { color: #991b1b; background: #fee2e2; }
-    @media (max-width: 768px) { .gatepass-show-page { padding: .75rem; } .gatepass-show-header { padding: 1.1rem; } }
-    @media print { .sidebar, .header, .show-actions { display: none !important; } .main { margin: 0 !important; padding: 0 !important; } .gatepass-show-page { padding: 0; } .gatepass-show-card { box-shadow: none !important; } }
+    .gatepass-show-page {
+        width: 100%;
+        padding: 1rem;
+    }
+
+    .gatepass-show-card {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        overflow: hidden;
+        border: 0;
+        border-radius: 14px;
+    }
+
+    .gatepass-show-header {
+        padding: 1.5rem;
+        color: #fff;
+        background: linear-gradient(135deg, #123b78, #1769aa);
+    }
+
+    .gatepass-show-header h1 {
+        margin: 0;
+        font-size: clamp(1.1rem, 2vw, 1.5rem);
+    }
+
+    .gatepass-show-header p {
+        margin: .35rem 0 0;
+        opacity: .85;
+    }
+
+    .detail-card {
+        height: 100%;
+        padding: 1rem;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+    }
+
+    .detail-label {
+        display: block;
+        margin-bottom: .3rem;
+        color: #64748b;
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+
+    .detail-value {
+        color: #1e293b;
+        font-size: 1rem;
+        font-weight: 500;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .description-box {
+        min-height: 80px;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .record-id {
+        display: inline-block;
+        padding: .35rem .65rem;
+        color: #1d4ed8;
+        background: #eff6ff;
+        border-radius: 6px;
+        font-weight: 700;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: .35rem .65rem;
+        border-radius: 999px;
+        font-weight: 700;
+    }
+
+    .status-ongoing {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .status-completed {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .status-cancelled {
+        color: #991b1b;
+        background: #fee2e2;
+    }
+
+    /* Tablet */
+    @media (max-width: 992px) {
+
+        .gatepass-show-page {
+            padding: .75rem;
+        }
+
+        .gatepass-show-header {
+            padding: 1.25rem;
+        }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+
+        .gatepass-show-page {
+            padding: .5rem;
+        }
+
+        .gatepass-show-header {
+            padding: 1rem;
+        }
+
+        .detail-card {
+            padding: .75rem;
+        }
+
+        .detail-value {
+            font-size: .95rem;
+        }
+    }
+
+    @media print {
+
+        .sidebar,
+        .header,
+        .show-actions {
+            display: none !important;
+        }
+
+        .main {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .gatepass-show-page {
+            padding: 0;
+        }
+
+        .gatepass-show-card {
+            box-shadow: none !important;
+            width: 100%;
+        }
+    }
 </style>
 
 <body>
     @include('layouts.header')
     @include('layouts.sidebar')
 
-    <main id="main" class="main-fluid">
+    <main id="main" class="main">
         <div class="container-fluid gatepass-show-page">
             <div class="card gatepass-show-card shadow-sm">
                 <div class="gatepass-show-header d-flex flex-wrap justify-content-between align-items-center gap-3">
@@ -183,17 +313,19 @@ style="max-width:260px; max-height:90px;
             </form>
 
             <hr>
-
+<div class="col-12">
+    <div class="detail-card">
             <label class="form-label">
                 Draw Signature
             </label>
-
-            <canvas
-                id="signature-pad"
-                width="500"
-                height="150"
-                style="border:1px solid #ccc; border-radius:5px;">
-            </canvas>
+<canvas
+    id="signature-pad"
+    width="500"
+    height="150"
+    style="border:1px solid #ccc; border-radius:5px;">
+</canvas>
+     </div>  
+          </div>  
 
             <div class="mt-2">
 

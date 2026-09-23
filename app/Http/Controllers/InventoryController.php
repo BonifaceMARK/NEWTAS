@@ -541,50 +541,179 @@ public function storeGatepass(Request $request)
         }
       }
 
-      protected function prepareGatepassItems(Request $request): array
-      {
-        $rawItems = $request->input('items', []);
-        $items = [];
+    protected function prepareGatepassItems(Request $request): array
+{
+    $rawItems = $request->input('items', []);
+    $items = [];
 
-        if (!empty($rawItems)) {
-          foreach ($rawItems as $row) {
+    if (!empty($rawItems)) {
+
+        foreach ($rawItems as $row) {
+
             if (empty($row)) {
-              continue;
+                continue;
             }
 
             $itemId = $row['item_id'] ?? null;
-            $inventoryItem = $itemId ? InventoryItem::find($itemId) : null;
+
+            $inventoryItem = $itemId
+                ? InventoryItem::find($itemId)
+                : null;
+
+            if (!$inventoryItem) {
+                continue;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | UNIT
+            |--------------------------------------------------------------------------
+            | Put the main identification information here:
+            | Asset Tag
+            | Item Name
+            | Category
+            | Brand
+            */
+            $unit = implode("\n", array_filter([
+                $inventoryItem->asset_tag,
+                $inventoryItem->item_name,
+                $inventoryItem->category,
+                $inventoryItem->brand,
+            ]));
+
+            /*
+            |--------------------------------------------------------------------------
+            | DESCRIPTION
+            |--------------------------------------------------------------------------
+            | Additional information useful for identifying the asset.
+            */
+            $description = implode("\n", array_filter([
+                $inventoryItem->model
+                    ? 'Model: ' . $inventoryItem->model
+                    : null,
+
+                $inventoryItem->serial_number
+                    ? 'Serial Number: ' . $inventoryItem->serial_number
+                    : null,
+
+                $inventoryItem->assigned_to
+                    ? 'Assigned To: ' . $inventoryItem->assigned_to
+                    : null,
+
+                $inventoryItem->department
+                    ? 'Department: ' . $inventoryItem->department
+                    : null,
+
+                $inventoryItem->campaign
+                    ? 'Campaign: ' . $inventoryItem->campaign
+                    : null,
+
+                $inventoryItem->location
+                    ? 'Location: ' . $inventoryItem->location
+                    : null,
+            ]));
 
             $items[] = [
-              'item_id' => $itemId,
-              'asset_tag' => $inventoryItem?->asset_tag ?? ($row['asset_tag'] ?? ''),
-              'item_name' => $inventoryItem?->item_name ?? ($row['item_name'] ?? 'Inventory Item'),
-              'brand' => $inventoryItem?->brand ?? ($row['brand'] ?? ''),
-              'model' => $inventoryItem?->model ?? ($row['model'] ?? ''),
-              'quantity' => (int) ($row['quantity'] ?? 1),
-              'unit' => $row['unit'] ?? ($inventoryItem?->category ?? 'Unit'),
-              'description' => $row['description'] ?? trim(($inventoryItem?->item_name ?? 'Inventory Item') . ' - ' . ($inventoryItem?->brand ?? '') . ' ' . ($inventoryItem?->model ?? '')),
-              'remarks' => $row['remarks'] ?? 'Transferred from ' . ($inventoryItem?->location ?? 'current site') . ' to new site',
-            ];
-          }
-        } elseif ($request->filled('item_id')) {
-          $inventoryItem = InventoryItem::find($request->item_id);
+                'item_id' => $inventoryItem->id,
 
-          $items[] = [
-            'item_id' => $inventoryItem?->id,
-            'asset_tag' => $inventoryItem?->asset_tag ?? '',
-            'item_name' => $inventoryItem?->item_name ?? 'Inventory Item',
-            'brand' => $inventoryItem?->brand ?? '',
-            'model' => $inventoryItem?->model ?? '',
-            'quantity' => (int) ($request->input('quantity') ?: 1),
-            'unit' => $request->input('unit') ?: ($inventoryItem?->category ?? 'Unit'),
-            'description' => $request->input('description') ?: trim(($inventoryItem?->item_name ?? 'Inventory Item') . ' - ' . ($inventoryItem?->brand ?? '') . ' ' . ($inventoryItem?->model ?? '')),
-            'remarks' => $request->input('remarks') ?: 'Transferred from ' . ($inventoryItem?->location ?? 'current site') . ' to new site',
-          ];
+                'asset_tag' => $inventoryItem->asset_tag ?? '',
+
+                'item_name' => $inventoryItem->item_name ?? 'Inventory Item',
+
+                'brand' => $inventoryItem->brand ?? '',
+
+                'model' => $inventoryItem->model ?? '',
+
+                'quantity' => (int) ($row['quantity'] ?? 1),
+
+                'unit' => $unit ?: 'Unit',
+
+                'description' => $description ?: 'Inventory Item',
+
+                'remarks' => !empty($row['remarks'])
+                    && $row['remarks'] !== 'undefined'
+                    ? $row['remarks']
+                    : 'Transferred from '
+                        . ($request->input('from_site_floor')
+                            ?: ($inventoryItem->location ?? 'current site'))
+                        . ' to '
+                        . ($request->input('to_site_floor') ?: 'new site'),
+            ];
         }
 
-        if (empty($items)) {
-          $items[] = [
+    } elseif ($request->filled('item_id')) {
+
+        $inventoryItem = InventoryItem::find($request->item_id);
+
+        if ($inventoryItem) {
+
+            $unit = implode("\n", array_filter([
+                $inventoryItem->asset_tag,
+                $inventoryItem->item_name,
+                $inventoryItem->category,
+                $inventoryItem->brand,
+            ]));
+
+            $description = implode("\n", array_filter([
+                $inventoryItem->model
+                    ? 'Model: ' . $inventoryItem->model
+                    : null,
+
+                $inventoryItem->serial_number
+                    ? 'Serial Number: ' . $inventoryItem->serial_number
+                    : null,
+
+                $inventoryItem->assigned_to
+                    ? 'Assigned To: ' . $inventoryItem->assigned_to
+                    : null,
+
+                $inventoryItem->department
+                    ? 'Department: ' . $inventoryItem->department
+                    : null,
+
+                $inventoryItem->campaign
+                    ? 'Campaign: ' . $inventoryItem->campaign
+                    : null,
+
+                $inventoryItem->location
+                    ? 'Location: ' . $inventoryItem->location
+                    : null,
+            ]));
+
+            $items[] = [
+                'item_id' => $inventoryItem->id,
+
+                'asset_tag' => $inventoryItem->asset_tag ?? '',
+
+                'item_name' => $inventoryItem->item_name ?? 'Inventory Item',
+
+                'brand' => $inventoryItem->brand ?? '',
+
+                'model' => $inventoryItem->model ?? '',
+
+                'quantity' => (int) ($request->input('quantity') ?: 1),
+
+                'unit' => $unit ?: 'Unit',
+
+                'description' => $description ?: 'Inventory Item',
+
+                'remarks' => $request->input('remarks')
+                    ?: 'Transferred from '
+                        . ($request->input('from_site_floor')
+                            ?: ($inventoryItem->location ?? 'current site'))
+                        . ' to '
+                        . ($request->input('to_site_floor') ?: 'new site'),
+            ];
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | FALLBACK
+    |--------------------------------------------------------------------------
+    */
+    if (empty($items)) {
+        $items[] = [
             'item_id' => null,
             'asset_tag' => '',
             'item_name' => 'Inventory Item',
@@ -594,12 +723,11 @@ public function storeGatepass(Request $request)
             'unit' => 'Unit',
             'description' => 'Inventory Item',
             'remarks' => 'Transferred',
-          ];
-        }
+        ];
+    }
 
-        return $items;
-      }
-
+    return $items;
+}
       public function gatepassForItem(InventoryItem $inventoryItem){
         $inventoryItem->load('campaignHistory');
 

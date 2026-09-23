@@ -1265,11 +1265,11 @@
             const destination = document.getElementById('to_site_floor')?.value || '';
             const blockedAssets = Array.from(inventoryPool.querySelectorAll('.asset-drag-card.is-blocked'));
 
-            if (blockedAssets.length > 0 && destination !== '') {
-                event.preventDefault();
-                showTransferWarning('Some items are already at the selected destination site and cannot be included in this transfer.');
-                return;
-            }
+            // if (blockedAssets.length > 0 && destination !== '') {
+            //     event.preventDefault();
+            //     showTransferWarning('Some items are already at the selected destination site and cannot be included in this transfer.');
+            //     return;
+            // }
 
             const transferItems = Array.from(transferBox.querySelectorAll('.transfer-item'));
             const invalidTransfer = transferItems.some((item) => {

@@ -372,20 +372,31 @@
 			</thead>
 			<tbody>
 				@forelse ($items ?? [] as $item)
-					<tr>
-						<td>{{ $item['quantity'] ?? 1 }}</td>
-						<td>{{ $item['unit'] ?? 'Unit' }}</td>
-						<td>{{ $item['description'] ?? ($item['item_name'] ?? 'Inventory Item') }}</td>
-						<td>{{ $item['remarks'] ?? 'Transferred' }}</td>
-					</tr>
-				@empty
-					<tr>
-						<td>1</td>
-						<td>Unit</td>
-						<td>Inventory Item</td>
-						<td>Transferred</td>
-					</tr>
-				@endforelse
+    <tr>
+        <td>
+            {{ $item['quantity'] ?? 1 }}
+        </td>
+
+        <td style="white-space: pre-line;">
+            {{ $item['unit'] ?? 'Unit' }}
+        </td>
+
+        <td style="white-space: pre-line;">
+            {{ $item['description'] ?? 'Inventory Item' }}
+        </td>
+
+        <td>
+            {{ $item['remarks'] ?? 'Transferred' }}
+        </td>
+    </tr>
+@empty
+    <tr>
+        <td>1</td>
+        <td>Unit</td>
+        <td>Inventory Item</td>
+        <td>Transferred</td>
+    </tr>
+@endforelse
 			</tbody>
 		</table>
 
