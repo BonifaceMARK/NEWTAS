@@ -794,6 +794,7 @@ public function assetTransferList()
 
     return view('transfer.index', compact('transfers'));
 }
+
 public function assetTransfer(Request $request)
 {
     $this->validateTransferSelection($request);
@@ -872,6 +873,7 @@ public function updateAssetTransfer(
         'reference_no' => 'required|string|max:100|unique:tbl_asset_transfers,reference_no,' . $assetTransfer->id,
         'date_of_transfer' => 'required|date',
         'from_campaign' => 'required|string|max:255',
+        'quantity' => 'required|int',
         'to_campaign' => 'required|string|max:255',
         'asset_type' => 'required|string|max:255',
         'status' => 'required|in:Ongoing,Completed,Cancelled',

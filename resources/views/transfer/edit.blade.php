@@ -20,11 +20,11 @@
 <body>
     @include('layouts.header')
     @include('layouts.sidebar')
+    <main id="main" class="main-fluid">
+    <div class="card transfer-edit-card shadow-sm">
+        <div class="transfer-edit-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
 
-    <main id="main" class="main">
-        <div class="container-fluid transfer-edit-page">
-            <div class="card transfer-edit-card shadow-sm">
-                <div class="transfer-edit-header d-flex justify-content-between align-items-center gap-3">
+     
                     <div>
                         <h1><i class="bi bi-pencil-square me-2"></i>Edit Fixed Asset Transfer</h1>
                         <p>Update the information for this asset transfer record.</p>
@@ -79,6 +79,11 @@
                                 <label for="asset_type" class="form-label required">Asset Type</label>
                                 <input type="text" id="asset_type" name="asset_type" class="form-control"
                                        value="{{ old('asset_type', $assetTransfer->asset_type) }}" required maxlength="255">
+                            </div>
+                            <div class="col-12">
+                                <label for="quantity" class="form-label required">Quantity</label>
+                                <input type="number" id="quantity" name="quantity" class="form-control"
+                                       value="{{ old('quantity', $assetTransfer->quantity) }}" required maxlength="255">
                             </div>
 
                             <div class="col-12 col-md-6">

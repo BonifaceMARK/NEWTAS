@@ -146,7 +146,7 @@
     @include('layouts.header')
     @include('layouts.sidebar')
 
-    <main id="main" class="main">
+    <main id="main" class="main-fluid">
         <section class="section">
             <div class="card shadow-sm border-0">
                 <div class="card-body">
@@ -193,14 +193,17 @@
         </div>
     </div>
 
- <div class="col-md-6">
+ <div class="col-md-3">
         <label for="asset_type" class="form-label ">
             <i class="bi bi-tools"></i> Asset Type
         </label>
         <input type="text" class="form-control" id="asset_type" name="asset_type"
                placeholder="e.g., Computer, Printer" value="{{ old('asset_type') }}" required>
-                <label for="status" class="form-label mt-2">
-            <i class="bi bi-circle-fill"></i> Status
+               
+      
+               <label for="status" class="form-label mt-2">
+            <i class="bi bi-circle-fill"></i> 
+            Status
         </label>
         <select class="form-select" id="status" name="status" required>
             @foreach (['Ongoing', 'Completed', 'Cancelled'] as $status)
@@ -209,6 +212,14 @@
                 </option>
             @endforeach
         </select>
+    </div>
+     <div class="col-md-3">
+          <label for="quantity" class="form-label ">
+            <i class="bi bi-tools"></i> Quantity
+        </label>
+        <input type="text" class="form-control" id="quantity" name="quantity"
+               placeholder="Quantity" value="{{ old('quantity') }}" required>
+                
     </div>
  
 
