@@ -66,46 +66,73 @@
                             <h5 class="mb-1">Saved Gatepasses</h5>
                             <small class="text-muted">{{ $gatepasses->total() }} record(s)</small>
                         </div>
-                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">
-                            <i class="bi bi-printer me-1"></i>Print List
-                        </button>
+                        
                     </div>
 
                     <div class="gatepass-table-wrapper">
                         <table class="table gatepass-table align-middle">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Item</th>
-                                    <th>Owner</th>
-                                    <th>Bearer</th>
-                                    <th>Date</th>
-                                    <th>Time</th>
-                                    <th>Site/Floor</th>
-                                    <th>Quantity</th>
-                                    <th>Description</th>
-                                    <th>Status</th>
-                                    <th class="action-cell">Action</th>
+                                    <th style="width: 100px; min-width:100px; max-width:100px;">Item</th>
+                                    <th style="width: 100px; min-width:100px; max-width:100px;">Owner</th>
+                                    <th style="width: 100px; min-width:100px; max-width:100px;">Bearer</th>
+                                    <th style="width: 150px; min-width:150px; max-width:150px;">Time & Date</th>
+                                    <th style="width: 150px; min-width:150px; max-width:150px;"> Site/Floor </th>
+                                    <th style="width: 100px; min-width:100px; max-width:100px;">Status</th>
+                                    <th style="width: 100px; min-width:100px; max-width:100px;" class="action-cell">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($gatepasses as $gatepass)
                                     @php $detailsId = 'gatepass-details-' . $gatepass->id; @endphp
                                     <tr class="main-row">
-                                        <td><span class="gatepass-id">#{{ $gatepass->id }}</span></td>
-                                        <td>{{ $gatepass->inventoryItem?->item_name ?? 'N/A' }}</td>
-                                        <td>{{ $gatepass->owner ?: '—' }}</td>
-                                        <td>{{ $gatepass->bearer ?: '—' }}</td>
-                                        <td>{{ $gatepass->date ? \Carbon\Carbon::parse($gatepass->date)->format('M d, Y') : '—' }}</td>
-                                        <td>{{ $gatepass->time ?: '—' }}</td>
-                                        <td>{{ $gatepass->site_floor ?: '—' }}</td>
-                                        <td>{{ $gatepass->quantity }} {{ $gatepass->unit }}</td>
-                                        <td>{{ \Illuminate\Support\Str::limit($gatepass->description ?: '—', 45) }}</td>
+                                        <td style="
+    width:100px;
+    min-width:100px;
+    max-width:100px;
+    white-space:normal;
+    word-wrap:break-word;
+    overflow-wrap:break-word;
+">{{ $gatepass->inventoryItem?->item_name ?? 'N/A' }}</td>
+                                        <td style="
+    width:100px;
+    min-width:100px;
+    max-width:100px;
+    white-space:normal;
+    word-wrap:break-word;
+    overflow-wrap:break-word;
+">{{ $gatepass->owner ?: '—' }}</td>
+                                        <td style="
+    width:100px;
+    min-width:100px;
+    max-width:100px;
+    white-space:normal;
+    word-wrap:break-word;
+    overflow-wrap:break-word;
+">{{ $gatepass->bearer ?: '—' }}</td>
+                                        <td style="
+    width:100px;
+    min-width:100px;
+    max-width:100px;
+    white-space:normal;
+    word-wrap:break-word;
+    overflow-wrap:break-word;
+">{{ $gatepass->time ?: '—' }} - {{ $gatepass->date ? \Carbon\Carbon::parse($gatepass->date)->format('M d, Y') : '—' }}</td>
+                                        <td style="
+    width:150px;
+    min-width:150px;
+    max-width:150px;
+    white-space:normal;
+    word-wrap:break-word;
+    overflow-wrap:break-word;
+">
+    {{ $gatepass->site_floor ?: '—' }}
+</td>
                                         @php $status = $gatepass->status ?: 'Ongoing'; @endphp
                                         <td><span class="status-badge status-{{ strtolower($status) }}">{{ $status }}</span></td>
                                         <td class="action-cell">
-                                            <a href="{{ route('inventory.gatepass.show', $gatepass->id) }}" class="btn btn-sm btn-info text-white" title="View full details">
-                                                <i class="bi bi-eye"></i>
+                                            <a href="{{ route('inventory.gatepass.show', $gatepass->id) }}" class="btn btn-sm " title="View full details">
+                                                <i class="bi bi-view-list"></i>
                                             </a>
                                             <a href="{{ route('inventory.gatepass.edit', $gatepass->id) }}" class="btn btn-sm btn-warning" title="Edit gatepass">
                                                 <i class="bi bi-pencil"></i>

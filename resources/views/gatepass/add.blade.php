@@ -892,9 +892,7 @@
                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmSaveModal">
         <i class="bi bi-save me-1"></i>Save Changes
     </button>
-                           <button type="submit" class="btn btn-primary" formtarget="_blank">
-    <i class="bi bi-printer me-1"></i>Generate Gatepass
-</button>
+         
 
 <button type="submit" formaction="{{ route('inventory.gatepass.list') }}" 
         class="btn btn-outline-dark" formtarget="_blank">

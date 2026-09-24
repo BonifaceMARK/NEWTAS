@@ -37,4 +37,8 @@ public function creator()
     {
         return $this->belongsTo(InventoryItem::class, 'item_id');
     }
+ public function signatures()
+{
+    return $this->hasMany(GatepassSignature::class, 'gatepass_id');
+}
 }

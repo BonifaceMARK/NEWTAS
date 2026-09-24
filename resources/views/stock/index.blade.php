@@ -175,7 +175,6 @@
 
                     <div class="search-box">
 
-                        {{ route('stock.index') }}
 
                             <div class="input-group">
 
@@ -197,7 +196,8 @@
 
                     <div>
 <a href="{{ route('stock.create') }}"
-   classbi-plus-circle"></i>
+    class="btn btn-primary">
+    <i class="bi bi-plus-circle"></i>
     Add Stock Item
 
 </a>

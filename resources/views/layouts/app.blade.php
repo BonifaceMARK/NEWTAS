@@ -3,42 +3,36 @@
 <head>
     @include('layouts.title')
     @include('layouts.header')
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f9f9f9;
-            color: #333;
-            margin: 0;
-        }
-        .wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-        .sidebar {
-            width: 240px;
-            background-color: #fff;
-            border-right: 1px solid #e5e5e5;
-            padding: 20px;
-        }
-        .content {
-            flex: 1;
-            padding: 40px;
-        }
-        h1, h2, h3 {
-            font-weight: 600;
-            color: #111;
-        }
-        .btn {
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 13px;
-            color: #777;
-        }
-    </style>
+
+   <style>
+.excel-table {
+    font-size: 12px;
+    border-collapse: collapse;
+}
+
+.excel-table thead th {
+    background: #217346;
+    color: #fff;
+    border: 1px solid #d9d9d9;
+    padding: 6px 8px;
+    font-weight: 600;
+}
+
+.excel-table tbody td {
+    border: 1px solid #d9d9d9;
+    padding: 4px 8px;
+    vertical-align: middle;
+    background: #fff;
+}
+
+.excel-table tbody tr:nth-child(even) td {
+    background: #f8f8f8;
+}
+
+.excel-table tbody tr:hover td {
+    background: #e2f0d9;
+}
+</style>
 </head>
 <body>
     <div class="wrapper">

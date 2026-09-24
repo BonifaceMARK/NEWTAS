@@ -358,12 +358,7 @@ style="max-width:260px; max-height:90px;
     </div>
 </div>
 
-<div class="col-12">
-    <div class="detail-card description-box">
-        <span class="detail-label">Remarks</span>
-        <span class="detail-value">{{ $gatepass->remarks ?: '—' }}</span>
-    </div>
-</div>
+ 
                         <div class="col-12">
                             <div class="detail-card description-box">
                                 <span class="detail-label">Description</span>

@@ -43,31 +43,41 @@ public function import(Request $request)
         return redirect()->route('accounts.index')
             ->with('error', 'Import failed: ' . $e->getMessage());
     }
-}
-public function index(Request $request)
+}public function index(Request $request)
 {
-    // Default limit = 15
     $limit = $request->input('limit', 15);
 
-    // Optional campaign filter
     $query = Account::query();
+
     if ($request->filled('campaign')) {
         $query->where('campaign', $request->campaign);
     }
 
-    // Order by most recent first
     $query->orderBy('created_at', 'desc');
 
-    // Apply limit
     if ($limit === 'all') {
         $accounts = $query->get();
     } else {
         $accounts = $query->take((int)$limit)->get();
     }
 
-    return view('accounts.index', compact('accounts', 'limit'));
-}
+    $totalAccounts = Account::count();
 
+    $activeAccounts = Account::where('status', 'Active')->count();
+
+    $inactiveAccounts = Account::where('status', '!=', 'Active')->count();
+
+    $totalCampaigns = Account::distinct('campaign')->count('campaign');
+
+    return view('accounts.index', compact(
+        'accounts',
+        'limit',
+        'totalAccounts',
+        'activeAccounts',
+        'inactiveAccounts',
+        'totalCampaigns'
+    ));
+}
 
     public function show($id)
     {

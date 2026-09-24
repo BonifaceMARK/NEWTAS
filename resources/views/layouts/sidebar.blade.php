@@ -194,19 +194,7 @@
         <li><a class="{{ request()->routeIs('stock.low-stock') ? 'active' : '' }}" href="{{ route('stock.low-stock') }}"><i class="bi bi-exclamation-triangle"></i>Low Stock</a></li>
     </ul>
 </li>
-      <!-- <li>
-            <a class="{{ request()->routeIs('stock.stockin') ? 'active' : '' }}"
-               href="#">
-                        </a>
-        </li>
-
-        <li>
-            <a class="{{ request()->routeIs('stock.stockout') ? 'active' : '' }}"
-               href="#">
-                        </a>
-        </li> -->
-
-    </ul>
+   
 
 </li>
         <li class="nav-item">

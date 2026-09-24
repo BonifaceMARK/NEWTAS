@@ -283,36 +283,83 @@ public function values(Request $request)
           ->with('success', 'Gatepass updated successfully.');
       }
 
-      public function printSavedGatepass(Gatepass $gatepass)
-      {
-        $gatepass->load('inventoryItem');
+    public function printSavedGatepass(Gatepass $gatepass)
+{
+    $gatepass->load([
+        'inventoryItem',
+        'signatures'
+    ]);
 
-        $siteFloor = trim((string) $gatepass->site_floor);
-        $locations = preg_split('/\s+to\s+/i', $siteFloor, 2);
+    $siteFloor = trim((string) $gatepass->site_floor);
 
-        return view('gatepass.print', [
-          'controlNo' => 'GP-' . str_pad((string) $gatepass->id, 6, '0', STR_PAD_LEFT),
-          'owner' => $gatepass->owner ?: 'N/A',
-          'contact' => $gatepass->contact ?: 'N/A',
-          'bearer' => $gatepass->bearer ?: 'N/A',
-          'date' => $gatepass->date
+    $locations = preg_split(
+        '/\s+to\s+/i',
+        $siteFloor,
+        2
+    );
+
+    return view('gatepass.print', [
+
+        'controlNo' => 'GP-' . str_pad(
+            (string) $gatepass->id,
+            6,
+            '0',
+            STR_PAD_LEFT
+        ),
+
+        'owner' => $gatepass->owner ?: 'N/A',
+        'contact' => $gatepass->contact ?: 'N/A',
+        'bearer' => $gatepass->bearer ?: 'N/A',
+
+        'date' => $gatepass->date
             ? \Carbon\Carbon::parse($gatepass->date)->format('M d, Y')
             : 'N/A',
-          'time' => $gatepass->time ?: null,
-          'signaturePath' => $gatepass->signature_path,
-          'status' => $gatepass->status ?: 'Ongoing',
-          'fromSiteFloor' => $locations[0] ?? ($siteFloor ?: 'N/A'),
-          'toSiteFloor' => $locations[1] ?? 'N/A',
-          'items' => [[
+
+        'time' => $gatepass->time ?: null,
+
+        'signaturePath' => $gatepass->signature_path,
+
+        'status' => $gatepass->status ?: 'Ongoing',
+
+        'fromSiteFloor' => $locations[0] ?? ($siteFloor ?: 'N/A'),
+
+        'toSiteFloor' => $locations[1] ?? 'N/A',
+
+        'items' => [[
             'quantity' => $gatepass->quantity,
             'unit' => $gatepass->unit ?: 'Unit',
             'description' => $gatepass->description
-              ?: ($gatepass->inventoryItem->item_name ?? 'Inventory Item'),
+                ?: ($gatepass->inventoryItem->item_name ?? 'Inventory Item'),
             'remarks' => $gatepass->remarks ?: '—',
-          ]],
-        ]);
-      }
+        ]],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Signature Roles
+        |--------------------------------------------------------------------------
+        */
+
+        'ownerSignature' => $gatepass->signatures
+            ->where('role', 'OWNER')
+            ->first(),
+
+        'supervisorSignature' => $gatepass->signatures
+            ->where('role', 'SUPERVISOR')
+            ->first(),
+
+        'premisesSignature' => $gatepass->signatures
+            ->where('role', 'PREMISES_OFFICER')
+            ->first(),
+
+        'complianceSignature' => $gatepass->signatures
+            ->where('role', 'COMPLIANCE_OFFICER')
+            ->first(),
+
+        'assetProtectionSignature' => $gatepass->signatures
+            ->where('role', 'ASSET_PROTECTION_SPECIALIST')
+            ->first(),
+    ]);
+}
       public function uploadGatepassSignature(Request $request, Gatepass $gatepass)
       {
         abort_if((int) auth()->user()->role === 9, 403, 'Only employees can attach signatures.');
@@ -435,25 +482,35 @@ public function storeGatepass(Request $request)
             'to_site_floor'    => 'required|string|max:255',
             'status'           => 'nullable|in:Ongoing,Completed,Cancelled',
 
-            'items'            => 'required|array|min:1',
-            'items.*.item_id'  => 'required|exists:tbl_inventory_items,id',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.unit'     => 'nullable|string|max:50',
-            'items.*.description' => 'nullable|string|max:500',
-            'items.*.remarks'  => 'nullable|string|max:1000',
+            'items'                => 'required|array|min:1',
+            'items.*.item_id'      => 'required|exists:tbl_inventory_items,id',
+            'items.*.quantity'     => 'required|integer|min:1',
+            'items.*.unit'         => 'nullable|string|max:255',
+            'items.*.description'  => 'nullable|string|max:1000',
+            'items.*.remarks'      => 'nullable|string|max:1000',
         ]);
 
         Log::info('Gatepass validation successful.', [
             'validated' => $validated,
         ]);
 
-        /*
-         * Create one Gatepass record per item.
-         */
         foreach ($validated['items'] as $item) {
 
+            $inventoryItem = InventoryItem::findOrFail($item['item_id']);
+
+            $unit = trim(
+                ($inventoryItem->brand ?? '') . ' ' .
+                ($inventoryItem->model ?? '')
+            );
+
+            $description = implode(' | ', array_filter([
+                $inventoryItem->item_name,
+                'SN: ' . ($inventoryItem->serial_number ?? 'N/A'),
+                'Asset Tag: ' . ($inventoryItem->asset_tag ?? 'N/A'),
+            ]));
+
             $gatepassData = [
-                'item_id'         => $item['item_id'],
+                'item_id'         => $inventoryItem->id,
                 'owner'           => $validated['owner'] ?? null,
                 'contact'         => $validated['contact'] ?? null,
                 'bearer'          => $validated['bearer'] ?? null,
@@ -461,24 +518,42 @@ public function storeGatepass(Request $request)
                 'time'            => $validated['time'],
                 'site_floor'      => $validated['from_site_floor'] . ' to ' . $validated['to_site_floor'],
                 'quantity'        => $item['quantity'],
-                'unit'            => $item['unit'] ?? null,
-                'description'     => $item['description'] ?? null,
+
+                // Auto-generated from inventory item
+                'unit'            => $unit,
+                'description'     => $description,
+
                 'status'          => $validated['status'] ?? 'Ongoing',
                 'remarks'         => $item['remarks'] ?? null,
-                'entry_by' => auth()->id(),
-                'signature_path' => null,
+                'entry_by'        => auth()->id(),
+                'signature_path'  => null,
             ];
 
-            Log::info('Creating Gatepass record.', [
-                'gatepass_data' => $gatepassData,
-            ]);
+          $gatepass = Gatepass::create($gatepassData);
 
-            $gatepass = Gatepass::create($gatepassData);
+/*
+|--------------------------------------------------------------------------
+| Create Signature Slots
+|--------------------------------------------------------------------------
+*/
+$roles = [
+    'OWNER',
+    'SUPERVISOR',
+    'PREMISES_OFFICER',
+    'COMPLIANCE_OFFICER',
+    'ASSET_PROTECTION_SPECIALIST',
+];
 
-            Log::info('Gatepass created successfully.', [
-                'gatepass_id' => $gatepass->id,
-                'item_id' => $item['item_id'],
-            ]);
+foreach ($roles as $role) {
+    $gatepass->signatures()->create([
+        'role' => $role,
+    ]);
+}
+
+Log::info('Gatepass created successfully.', [
+    'gatepass_id' => $gatepass->id,
+    'item_id' => $inventoryItem->id,
+]);
         }
 
         Log::info('=== STORE GATEPASS COMPLETED ===');

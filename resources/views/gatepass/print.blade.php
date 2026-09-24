@@ -400,38 +400,119 @@
 			</tbody>
 		</table>
 
-		<section class="approval-grid" aria-label="Approvals">
-			<div class="approval">
-				<div class="approval-title">Prepared by:</div>
-				<div class="approval-role">Owner</div>
-				<div class="signature-space"></div>
-				<div class="signature-label">Signature over<br>printed name</div>
-			</div>
-			<div class="approval">
-				<div class="approval-title">Approved by:</div>
-				<div class="approval-role">Supervisor</div>
-				<div class="signature-space"></div>
-				<div class="signature-label">Signature over<br>printed name</div>
-			</div>
-			<div class="approval">
-				<div class="approval-title">Verified by:</div>
-				<div class="approval-role">Premises Officer</div>
-				<div class="signature-space"></div>
-				<div class="signature-label">Signature over printed name</div>
-			</div>
-			<div class="approval">
-				<div class="approval-title">Checked by:</div>
-				<div class="approval-role">Compliance Officer</div>
-				<div class="signature-space"></div>
-				<div class="signature-label">Signature over<br>printed name</div>
-			</div>
-			<div class="approval">
-				<div class="approval-title">&nbsp;</div>
-				<div class="approval-role">Asset Protection Specialist</div>
-				<div class="signature-space"></div>
-				<div class="signature-label">Signature over<br>printed name</div>
-			</div>
-		</section>
+	<section class="approval-grid" aria-label="Approvals">
+
+    <!-- OWNER -->
+    <div class="approval">
+        <div class="approval-title">Prepared by:</div>
+        <div class="approval-role">Owner</div>
+
+        <div class="signature-space">
+           @if($ownerSignature && $ownerSignature->signature_path)
+                <img src="{{ asset('storage/' . $ownerSignature->signature_path) }}"
+                     style="max-height:50px; max-width:120px;">
+            @endif
+        </div>
+
+        <div class="signature-label">
+            {{ $ownerSignature->fullname ?? 'Signature over printed name' }}
+
+            @if($ownerSignature && $ownerSignature->signed_at)
+                <br>
+                <small>{{ \Carbon\Carbon::parse($ownerSignature->signed_at)->format('M d, Y') }}</small>
+            @endif
+        </div>
+    </div>
+
+    <!-- SUPERVISOR -->
+    <div class="approval">
+        <div class="approval-title">Approved by:</div>
+        <div class="approval-role">Supervisor</div>
+
+        <div class="signature-space">
+            @if($supervisorSignature && $supervisorSignature->signature_path)
+                <img src="{{ asset('storage/' . $supervisorSignature->signature_path) }}"
+                     style="max-height:50px; max-width:120px;">  
+					  @endif
+        </div>
+
+        <div class="signature-label">
+            {{ $supervisorSignature->fullname ?? 'Signature over printed name' }}
+
+            @if($supervisorSignature && $supervisorSignature->signed_at)
+                <br>
+                <small>{{ \Carbon\Carbon::parse($supervisorSignature->signed_at)->format('M d, Y') }}</small>
+            @endif
+        </div>
+    </div>
+
+    <!-- PREMISES OFFICER -->
+    <div class="approval">
+        <div class="approval-title">Verified by:</div>
+        <div class="approval-role">Premises Officer</div>
+
+        <div class="signature-space">
+            @if($premisesSignature && $premisesSignature->signature_path)
+                <img src="{{ asset('storage/' . $premisesSignature->signature_path) }}"
+                     style="max-height:50px; max-width:120px;">
+            @endif
+        </div>
+
+        <div class="signature-label">
+            {{ $premisesSignature->fullname ?? 'Signature over printed name' }}
+
+            @if($premisesSignature && $premisesSignature->signed_at)
+                <br>
+                <small>{{ \Carbon\Carbon::parse($premisesSignature->signed_at)->format('M d, Y') }}</small>
+            @endif
+        </div>
+    </div>
+
+    <!-- COMPLIANCE -->
+    <div class="approval">
+        <div class="approval-title">Checked by:</div>
+        <div class="approval-role">Compliance Officer</div>
+
+        <div class="signature-space">
+            @if($complianceSignature && $complianceSignature->signature_path)
+                <img src="{{ asset('storage/' . $complianceSignature->signature_path) }}"
+                     style="max-height:50px; max-width:120px;">
+            @endif
+        </div>
+
+        <div class="signature-label">
+            {{ $complianceSignature->fullname ?? 'Signature over printed name' }}
+
+            @if($complianceSignature && $complianceSignature->signed_at)
+                <br>
+                <small>{{ \Carbon\Carbon::parse($complianceSignature->signed_at)->format('M d, Y') }}</small>
+            @endif
+        </div>
+    </div>
+
+    <!-- ASSET PROTECTION -->
+    <div class="approval">
+        <div class="approval-title">&nbsp;</div>
+        <div class="approval-role">Asset Protection Specialist</div>
+
+        <div class="signature-space">
+            @if($assetProtectionSignature && $assetProtectionSignature->signature_path)
+                <img src="{{ asset('storage/' . $assetProtectionSignature->signature_path) }}"
+                     style="max-height:50px; max-width:120px;">
+            @endif
+        </div>
+
+        <div class="signature-label">
+            {{ $assetProtectionSignature->fullname ?? 'Signature over printed name' }}
+
+            @if($assetProtectionSignature && $assetProtectionSignature->signed_at)
+                <br>
+                <small>{{ \Carbon\Carbon::parse($assetProtectionSignature->signed_at)->format('M d, Y') }}</small>
+            @endif
+        </div>
+    </div>
+
+</section>
 	</main>
 </body>
 </html>

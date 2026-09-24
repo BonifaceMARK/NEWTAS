@@ -123,8 +123,7 @@ Route::post('/stock/{id}/out', [StockController::class, 'processStockOut'])
     Route::get('/inventory/gatepass/create', [InventoryController::class, 'createGatepass'])
         ->name('inventory.gatepass.create');
 
-    Route::post('/inventory/gatepass/save', [InventoryController::class, 'storeGatepass'])
-        ->name('inventory.gatepass.save');
+    
 
 
     // Fixed Asset Transfer
