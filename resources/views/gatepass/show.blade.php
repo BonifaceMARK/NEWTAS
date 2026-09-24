@@ -250,12 +250,12 @@
                                 <span class="detail-value">{{ $gatepass->time ? \Carbon\Carbon::parse($gatepass->time)->format('h:i A') : '—' }}</span>
                             </div>
                         </div>
-<div class="col-12">
-    <div class="detail-card description-box">
-        <span class="detail-label">Description</span>
-        <span class="detail-value">{{ $gatepass->description ?: '—' }}</span>
-    </div>
-</div>
+                <div class="col-12">
+                    <div class="detail-card description-box">
+                        <span class="detail-label">Description</span>
+                        <span class="detail-value">{{ $gatepass->description ?: '—' }}</span>
+                    </div>
+                </div>
 
 <!-- SIGNATURE SECTION -->
 <div class="col-12">
