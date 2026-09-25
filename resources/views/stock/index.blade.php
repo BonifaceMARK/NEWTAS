@@ -115,7 +115,7 @@
 
         <div class="section-title">
             <i class="bi bi-boxes"></i>
-            Stock Inventory
+            Stock  
         </div>
 
         <p class="form-section-subtitle">

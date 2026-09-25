@@ -13,6 +13,7 @@ class Floor extends Model
 
     protected $fillable = [
         'floor_no',
+        'floor_name',
         'max_workstations',
         'remarks'
     ];

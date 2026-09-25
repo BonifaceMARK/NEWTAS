@@ -80,7 +80,7 @@
 <div class="row g-4 mb-4">
 
     <!-- Total Accounts -->
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-sm-4 col-xl-3">
         <div class="card dashboard-card border-primary-top shadow-sm h-100">
             <div class="card-body">
 
@@ -111,7 +111,7 @@
     </div>
 
     <!-- Active -->
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-sm-4 col-xl-3">
         <div class="card dashboard-card border-success-top shadow-sm h-100">
             <div class="card-body">
 
@@ -142,7 +142,7 @@
     </div>
 
     <!-- Inactive -->
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-sm-4 col-xl-3">
         <div class="card dashboard-card border-danger-top shadow-sm h-100">
             <div class="card-body">
 

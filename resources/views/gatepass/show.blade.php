@@ -188,18 +188,8 @@
    
 
                     <div class="row g-3">
-                        <div class="col-12 col-md-4">
-                            <div class="detail-card">
-                                <span class="detail-label">Gatepass ID</span>
-                                <span class="record-id">#{{ $gatepass->id }}</span>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-4">
-                            <div class="detail-card">
-                                <span class="detail-label">Inventory Item</span>
-                                <span class="detail-value">{{ $gatepass->inventoryItem?->item_name ?? 'N/A' }}</span>
-                            </div>
-                        </div>
+                        
+                      
                         <div class="col-12 col-md-4">
                             <div class="detail-card">
                                 <span class="detail-label">Quantity / Unit</span>
@@ -250,128 +240,94 @@
                                 <span class="detail-value">{{ $gatepass->time ? \Carbon\Carbon::parse($gatepass->time)->format('h:i A') : '—' }}</span>
                             </div>
                         </div>
-                <div class="col-12">
+                <div class="col-6">
                     <div class="detail-card description-box">
                         <span class="detail-label">Description</span>
                         <span class="detail-value">{{ $gatepass->description ?: '—' }}</span>
                     </div>
                 </div>
-
-<!-- SIGNATURE SECTION -->
-<div class="col-12">
-    <div class="detail-card">
-
-        <span class="detail-label">Owner Signature</span>
-
-        <div class="text-center py-3">
-
-            <div style="height:100px;">
-
-              @if(!empty($gatepass->signature_path))
-<img
-src="{{ asset('storage/' . $gatepass->signature_path) }}"
-alt="Employee Signature"
-style="max-width:260px; max-height:90px;
-                @endif
-
-            </div>
-
-            <hr style="max-width:250px; margin:10px auto;">
-
-            <strong>
-                {{ $gatepass->entry_by ?? 'Unknown User' }}
-            </strong>
-
-            <div class="text-muted small">
-                Created By
-            </div>
-
-        </div>
-
-    </div>
-</div>
-
-        @if(auth()->check() && auth()->id() == $gatepass->entry_by)
-
-          
-                @csrf
-
-                <label class="form-label">
-                    Upload Signature Image
-                </label>
-
-                <input
-                    type="file"
-                    name="signature"
-                    class="form-control mb-2"
-                    accept=".png,.jpg,.jpeg">
-
-                <button type="submit" class="btn btn-primary">
-                    Upload Signature
-                </button>
-
-            </form>
-
-            <hr>
-<div class="col-12">
-    <div class="detail-card">
-            <label class="form-label">
-                Draw Signature
-            </label>
-<canvas
-    id="signature-pad"
-    width="500"
-    height="150"
-    style="border:1px solid #ccc; border-radius:5px;">
-</canvas>
-     </div>  
-          </div>  
-
-            <div class="mt-2">
-
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    onclick="clearSignature()">
-                    Clear
-                </button>
-
-                <button
-                    type="button"
-                    class="btn btn-success"
-                    onclick="saveDrawnSignature()">
-                    Save Drawn Signature
-                </button>
-
-            </div>  
-                @csrf
-
-                <input
-                    type="hidden"
-                    name="signature_data"
-                    id="signature_data">
-
-            </form>
-
-        @endif
-
-    </div>
-</div>
-
- 
-                        <div class="col-12">
-                            <div class="detail-card description-box">
-                                <span class="detail-label">Description</span>
-                                <span class="detail-value">{{ $gatepass->description ?: '—' }}</span>
-                            </div>
-                        </div>
- 
-                        <div class="col-12">
+                  <div class="col-6">
                             <div class="detail-card description-box">
                                 <span class="detail-label">Remarks</span>
                                 <span class="detail-value">{{ $gatepass->remarks ?: '—' }}</span>
                             </div>
                         </div>
+<!-- SIGNATURE SECTION -->
+<div class="col-12">
+
+    <div class="detail-card">
+
+        <span class="detail-label">
+            Approval Signatures
+        </span>
+
+        <div class="row g-3">
+
+            @foreach($gatepass->signatures as $signature)
+
+                <div class="col-md-4">
+
+                    <div class="border rounded p-3 h-100">
+
+                        <div class="fw-bold mb-2">
+                            {{ str_replace('_', ' ', $signature->role) }}
+                        </div>
+
+                        <div
+                            class="d-flex align-items-center justify-content-center bg-light rounded"
+                            style="height:100px;">
+@if($signature->signature_path)
+
+    <img
+        src="{{ asset('storage/' . $signature->signature_path) }}"
+        alt="{{ $signature->role }} Signature"
+        style="tain;">
+
+@else
+
+    <div class="text-muted">
+        <i class="bi bi-clock-history"></i>
+        Waiting for Signature
+    </div>
+
+@endif
+                             
+
+                        </div>
+
+                        <div class="text-center mt-2">
+
+                            <strong>
+                                {{ $signature->fullname ?: 'Not Yet Signed' }}
+                            </strong>
+
+                            @if($signature->signed_at)
+
+                                <br>
+
+                                <small class="text-muted">
+                                    {{ \Carbon\Carbon::parse($signature->signed_at)->format('M d, Y h:i A') }}
+                                </small>
+
+                            @endif
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            @endforeach
+
+        </div>
+
+    </div>
+
+</div>
+ 
+                       
+ 
+                      
                     </div>
                 </div>
             </div>

@@ -246,6 +246,51 @@ public function values(Request $request)
         return view('gatepass.index', compact('gatepasses'));
       }
 
+      public function bulkStore(Request $request)
+{
+    $request->validate([
+        'floor_id' => 'required|exists:tbl_floors,id',
+        'prefix' => 'required|string|max:50',
+        'quantity' => 'required|integer|min:1|max:500'
+    ]);
+
+    for($i = 1; $i <= $request->quantity; $i++)
+    {
+        $workstation = Workstation::create([
+            'workstation_no' => $request->prefix . '-' . str_pad($i, 3, '0', STR_PAD_LEFT),
+            'floor_id' => $request->floor_id
+        ]);
+
+        WorkstationStatus::insert([
+            [
+                'workstation_id' => $workstation->id,
+                'task_name' => '1st PC Sweep',
+                'status' => 'Pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'workstation_id' => $workstation->id,
+                'task_name' => '2nd PC Sweep',
+                'status' => 'Pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'workstation_id' => $workstation->id,
+                'task_name' => '3rd PC Sweep',
+                'status' => 'Pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        ]);
+    }
+
+    return redirect()
+        ->route('workstations.index')
+        ->with('success', 'Workstations created successfully.');
+}
+
       public function showGatepass(Gatepass $gatepass)
       {
         $gatepass->load('inventoryItem');

@@ -893,11 +893,7 @@
         <i class="bi bi-save me-1"></i>Save Changes
     </button>
          
-
-<button type="submit" formaction="{{ route('inventory.gatepass.list') }}" 
-        class="btn btn-outline-dark" formtarget="_blank">
-    <i class="bi bi-list-ul me-1"></i>Print List Only
-</button>
+ 
 
                         </div>
                     </form>

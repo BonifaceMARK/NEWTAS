@@ -310,9 +310,7 @@
         <button type="submit" name="action" value="save" class="btn btn-success me-2">
             <i class="bi bi-check-circle me-2"></i> Save Transfer
         </button>
-        <button type="submit" name="action" value="print" class="btn btn-primary" formtarget="_blank">
-            <i class="bi bi-printer me-2"></i> Print Transfer
-        </button>
+        
     </div>
 </form>
 

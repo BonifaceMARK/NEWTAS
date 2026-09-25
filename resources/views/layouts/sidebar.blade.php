@@ -161,6 +161,7 @@
                 <i class="bi bi-person-lines-fill"></i><span>Account Management</span>
             </a>
         </li>
+       
 
         <li class="sidebar-label">Operations</li>
 
@@ -176,6 +177,18 @@
                 <li><a class="{{ request()->routeIs('inventory.values') ? 'active' : '' }}" href="{{ route('inventory.values') }}"><i class="bi bi-sliders"></i>Manage Options</a></li>
             </ul>
         </li>
+        
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('workstation.*') && !request()->routeIs('workstations.bulkCreate*') ? '' : 'collapsed' }}"
+               data-bs-toggle="collapse" href="#workstation-nav" role="button"
+               aria-expanded="{{ request()->routeIs('workstation.*') && !request()->routeIs('workstations.bulkCreate*') ? 'true' : 'false' }}">
+               <i class="bi bi-pc-display"></i><span>Workstation</span><i class="bi bi-chevron-down chevron"></i>
+            </a>
+            <ul id="workstation-nav" class="nav-content collapse {{ request()->routeIs('workstation.*') && !request()->routeIs('workstations.bulkCreate*') ? 'show' : '' }}">
+                <li><a class="{{ request()->routeIs('workstations.bulkCreate') ? 'active' : '' }}" href="{{ route('workstations.bulkCreate') }}"><i class="bi bi-list"></i>Workstation Create</a></li>
+            </ul>
+        </li>
+        
       <li class="nav-item">
 
     <a class="nav-link {{ request()->routeIs('stock.*') ? '' : 'collapsed' }}"
@@ -191,7 +204,6 @@
     <ul id="stock-nav" class="nav-content collapse {{ request()->routeIs('stock.*') ? 'show' : '' }}">
         <li><a class="{{ request()->routeIs('stock.create') ? 'active' : '' }}" href="{{ route('stock.create') }}"><i class="bi bi-plus-lg"></i>Create Stock</a></li>
         <li><a class="{{ request()->routeIs('stock.index') ? 'active' : '' }}" href="{{ route('stock.index') }}"><i class="bi bi-list"></i>Stock List</a></li>
-        <li><a class="{{ request()->routeIs('stock.low-stock') ? 'active' : '' }}" href="{{ route('stock.low-stock') }}"><i class="bi bi-exclamation-triangle"></i>Low Stock</a></li>
     </ul>
 </li>
    

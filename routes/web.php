@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\WorkstationController;
 use App\Models\TrafficViolation;
 use App\Models\ApprehendingOfficer;
 use App\Models\TasFile;
@@ -123,8 +124,21 @@ Route::post('/stock/{id}/out', [StockController::class, 'processStockOut'])
     Route::get('/inventory/gatepass/create', [InventoryController::class, 'createGatepass'])
         ->name('inventory.gatepass.create');
 
-    
+  Route::get('/workstations', [WorkstationController::class, 'index'])
+    ->name('workstations.index');
 
+Route::get('/workstations/bulk-create', [WorkstationController::class, 'bulkCreate'])
+    ->name('workstations.bulkCreate');
+
+Route::post('/workstations/bulk-store', [WorkstationController::class, 'bulkStore'])
+    ->name('workstations.bulkStore');
+
+    Route::get('/floors/create', [WorkstationController::class, 'createFloor'])
+    ->name('floors.create');
+
+Route::post('/floors/store', [WorkstationController::class, 'storeFloor'])
+    ->name('floor.store');
+    
 
     // Fixed Asset Transfer
     Route::get('/asset/transfer/create', [InventoryController::class, 'createAssetTransfer'])
@@ -162,6 +176,7 @@ Route::post('/asset/transfer/{assetTransfer}/signature', [InventoryController::c
 Route::post('/asset/transfer', [InventoryController::class, 'assetTransfer'])->name('asset.transfer');
 Route::post('/asset/transfer-list', [InventoryController::class, 'assetTransferList'])->name('asset.transfer.list');
 Route::get('/asset/transfer/{inventoryItem}', [InventoryController::class, 'assetTransferForItem'])->name('asset.transfer.item');
+
 
 
 Route::resource('accounts', AccountController::class);
